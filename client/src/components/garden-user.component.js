@@ -1,6 +1,6 @@
 import React, { Component } from "react";
-
 import UserService from "../services/user.service";
+import P5Wrapper from "../rendering/p5-wrapper.component"
 
 export default class GardenUser extends Component {
   constructor(props) {
@@ -33,10 +33,10 @@ export default class GardenUser extends Component {
 
   render() {
     return (
-      <div className="container">
+      <div className="garden-container">
         <header className="jumbotron">
-          <h3>{this.state.content}</h3>
         </header>
+        <P5Wrapper/>
       </div>
     );
   }
