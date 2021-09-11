@@ -33,6 +33,8 @@ class Profile extends Component {
           {currentUser.roles &&
             currentUser.roles.map((role, index) => <li key={index}>{role}</li>)}
         </ul>
+        <strong> Garden Section: </strong>
+        <code>{JSON.stringify(currentUser.gardenSection, null, 4)}</code>
       </div>
     );
   }

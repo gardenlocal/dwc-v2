@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-
+import P5Wrapper from "../rendering/p5-wrapper.component"
 import UserService from "../services/user.service";
 
 export default class GardenAdmin extends Component {
@@ -7,12 +7,16 @@ export default class GardenAdmin extends Component {
     super(props);
 
     this.state = {
-      content: ""
+      data: []
     };
   }
 
-  componentDidMount() {
-    UserService.geAdminGarden().then(
+  async componentDidMount() {
+    const adminGarden = (await UserService.getAdminGarden()).data
+    console.log(adminGarden)
+    this.setState({ data: adminGarden })
+    /*
+    .then(
       response => {
         this.setState({
           content: response.data
@@ -29,13 +33,15 @@ export default class GardenAdmin extends Component {
         });
       }
     );
+    */
   }
 
   render() {
+    const { data } = this.state
     return (
-      <div className="container">
+      <div className="admin-container">
         <header className="jumbotron">
-          <h3>{this.state.content}</h3>
+          <P5Wrapper type="admin" data={data}/>
         </header>
       </div>
     );

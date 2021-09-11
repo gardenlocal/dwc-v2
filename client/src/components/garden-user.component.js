@@ -36,7 +36,7 @@ export default class GardenUser extends Component {
       <div className="garden-container">
         <header className="jumbotron">
         </header>
-        <P5Wrapper/>
+        <P5Wrapper type="user"/>
       </div>
     );
   }
