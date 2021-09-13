@@ -1,17 +1,36 @@
 import React, { Component } from "react";
 import UserService from "../services/user.service";
 import P5Wrapper from "../rendering/p5-wrapper.component"
+import { connect } from "react-redux";
+import { io } from 'socket.io-client'
 
-export default class GardenUser extends Component {
+class GardenUser extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      content: ""
+      content: "",
+      socketAuthenticated: false
     };
+
+    this.socket = null
   }
 
   componentDidMount() {
+
+    const { user } = this.props
+    this.socket = io("http://localhost:8080", {
+      auth: { token: `Bearer ${user.accessToken}` }
+    })
+
+    this.socket.on('connect', () => {
+      console.log('socket connect')
+    })
+
+    this.socket.on('connect_error', (error) => {
+      console.log('socket connect error', error)
+    })
+
     UserService.getUserGarden().then(
       response => {
         this.setState({
@@ -41,3 +60,12 @@ export default class GardenUser extends Component {
     );
   }
 }
+
+function mapStateToProps(state) {
+  const { user } = state.auth;
+  return {
+    user,
+  };
+}
+
+export default connect(mapStateToProps)(GardenUser);

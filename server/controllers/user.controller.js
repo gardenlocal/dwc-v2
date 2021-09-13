@@ -12,7 +12,6 @@ exports.userBoard = (req, res) => {
 };
 
 exports.adminBoard = async (req, res) => {
-
   let users
   try {
     users = await User.find({}, 'username gardenSection')

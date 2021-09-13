@@ -16,6 +16,10 @@ const User = mongoose.model(
     gardenSection: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "GardenSection"
+    },
+    creature: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Creature"
     }
   })
 );

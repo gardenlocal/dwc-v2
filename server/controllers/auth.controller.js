@@ -1,5 +1,6 @@
 const config = require("../config/auth.config");
 const gardenController = require('./garden.controller')
+const creatureController = require('./creature.controller')
 const db = require("../models");
 const User = db.user;
 const Role = db.role;
@@ -22,8 +23,6 @@ exports.signup = async (req, res) => {
     res.status(500).send({ message: e });
     return
   }
-
-  console.log('Saved user', savedUser)
   
   let role
 
@@ -34,16 +33,17 @@ exports.signup = async (req, res) => {
     return;
   }
 
-  console.log('Got role: ', role)
-
   savedUser.roles = [role._id]
 
   const garden = await gardenController.createGardenSection()
   if (garden) {
-    user.gardenSection = garden._id
+    savedUser.gardenSection = garden._id
   } else {
     res.status(500).send({ message: "Failed to create garden for user" });
   }
+
+  const creature = await creatureController.createCreature(garden)
+  savedUser.creature = creature._id
 
   try {
     await savedUser.save()
