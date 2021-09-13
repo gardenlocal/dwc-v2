@@ -7,41 +7,29 @@ export default class GardenAdmin extends Component {
     super(props);
 
     this.state = {
-      data: []
+      allUsers: [],
+      onlineUsers: []
     };
   }
 
   async componentDidMount() {
     const adminGarden = (await UserService.getAdminGarden()).data
     console.log(adminGarden)
-    this.setState({ data: adminGarden })
-    /*
-    .then(
-      response => {
-        this.setState({
-          content: response.data
-        });
-      },
-      error => {
-        this.setState({
-          content:
-            (error.response &&
-              error.response.data &&
-              error.response.data.message) ||
-            error.message ||
-            error.toString()
-        });
-      }
-    );
-    */
+    this.setState({ allUsers: adminGarden })
+
+    const { socket } = this.props
+    socket.on('usersUpdate', (message) => {
+      console.log('users update: ', message)
+      this.setState({ onlineUsers: message })
+    })
   }
 
   render() {
-    const { data } = this.state
+    const { allUsers, onlineUsers } = this.state
     return (
       <div className="admin-container">
         <header className="jumbotron">
-          <P5Wrapper type="admin" data={data}/>
+          <P5Wrapper type="admin" onlineUsers={onlineUsers} allUsers={allUsers}/>
         </header>
       </div>
     );

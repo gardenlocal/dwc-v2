@@ -9,8 +9,7 @@ import Login from "./components/login.component";
 import Register from "./components/register.component";
 import Home from "./components/home.component";
 import Profile from "./components/profile.component";
-import BoardUser from "./components/garden-user.component";
-import BoardAdmin from "./components/garden-admin.component";
+import { UserWithSocket, AdminWithSocket } from './components/socket-wrapper.component'
 
 import { logout } from "./actions/auth";
 import { clearMessage } from "./actions/message";
@@ -119,8 +118,8 @@ class App extends Component {
               <Route exact path="/login" component={Login} />
               <Route exact path="/register" component={Register} />
               <Route exact path="/profile" component={Profile} />
-              <Route path="/user" component={BoardUser} />
-              <Route path="/admin" component={BoardAdmin} />
+              <Route path="/user" component={UserWithSocket} />
+              <Route path="/admin" component={AdminWithSocket} />
             </Switch>
           </div>
         </div>
