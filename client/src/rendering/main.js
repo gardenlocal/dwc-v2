@@ -5,7 +5,8 @@ export const main = (p5) => {
   globals.p5 = p5
   
   p5.setup = () => {
-    p5.createCanvas(window.innerWidth, window.innerHeight)
+    // p5.createCanvas(window.innerWidth, window.innerHeight)
+    p5.createCanvas(1000, 1000)
   }
 
   p5.draw = () => {    
@@ -22,10 +23,11 @@ export const main = (p5) => {
     p5.pop()
 
     p5.textSize(15)    
-    p5.text(`${username}: (${gardenSection.x}, ${gardenSection.y})`, 50, 50)    
+    p5.text(`${username}: (${gardenSection.x}, ${gardenSection.y})`, 25, 100)    
   }
 
   p5.windowResized = () => {
-    p5.resizeCanvas(p5.windowWidth, p5.windowHeight)
+    // p5.resizeCanvas(p5.windowWidth, p5.windowHeight)
+    p5.resizeCanvas(1000, 1000)
   }
 }

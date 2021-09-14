@@ -38,3 +38,12 @@ label {
   -webkit-border-radius: 50%;
   border-radius: 50%;
 }
+
+#p5-container {
+  width: 100vw;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: -1;
+}

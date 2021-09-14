@@ -38,6 +38,12 @@ class GardenUser extends Component {
 
       this.setState({ creatures: newCreatures })
     })
+
+    let canvas = document.getElementById('defaultCanvas0')
+    canvas.style.transform = `translateX(-50%) translateY(-50%) scale(${window.innerHeight / 1000}) translateX(0) translateY(50%)`
+    canvas.style.position = 'absolute'
+    canvas.style.left = '50%'
+    canvas.style.top = '0'
   }
 
   render() {

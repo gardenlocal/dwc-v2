@@ -11,14 +11,14 @@ const httpServer = require("http").createServer(app)
 
 const io = require("socket.io")(httpServer, {
   cors: {
-    origin: "http://localhost:8081",
+    origin: "*",
     methods: ["GET", "POST"],
     credentials: true
   }
 })
 
 var corsOptions = {
-  origin: "http://localhost:8081"
+  origin: "*"
 };
 
 app.use(cors(corsOptions));
