@@ -26,6 +26,10 @@ const Creature = mongoose.model(
       toX: Number,
       toY: Number,
       transitionDuration: Number
+    },
+    owner: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User"
     }
   })
 );

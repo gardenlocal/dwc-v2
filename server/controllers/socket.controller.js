@@ -1,6 +1,8 @@
-const { getUsersInfo } = require('../controllers/db.controller')
+const creatureController = require('./creature.controller')
+const { getUsersInfo, getAllCreaturesInfo } = require('./db.controller')
 
 const socketMap = {}
+let animationTimeout
 let io = null
 
 exports.initialize = (ioInstance) => {
@@ -14,6 +16,7 @@ exports.userConnected = async (socket) => {
 
   socket.on('disconnect', onDisconnect(socket))
   io.emit('usersUpdate', await getOnlineUsers())
+  io.emit('creatures', await getAllCreatures())
 }
 
 const onDisconnect = (socket) => async (reason) => {
@@ -24,4 +27,21 @@ const onDisconnect = (socket) => async (reason) => {
 
 const getOnlineUsers = async () => {
   return (await getUsersInfo(Object.keys(socketMap)))
+}
+
+const getAllCreatures = async () => {
+  return (await getAllCreaturesInfo())
+}
+
+exports.startAnimatingCreatures = async () => {
+  allCreatures = (await getAllCreaturesInfo()).reduce((acc, el) => {
+    acc[el._id] = el
+    return acc
+  }, {})
+
+  animationTimeout = setInterval(async () => {
+    const onlineUsers = Object.keys(socketMap)
+    let updated = await creatureController.updateCreatures(onlineUsers)
+    if (Object.keys(updated).length > 0) io.emit('creaturesUpdate', updated)
+  }, 1000)
 }

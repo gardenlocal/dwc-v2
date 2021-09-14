@@ -1,6 +1,7 @@
 const db = require("../models");
 const User = db.user;
 const Role = db.role;
+const Creature = db.creature
 
 const userCache = {}
 
@@ -39,4 +40,15 @@ exports.getUsersInfo = async (ids) => {
     res.push(await exports.getUserInfo(ids[i]))
   }
   return res
+}
+
+exports.getAllCreaturesInfo = async () => {
+  let creatures = null
+  try {
+    creatures = await Creature.find({}).populate("owner", "-creature").exec()
+  } catch (e) {
+    console.error("Failed to retrieve all creatures")
+    return null
+  }
+  return creatures
 }

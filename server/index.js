@@ -4,6 +4,7 @@ const cors = require("cors");
 const dbConfig = require("./config/db.config.js")
 const db = require("./models");
 const Role = db.role;
+const socketController = require("./controllers/socket.controller")
 
 const app = express();
 const httpServer = require("http").createServer(app)
@@ -76,3 +77,4 @@ httpServer.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}.`);
 });
 
+socketController.startAnimatingCreatures()

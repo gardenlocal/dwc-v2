@@ -42,7 +42,7 @@ exports.signup = async (req, res) => {
     res.status(500).send({ message: "Failed to create garden for user" });
   }
 
-  const creature = await creatureController.createCreature(garden)
+  const creature = await creatureController.createCreature(garden, savedUser)
   savedUser.creature = creature._id
 
   try {
