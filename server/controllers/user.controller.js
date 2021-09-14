@@ -1,4 +1,5 @@
 const db = require("../models");
+const { getAllUsersInfo } = require('./db.controller')
 const User = db.user;
 const Role = db.role;
 
@@ -12,18 +13,7 @@ exports.userBoard = (req, res) => {
 };
 
 exports.adminBoard = async (req, res) => {
-
-  let users
-  try {
-    users = await User.find({}, 'username gardenSection')
-      .populate("gardenSection")
-      .exec()
-  } catch (e) {
-    console.error("Error in fetching all users", e)
-    res.status(500).send("Error fetching all users")
-    return
-  } 
-
+  let users = await getAllUsersInfo()
   console.log('Users: ', users)
   res.status(200).send(users);
 };

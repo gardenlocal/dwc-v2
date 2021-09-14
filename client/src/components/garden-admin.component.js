@@ -7,41 +7,70 @@ export default class GardenAdmin extends Component {
     super(props);
 
     this.state = {
-      data: []
+      allUsers: [],
+      onlineUsers: [],
+      users: [],
+      creatures: []
     };
   }
 
-  async componentDidMount() {
-    const adminGarden = (await UserService.getAdminGarden()).data
-    console.log(adminGarden)
-    this.setState({ data: adminGarden })
-    /*
-    .then(
-      response => {
-        this.setState({
-          content: response.data
-        });
-      },
-      error => {
-        this.setState({
-          content:
-            (error.response &&
-              error.response.data &&
-              error.response.data.message) ||
-            error.message ||
-            error.toString()
-        });
+  processUsers = (allUsers, onlineUsers) => {
+    if (!allUsers || !onlineUsers) return {}
+    const onlineUsersMap = onlineUsers.reduce((acc, el) => {
+      acc[el._id] = el
+      return acc
+    }, {})
+    const users = allUsers.reduce((acc, el) => {
+      acc[el._id] = {
+        online: !!onlineUsersMap[el._id],
+        data: el
       }
-    );
-    */
+
+      return acc
+    }, {})
+
+    return users
+  }  
+
+  async componentDidMount() {
+    const allUsers = (await UserService.getAdminGarden()).data
+
+    this.setState({ allUsers, users: this.processUsers(allUsers, this.state.onlineUsers) })
+
+    const { socket } = this.props
+    socket.on('usersUpdate', (onlineUsers) => {
+      console.log('users update: ', onlineUsers)
+      this.setState({ onlineUsers, users: this.processUsers(this.state.allUsers, onlineUsers) })
+    })
+
+    socket.on('creatures', (creatures) => {
+      // console.log('creatures: ', message)
+      this.setState({ creatures })
+    })
+
+    socket.on('creaturesUpdate', (creaturesToUpdate) => {
+      let newCreatures = []
+      let { creatures } = this.state
+
+      for (let i = 0; i < creatures.length; i++) {
+        if (creaturesToUpdate[creatures[i]._id]) {
+          newCreatures.push(creaturesToUpdate[creatures[i]._id])
+        } else {
+          newCreatures.push(creatures[i])
+        }
+      }
+
+      this.setState({ creatures: newCreatures })
+    })
   }
 
   render() {
-    const { data } = this.state
+    const { users, creatures } = this.state
+    const { user } = this.props
     return (
       <div className="admin-container">
         <header className="jumbotron">
-          <P5Wrapper type="admin" data={data}/>
+          <P5Wrapper type="admin" users={users} creatures={creatures} currentUser={user}/>
         </header>
       </div>
     );

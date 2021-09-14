@@ -8,6 +8,7 @@ db.mongoose = mongoose;
 db.user = require("./user.model");
 db.role = require("./role.model");
 db.gardenSection = require("./garden-section.model")
+db.creature = require("./creature.model")
 
 db.ROLES = ["user", "admin"];
 

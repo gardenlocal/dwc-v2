@@ -4,11 +4,21 @@ const cors = require("cors");
 const dbConfig = require("./config/db.config.js")
 const db = require("./models");
 const Role = db.role;
+const socketController = require("./controllers/socket.controller")
 
 const app = express();
+const httpServer = require("http").createServer(app)
+
+const io = require("socket.io")(httpServer, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"],
+    credentials: true
+  }
+})
 
 var corsOptions = {
-  origin: "http://localhost:8081"
+  origin: "*"
 };
 
 app.use(cors(corsOptions));
@@ -59,8 +69,12 @@ app.get("/", (req, res) => {
 require('./routes/auth.routes')(app);
 require('./routes/user.routes')(app);
 
+require('./routes/socket.routes')(io)
+
 // set port, listen for requests
 const PORT = process.env.PORT || 8080;
-app.listen(PORT, () => {
+httpServer.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}.`);
 });
+
+socketController.startAnimatingCreatures()

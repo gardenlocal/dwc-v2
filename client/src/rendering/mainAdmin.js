@@ -1,17 +1,35 @@
 import Creature from './creature'
+import { users, globalData, globals, creatures } from './globalData'
 
-export const mainAdmin = (data) => (p5) => {
+export const mainAdmin = (p5) => {
+  globals.p5 = p5
   let creature
+  let scaleFactor = 10
   p5.setup = () => {
-    console.log('P5 data: ', data)
-    p5.createCanvas(window.innerWidth, window.innerHeight)
-    // creature = new Creature(p5, { fromX: 200, fromY: 200, toX: 400, toY: 400, speed: 20, color: { r: 255, g: 204, b: 0 }, radius: 85 })
+    p5.createCanvas(window.innerWidth, window.innerHeight)    
   }
 
-  p5.draw = () => {
+  p5.draw = () => {    
     p5.background(240, 238, 232)
-    // p5.circle(100, 100, 100)
-    // creature.draw()
+    p5.translate(window.innerWidth / 2 - 500 / scaleFactor, window.innerHeight / 2 - 500 / scaleFactor)
+    p5.scale(1.0 / scaleFactor)    
+    
+    const { users } = globalData
+    Object.values(users).forEach(u => {
+      if (u.online) {
+        p5.fill(22, 222, 22)
+      } else {
+        p5.fill('gray')
+      }
+      p5.rect(u.data.gardenSection.x, u.data.gardenSection.y, u.data.gardenSection.width, u.data.gardenSection.height)
+      p5.fill('black')
+      p5.textSize(7.5 * scaleFactor)
+      p5.text(`${u.data.username}: (${u.data.gardenSection.x}, ${u.data.gardenSection.y})`, u.data.gardenSection.x + 2 * scaleFactor, u.data.gardenSection.y + 8 * scaleFactor)
+    })
+
+    Object.values(creatures).forEach(c => {
+      c.draw()
+    })
   }
 
   p5.windowResized = () => {
