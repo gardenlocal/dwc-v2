@@ -1,7 +1,7 @@
 import React from 'react';
 import p5 from 'p5';
-import { sketch } from './p5shader/metaballSketch.js';
-// import { sketch } from './p5shader/sketch.js';
+// import { sketch } from './p5shader/metaballSketch.js';
+import { sketch } from './p5shader/sketch.js';
 
 export default class Wrapper extends React.Component {
   componentDidMount() {
