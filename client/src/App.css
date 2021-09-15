@@ -48,6 +48,14 @@ label {
   z-index: -1;
 }
 
+#three-sketch {
+  width: 100vw;
+  height: 100vh;
+  position: fixed;
+  left: 0;
+  z-index: -1;
+}
+
 #homeLogo {
   position: fixed;
   left: 0;

@@ -11,6 +11,7 @@ import Home from "./components/home.component";
 import Profile from "./components/profile.component";
 // import { UserWithSocket, AdminWithSocket } from './components/socket-wrapper.component'
 import P5Sketch from "./components/p5sketch.component";
+import ThreeSketch from "./components/threeSketch.component";
 
 import { logout } from "./actions/auth";
 import { clearMessage } from "./actions/message";
@@ -141,7 +142,7 @@ class App extends Component {
               {/* <Route path="/user" component={UserWithSocket} /> */}
               {/* <Route path="/admin" component={AdminWithSocket} /> */}
               <Route exact path="/p5sketch" component={P5Sketch} />
-              <Route exact path="/threejs" component={Home} />
+              <Route exact path="/threejs" component={ThreeSketch} />
             </Switch>
           </div>
         </div>
