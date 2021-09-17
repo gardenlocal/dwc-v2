@@ -1,7 +1,8 @@
 // https://pixijs.io/guides/basics/getting-started.html
 // https://www.html5gamedevs.com/topic/45444-unable-to-load-pixijs-as-a-module/
 // https://codesandbox.io/s/app-architecture-3-t6cfv?file=/src/models.js
-// import * as PIXI from "pixi.js";
+import * as PIXI from "pixi.js";
+import bunny from '../assets/bunny.jpg';
 
 // The application will create a renderer using WebGL, if possible,
 // with a fallback to a canvas render. It will also setup the ticker
@@ -13,10 +14,10 @@ const app = new PIXI.Application();
 document.body.appendChild(app.view);
 
 // load the texture we need
-app.loader.add('bunny', 'bunny.jpg').load((loader, resources) => {
+app.loader.add('bunny', bunny).load((loader, resources) => {
     // This creates a texture from a 'bunny.png' image
     const bunny = new PIXI.Sprite(resources.bunny.texture);
-
+    console.log(bunny)
     // Setup the position of the bunny
     bunny.x = app.renderer.width / 2;
     bunny.y = app.renderer.height / 2;
@@ -34,3 +35,4 @@ app.loader.add('bunny', 'bunny.jpg').load((loader, resources) => {
         bunny.rotation += 0.01;
     });
 });
+
