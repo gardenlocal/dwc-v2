@@ -1,3 +1,8 @@
 */node_modules
 server/node_modules
 client/node_modules
+canvas/node_modules
+*/dist
+*/.cache
+canvas/dist
+canvas/.cache
