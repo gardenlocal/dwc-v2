@@ -16,7 +16,8 @@ class SocketWrapperDef extends Component {
 
   async componentDidMount() {
     const { user } = this.props
-    let socket = io(`http://${window.location.hostname}:3000`, {
+    let port = (window.location.hostname == 'localhost' ? '3000' : '330')
+    let socket = io(`http://${window.location.hostname}:${port}`, {
       auth: { token: `Bearer ${user.accessToken}` }
     })
 
