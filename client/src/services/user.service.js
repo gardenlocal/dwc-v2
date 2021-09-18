@@ -3,7 +3,7 @@ import authHeader from './auth-header';
 
 // const API_URL = 'http://localhost:8080/api/test/';
 
-const API_URL = `http://${window.location.hostname}:8080/api/test/`
+const API_URL = `http://${window.location.hostname}:3000/api/test/`
 console.log('api url: ', API_URL)
 // console.log('location: ', window.location)
 
