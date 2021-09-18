@@ -1,15 +1,15 @@
 const shuffle = require("lodash.shuffle")
 const constants = require("../constants")
-const db = require("../models");
 const utils = require("../utils")
 const { getUserInfo, getAllCreaturesInfo } = require('../controllers/db.controller')
+const Creature = require("../models/Creature")
+const database = require("../db")
 
-const Creature = db.creature
 
 let allCreatures = {}
 
 exports.createCreature = async (garden, user) => {
-  const creature = new Creature({
+  let creature = new Creature({
     appearance: {
       radius: utils.randomInRange(50, 250),
       fillColor: { r: utils.randomIntInRange(0, 255), g: utils.randomIntInRange(0, 255), b: utils.randomIntInRange(0, 255), a: 255 },
@@ -27,9 +27,12 @@ exports.createCreature = async (garden, user) => {
     owner: user._id
   })
 
-  await creature.save()
+  creature = await database.insert(creature)
+
+  console.log('Inserted creature: ', creature)
 
   allCreatures[creature._id] = creature
+
   return creature
 }
 
@@ -53,6 +56,7 @@ exports.updateCreatures = async (onlineUsers) => {
       allCreatures[key].movement.fromY = allCreatures[key].movement.toY
 
       const randomUser = onlineUsers[utils.randomIntInRange(0, onlineUsers.length)]
+      console.log('creature controller get user info')
       const user = await getUserInfo(randomUser)
       const garden = user.gardenSection
 
@@ -61,11 +65,11 @@ exports.updateCreatures = async (onlineUsers) => {
       allCreatures[key].movement.directionChangeTimestamp = now
       allCreatures[key].movement.transitionDuration = utils.randomIntInRange(10, 25)
 
+      await database.update({ _id: allCreatures[key]._id }, allCreatures[key])
+
       updated[key] = allCreatures[key]
     }
   }
-
-  await Promise.all(Object.values(updated).map(e => e.save()))
 
   return updated
 }

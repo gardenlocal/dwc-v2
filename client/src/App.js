@@ -35,11 +35,13 @@ class App extends Component {
   componentDidMount() {
     const user = this.props.user;
 
+    console.log('User is: ', user)
+
     if (user) {
       this.setState({
         currentUser: user,
-        showModeratorBoard: user.roles.includes("ROLE_MODERATOR"),
-        showAdminBoard: user.roles.includes("ROLE_ADMIN"),
+        showModeratorBoard: user.role.includes("ROLE_MODERATOR"),
+        showAdminBoard: user.role.includes("ROLE_ADMIN"),
       });
     }
   }

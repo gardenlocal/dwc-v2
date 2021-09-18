@@ -1,8 +1,4 @@
-const db = require("../models");
 const { getAllUsersInfo } = require('./db.controller')
-const User = db.user;
-const Role = db.role;
-
 
 exports.allAccess = (req, res) => {
   res.status(200).send("Public Content.");
