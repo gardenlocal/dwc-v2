@@ -2,12 +2,9 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 
-const dbConfig = require("./config/db.config.js")
-const db = require("./models");
-const Role = db.role;
-
 const socketController = require("./controllers/socket.controller")
-const { database, TYPES } = require('./db.js')
+const database = require('./db')
+const initializeDB = require('./dbInit')
 
 const app = express();
 const httpServer = require("http").createServer(app)
@@ -25,13 +22,12 @@ var corsOptions = {
 };
 
 app.use(cors(corsOptions));
-
 // parse requests of content-type - application/json
 app.use(bodyParser.json());
-
 // parse requests of content-type - application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: true }));
   
+initializeDB()
 
 // simple route
 app.get("/", (req, res) => {

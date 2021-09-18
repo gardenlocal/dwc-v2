@@ -1,19 +1,25 @@
 const shuffle = require("lodash.shuffle")
 const constants = require("../constants")
-const db = require("../models");
-
-const GardenSection = db.gardenSection
-
+const database = require('../db.js')
+const TYPES = require('../datatypes')
+const GardenSection = require('../models/GardenSection')
 
 exports.createGardenSection = async () => {
   let gardenSection
 
   // Start from an arbitrary garden section
   try {
-    gardenSection = await GardenSection.findOne({}).exec()
+    let gardenSections = await database.find({ type: TYPES.gardenSection })
+
+    if (gardenSections && gardenSections.length > 0) {
+      gardenSection = gardenSections[Math.floor(Math.random() * gardenSections.length)]
+    }
+
   } catch (e) {
-    console.error("Caught error in getting all garden sections: ", e)
+    console.error("Caught error in getting arbitrary garden section: ", e)
   }
+
+  console.log('garden section is: ', gardenSection)
 
   let newGarden = null
 
@@ -47,7 +53,7 @@ exports.createGardenSection = async () => {
         }
 
         try {
-          gardenSection = await GardenSection.findById(nextId)
+          gardenSection = await database.find({ _id: nextId }) //GardenSection.findById(nextId)
         } catch (e) {
           console.error(e)
           return null
@@ -75,7 +81,7 @@ exports.createGardenSection = async () => {
   let garden = new GardenSection({ ...newGarden })
 
   try {
-    await garden.save()
+    garden = await database.insert(garden) //garden.save()
   } catch (e) {
     console.error("Exception in trying to save garden: ", e)
     return null
@@ -84,10 +90,10 @@ exports.createGardenSection = async () => {
   let nTop, nRight, nBottom, nLeft
 
   try {
-    nTop = await GardenSection.findOne({x: newGarden.x, y: newGarden.y - constants.GARDEN_HEIGHT })
-    nRight = await GardenSection.findOne({x: newGarden.x + constants.GARDEN_WIDTH, y: newGarden.y })
-    nBottom = await GardenSection.findOne({x: newGarden.x, y: newGarden.y + constants.GARDEN_HEIGHT })
-    nLeft = await GardenSection.findOne({x: newGarden.x - constants.GARDEN_WIDTH, y: newGarden.y })
+    nTop = await database.findOne({ type: TYPES.gardenSection, x: newGarden.x, y: newGarden.y - constants.GARDEN_HEIGHT })
+    nRight = await database.findOne({ type: TYPES.gardenSection, x: newGarden.x + constants.GARDEN_WIDTH, y: newGarden.y })
+    nBottom = await database.findOne({ type: TYPES.gardenSection, x: newGarden.x, y: newGarden.y + constants.GARDEN_HEIGHT })
+    nLeft = await database.findOne({ type: TYPES.gardenSection, x: newGarden.x - constants.GARDEN_WIDTH, y: newGarden.y })
   } catch (e) {
     console.error('Failed to find neighbors', e)
     return null
@@ -97,27 +103,29 @@ exports.createGardenSection = async () => {
     if (nTop) {
       nTop.neighbors.bottom = garden._id
       garden.neighbors.top = nTop._id
-      await nTop.save()
+      await database.update({ _id: nTop._id }, nTop)
+      //await nTop.save()
     }
     
     if (nRight) {
       nRight.neighbors.left = garden._id
       garden.neighbors.right = nRight._id
-      await nRight.save()
+      await database.update({ _id: nRight._id }, nRight)
     }
 
     if (nBottom) {
       nBottom.neighbors.top = garden._id
       garden.neighbors.bottom = nBottom._id
-      await nBottom.save()
+      await database.update({ _id: nBottom._id }, nBottom)
     }
 
     if (nLeft) {
       nLeft.neighbors.right = garden._id
       garden.neighbors.left = nLeft._id
-      await nLeft.save()
+      await database.update({ _id: nLeft._id }, nLeft)
     }
-    await garden.save()
+
+    await database.update({ _id: garden._id }, garden)
   } catch (e) {
     console.error("Caught exception in creating neighbors for garden: ", e)
     return null
