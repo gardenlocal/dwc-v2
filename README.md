@@ -24,4 +24,4 @@ This will start the frontend. Make sure the server is running when starting the 
 If you login as `admin`, you have access to the entire garden map of all users in the `Admin Garden` tab.
 Regular users have access to their garden sections.
 
-** We are in the process of re-writing this frontend prototype in PIXI.js, so this setup is temporary. **
+**We are in the process of re-writing this frontend prototype in PIXI.js, so this setup is temporary.**
