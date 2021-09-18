@@ -28,9 +28,6 @@ exports.createCreature = async (garden, user) => {
   })
 
   creature = await database.insert(creature)
-
-  console.log('Inserted creature: ', creature)
-
   allCreatures[creature._id] = creature
 
   return creature
@@ -55,8 +52,7 @@ exports.updateCreatures = async (onlineUsers) => {
       allCreatures[key].movement.fromX = allCreatures[key].movement.toX
       allCreatures[key].movement.fromY = allCreatures[key].movement.toY
 
-      const randomUser = onlineUsers[utils.randomIntInRange(0, onlineUsers.length)]
-      console.log('creature controller get user info')
+      const randomUser = onlineUsers[utils.randomIntInRange(0, onlineUsers.length)]    
       const user = await getUserInfo(randomUser)
       const garden = user.gardenSection
 

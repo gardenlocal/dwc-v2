@@ -22,8 +22,6 @@ exports.getAllUsersInfo = async () => {
 exports.getUserInfo = async (id) => {
   if (userCache[id]) return userCache[id]
 
-  console.log('get user info: ', id)
-
   let userData = null, gardenSection = null
   try {
     userData = await database.findOne({ _id: id })
@@ -72,7 +70,6 @@ exports.getAllCreaturesInfo = async () => {
     if (!creatures) return []
 
     for (let i = 0; i < creatures.length; i++) {
-      console.log('db controller getAllCreaturesInfo getUserInfo', creatures[i])
       creatures[i].owner = await exports.getUserInfo(creatures[i].owner)
     }
   } catch (e) {
