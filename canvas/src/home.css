@@ -1,0 +1,24 @@
+html, body{
+  height: 100%;
+  overflow: hidden;
+}
+.container {
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.innerContainer {
+  display: flex;
+  flex-direction: column;
+  font-size: 2rem;
+}
+.box {
+  margin-bottom: 2rem;
+}
+
+button {
+  display: block;
+  margin-bottom: 2rem;
+  font-size: 2rem;
+}
