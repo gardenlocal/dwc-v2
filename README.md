@@ -25,6 +25,9 @@ Routes
   - if not, show login/signup page
 - /signup: sign up page
   - if sucessfully signed up, redirect to home
+- /user: user info and logout button
+  - show when logged in
+  - click the button to switch between canvas('/') and user('/user')
 
 ## For client (old version. React)
 
