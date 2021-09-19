@@ -1,30 +1,36 @@
 import LOGIN from './src/html/login.js';
 import SIGNUP from './src/html/signup.js';
-import HOME from './src/html/home.js';
+import USER from './src/html/user.js';
+import CANVAS from './src/html/canvas.js';
+
 import UserService from './src/services/user.service';
 import AuthService from './src/services/auth.service';
 
 export const LOGGEDIN = localStorage.getItem("user") ? true: false;
-console.log(LOGGEDIN)
+export const USERNAME = JSON.parse(localStorage.getItem("user"))?.username;
 
 export const ROUTES = {
  '/signup': SIGNUP,
- '/': LOGGEDIN ? HOME : LOGIN
+ '/': LOGGEDIN ? CANVAS : LOGIN,
+ '/user': USER,
 }
 
-const url = window.location.pathname;
+const origin = window.location.origin;
+const uri = window.location.pathname;
 const userDiv = document.getElementById("sub");
-userDiv.innerHTML = ROUTES[url];
+userDiv.innerHTML = ROUTES[uri];
 const canvasDiv = document.getElementById("root");
 
 // hide canvas div if not loggedin
-if(!LOGGEDIN) {
+if(!LOGGEDIN || (uri !== '/')) {
   canvasDiv.style.display = "none";
+  // window.location.replace(window.location.origin)
+} else if(LOGGEDIN && (uri === '/')) {
+  userDiv.style.display = "none";
 }
 
 // login
 window.submitLogin = (event) => {
-  console.log('login clicked');
   event.preventDefault();
 
   const username = event.target['username'].value;
@@ -34,9 +40,7 @@ window.submitLogin = (event) => {
 }
 
 window.redirectSignupBtn = () => {
-  const origin = window.location.origin;
   window.location.replace(origin + '/signup');
-  console.log('sign up clicked');
 }
 
 // signup
@@ -50,9 +54,15 @@ window.submitSignup = (event) => {
  AuthService.register(username, email, password);
 }
 
-window.onload = (event) => {
- console.log(window.history)
- console.log(window.location)
+// button - redirect
+window.onClickLogoBtn = () => {
+  console.log('logo')
+  console.log(uri)
+  if(uri === '/user') {
+    window.location.replace(origin + '/');
+  } else if(uri === '/') {
+    window.location.replace(origin + '/user');
+  }
 }
 
 // home - logout
