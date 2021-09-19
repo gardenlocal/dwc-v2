@@ -1,8 +1,10 @@
 const USER = `
-  <div class="innerContainer">
+<div class="container">
+  <div class="box">
     <button onclick="onClickLogout(event);" type="button">LOGOUT</button>
-    <div class="box">${JSON.parse(localStorage.getItem("user"))?.username}</div>
+    <div>${JSON.parse(localStorage.getItem("user"))?.username}</div>
   </div>
+</div>
  `
 
 export default USER;
