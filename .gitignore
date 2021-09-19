@@ -1,6 +1,7 @@
 */node_modules
 server/node_modules
 client/node_modules
+server/storage/main.db
 canvas/node_modules
 */dist
 */.cache

@@ -1,104 +1,74 @@
 const config = require("../config/auth.config");
 const gardenController = require('./garden.controller')
 const creatureController = require('./creature.controller')
-const db = require("../models");
-const User = db.user;
-const Role = db.role;
+const database = require('../db')
+const User = require('../models/User')
+const GardenSection = require('../models/GardenSection')
+const constants = require('../constants')
+const TYPES = require('../datatypes')
 
 var jwt = require("jsonwebtoken");
 var bcrypt = require("bcryptjs");
 
 exports.signup = async (req, res) => {
-  const user = new User({
-    username: req.body.username,
-    email: req.body.email,
-    password: bcrypt.hashSync(req.body.password, 8)
-  });
-
-  let savedUser
   try {
-    savedUser = await user.save()
+    const user = new User({
+      username: req.body.username,
+      email: req.body.email,
+      password: bcrypt.hashSync(req.body.password, 8)
+    });
+  
+    let savedUser = await database.insert(user)  
+    let role = await database.findOne({ type: TYPES.role, name: constants.ROLES.user })
+    savedUser.role = role._id
+  
+    const garden = await gardenController.createGardenSection()
+    if (garden) {
+      savedUser.gardenSection = garden._id
+    } else {
+      res.status(500).send({ message: "Failed to create garden for user" });
+    }
+  
+    const creature = await creatureController.createCreature(garden, savedUser)
+    savedUser.creature = creature._id
+  
+    await database.update({ _id: savedUser._id }, savedUser)  
   } catch (e) {
-    console.log('Error in saving user: ', e)
-    res.status(500).send({ message: e });
+    console.error('Caught exception in sign up: ', e)
+    res.status(500).send({ message: e })
     return
   }
-  
-  let role
 
-  try {
-    role = await Role.findOne({ name: "user" })
-  } catch (e) {
-    res.status(500).send({ message: e });
-    return;
-  }
-
-  savedUser.roles = [role._id]
-
-  const garden = await gardenController.createGardenSection()
-  if (garden) {
-    savedUser.gardenSection = garden._id
-  } else {
-    res.status(500).send({ message: "Failed to create garden for user" });
-  }
-
-  const creature = await creatureController.createCreature(garden, savedUser)
-  savedUser.creature = creature._id
-
-  try {
-    await savedUser.save()
-  } catch (e) {
-    res.status(500).send({ message: e });
-    return;
-  }
-
-  res.send({ message: "User was registered successfully!" });
+  res.status(200).send({ message: "User was registered successfully!" });
 };
 
-exports.signin = (req, res) => {
-  User.findOne({
-    username: req.body.username
-  })
-    .populate("roles", "-__v")
-    .populate("gardenSection")
-    .exec((err, user) => {
-      if (err) {
-        res.status(500).send({ message: err });
-        return;
-      }
+exports.signin = async (req, res) => {
+let user, authorities, gardenSection, token
+  try {
+    user = await database.findOne({ type: TYPES.user, username: req.body.username })
+    if (!user) { return res.status(404).send({ message: "User Not found." }); }
+  
+    let passwordIsValid = bcrypt.compareSync(req.body.password, user.password);
+    if (!passwordIsValid) { return res.status(401).send({ accessToken: null, message: 'Invalid Password'}) }
+  
+    token = jwt.sign({ id: user._id }, config.secret, { expiresIn: 86400 })
+  
+    let role = await database.findOne({ _id: user.role })
 
-      if (!user) {
-        return res.status(404).send({ message: "User Not found." });
-      }
+    authorities = [`ROLE_${role.name.toUpperCase()}`]
+    gardenSection = await database.findOne({ _id: user.gardenSection })    
+  } catch (e) {
+    console.error('Caught exception in sign in: ', e)
+    res.status(500).send({ message: e })
+    return
+  }
 
-      var passwordIsValid = bcrypt.compareSync(
-        req.body.password,
-        user.password
-      );
-
-      if (!passwordIsValid) {
-        return res.status(401).send({
-          accessToken: null,
-          message: "Invalid Password!"
-        });
-      }
-
-      var token = jwt.sign({ id: user.id }, config.secret, {
-        expiresIn: 86400 // 24 hours
-      });
-
-      var authorities = [];
-
-      for (let i = 0; i < user.roles.length; i++) {
-        authorities.push("ROLE_" + user.roles[i].name.toUpperCase());
-      }
-      res.status(200).send({
-        id: user._id,
-        username: user.username,
-        email: user.email,
-        roles: authorities,
-        gardenSection: user.gardenSection,
-        accessToken: token
-      });
-    });
+  res.status(200).send({
+    id: user._id,
+    username: user.username,
+    email: user.email,
+    role: authorities,
+    gardenSection: gardenSection,
+    accessToken: token
+  });
 };
