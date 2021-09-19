@@ -1,8 +1,7 @@
 const SIGNUP = `
 <div>
   <ul>
-  <li><a href="/login">LOGIN</a></li>
-  <li><a href="/home">HOME</a></li>
+    <li><a href="/">HOME</a></li>
   </ul>
 </div>
 <div class="container">

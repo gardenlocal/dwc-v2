@@ -5,7 +5,8 @@ const port = (window.location.hostname == 'localhost' ? '3000' : '330')
 const API_URL = `http://${window.location.hostname}:${port}/api/auth/`
 
 function redirect(pathname) {
-  window.location.replace(window.location.origin + pathname)
+  const uri = pathname || ''
+  window.location.replace(window.location.origin + uri)
 }
 
 class AuthService {
@@ -19,7 +20,7 @@ class AuthService {
         return response.data;
       }).then(() => {
         // redirect to home if login success
-        redirect('/home');
+        redirect();
       }).catch((error) => {
         const err = error.response.data.message;
         const errDiv = document.getElementById("errorMessage");
@@ -30,7 +31,7 @@ class AuthService {
   logout() {
     localStorage.removeItem("user");
     // redirect to home if logout success
-    redirect('/home');
+    redirect();
   }
 
   register(username, email, password) {
@@ -42,7 +43,7 @@ class AuthService {
     })
     .then(() => {
       // redirect to home if register success
-      redirect('/home');
+      redirect();
     })
     .catch((error) => {
       const err = error.response.data.message;

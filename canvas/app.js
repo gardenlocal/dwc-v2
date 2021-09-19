@@ -8,9 +8,8 @@ export const LOGGEDIN = localStorage.getItem("user") ? true: false;
 console.log(LOGGEDIN)
 
 export const ROUTES = {
- '/login': LOGIN,
  '/signup': SIGNUP,
- '/home': LOGGEDIN ? HOME : LOGIN
+ '/': LOGGEDIN ? HOME : LOGIN
 }
 
 const url = window.location.pathname;
