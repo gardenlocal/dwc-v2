@@ -11,14 +11,25 @@ html, body{
 .innerContainer {
   display: flex;
   flex-direction: column;
-  font-size: 2rem;
+  font-size: 1.8rem;
 }
 .box {
-  margin-bottom: 2rem;
+  margin-bottom: 1.8rem;
 }
 
 button {
   display: block;
-  margin-bottom: 2rem;
-  font-size: 2rem;
+  margin-bottom: 1.8rem;
+  font-size: 1.8rem;
+}
+
+#submit {
+  width: 100%;
+  font-size: 1.8rem;
+}
+
+#errorMessage {
+  color: red;
+  font-size: 1.2rem;
+
 }
