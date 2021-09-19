@@ -12,7 +12,21 @@ npm run dev
 
 This will start the server. If it's the first time you are installing it, the server will create a database and populate it with the `admin` user. The password for the default `admin` user is `dwc!`.
 
-## For client
+## For client (new version. pixi + vanilla js)
+```
+cd canvas
+npm install
+npm start
+```
+
+Routes
+- /: home
+  - if logged in, show canvas page
+  - if not, show login/signup page
+- /signup: sign up page
+  - if sucessfully signed up, redirect to home
+
+## For client (old version. React)
 
 ```
 cd client
