@@ -1,9 +1,4 @@
 const LOGIN = `
-<div>
-  <ul>
-    <li><a href="/">HOME</a></li>
-  </ul>
-</div>
 <div class="container">
   <form onsubmit="submitLogin(event)" class="innerContainer">
     <div class="box">

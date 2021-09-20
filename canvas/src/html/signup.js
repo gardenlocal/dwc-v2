@@ -1,9 +1,4 @@
 const SIGNUP = `
-<div>
-  <ul>
-    <li><a href="/">HOME</a></li>
-  </ul>
-</div>
 <div class="container">
   <form onsubmit="submitSignup(event)" class="innerContainer">
     <div class="box">

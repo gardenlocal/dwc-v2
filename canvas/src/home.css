@@ -1,12 +1,29 @@
 html, body{
   height: 100%;
   overflow: hidden;
+  font-family: 'Gluten', cursive;
 }
+label {
+  display: block;
+}
+input {
+  display: block;
+  font-family: 'Gluten', cursive;
+}
+button {
+  display: block;
+  margin-bottom: 1.8rem;
+  font-size: 1.8rem;
+  width: 100%;
+  font-family: 'Gluten', cursive;
+}
+
 .container {
   height: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
+  margin: 2rem;
 }
 .innerContainer {
   display: flex;
@@ -18,12 +35,6 @@ html, body{
   text-align: center;
 }
 
-button {
-  display: block;
-  margin-bottom: 1.8rem;
-  font-size: 1.8rem;
-}
-
 #submit {
   width: 100%;
   font-size: 1.8rem;
@@ -33,6 +44,17 @@ button {
   color: red;
   font-size: 1.2rem;
 
+}
+
+#profile {
+  max-width: 22rem;
+  overflow-wrap: anywhere;
+}
+#profile div {
+  margin: 1rem;
+}
+#profile button {
+  width: 100%;
 }
 
 #homeLogo {
