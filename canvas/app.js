@@ -3,6 +3,7 @@ import SIGNUP from './src/html/signup.js';
 import USER from './src/html/user.js';
 import CANVAS from './src/html/canvas.js';
 import AuthService from './src/services/auth.service';
+import UserData from './src/data/userData';
 
 export const LOGGEDIN = localStorage.getItem("user") ? true: false;
 
@@ -51,13 +52,15 @@ window.submitSignup = (event) => {
 }
 
 // logo button - redirect
-window.onClickLogoBtn = () => {
+window.onClickLogo = () => {
   if(LOGGEDIN) {
     if(uri === '/user') {
       window.location.replace(origin + '/');
     } else if(uri === '/') {
       window.location.replace(origin + '/user');
     }
+  } else {
+    window.location.replace(origin + '/');
   }
 }
 
@@ -65,4 +68,9 @@ window.onClickLogoBtn = () => {
 window.onClickLogout = (event) => {
   event.preventDefault();
   AuthService.logout();
+}
+
+// call import functions
+if(LOGGEDIN) {
+  UserData.getAdminData();
 }
