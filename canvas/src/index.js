@@ -10,6 +10,9 @@ import cat2 from '../assets/cat2.jpg';
 import cat3 from '../assets/cat3.jpg';
 import UserData from "./data/userData";
 import { renderAdmin } from "./render/adminGarden.js";
+import { renderCreature } from "./render/creature";
+
+const LOGGEDIN = localStorage.getItem("user") ? true: false;
 
 // alias
 const Application = PIXI.Application,
@@ -26,8 +29,12 @@ const app = new Application({
 resizeTo.appendChild(app.view)
 app.renderer.backgroundColor = 0x061639;
 
-if(UserData.role === 'ROLE_ADMIN'){
+if(LOGGEDIN && UserData.role === 'ROLE_ADMIN'){
   renderAdmin(app);
+}
+
+if(LOGGEDIN){
+  renderCreature(app)
 }
 
 app.resize();
