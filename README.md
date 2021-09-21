@@ -18,6 +18,7 @@ cd canvas
 npm install
 npm start
 ```
+- Open `localhost:1234` 
 
 Routes
 - /: home
