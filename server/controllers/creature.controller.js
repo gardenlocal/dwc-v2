@@ -9,6 +9,7 @@ const database = require("../db")
 let allCreatures = {}
 
 exports.createCreature = async (garden, user) => {
+  console.log('Create creature: ', user._id, user)
   let creature = new Creature({
     appearance: {
       radius: utils.randomInRange(50, 250),
