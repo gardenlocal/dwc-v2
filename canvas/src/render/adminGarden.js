@@ -7,8 +7,8 @@ const HEIGHT = window.innerHeight;
 
 const style = new PIXI.TextStyle({
   fontSize: 24,
-  fill: "red",
-  stroke: "#ff3300",
+  fill: "white",
+  stroke: "white",
 })
 
 export function renderAdmin(app) {
@@ -16,6 +16,7 @@ export function renderAdmin(app) {
   let gardens = []
   async function drawAllGardens() {
     const allUsers = (await UserData.getAdminData()).data
+
     for(let i = 0; i < allUsers.length; i++){
       const u = allUsers[i]
       const garden = { 'user': u.username, 'garden': u.gardenSection }
@@ -24,12 +25,11 @@ export function renderAdmin(app) {
   
     for(let i = 0; i < gardens.length; i++) {
       const g = gardens[i].garden
-      console.log(g.x, g.y, gardens[i].user)
       const x = g.x/10 + WIDTH/2;
       const y = g.y/10 + HEIGHT/2;
       const rectangle = new PIXI.Graphics();
-      const hex = PIXI.utils.rgb2hex([255%(i*10), 20, 100+(i*10)])
-      rectangle.lineStyle({width: 2, color: 0xFF3300, alpha: 1});
+      const hex = PIXI.utils.rgb2hex([250, 40, 185])
+      rectangle.lineStyle({width: 2, color: 0x00ff00, alpha: 0.5});
       rectangle.beginFill(hex);
       rectangle.drawRect(x, y, g.width/10, g.width/10);
       rectangle.endFill();

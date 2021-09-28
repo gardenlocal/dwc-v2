@@ -10,6 +10,7 @@ import cat2 from '../assets/cat2.jpg';
 import cat3 from '../assets/cat3.jpg';
 import UserData from "./data/userData";
 import { renderAdmin } from "./render/adminGarden.js";
+import { renderAdminCreatures } from "./render/adminCreatures.js";
 import { renderCreature } from "./render/creature";
 
 const LOGGEDIN = localStorage.getItem("user") ? true: false;
@@ -31,9 +32,8 @@ app.renderer.backgroundColor = 0x061639;
 
 if(LOGGEDIN && UserData.role === 'ROLE_ADMIN'){
   renderAdmin(app);
-}
-
-if(LOGGEDIN){
+  renderAdminCreatures(app);
+} else if (LOGGEDIN) {
   renderCreature(app)
 }
 

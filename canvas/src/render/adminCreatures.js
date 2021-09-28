@@ -2,7 +2,7 @@
 // https://stackoverflow.com/questions/40472364/moving-object-from-a-to-b-smoothly-across-canvas
 
 import * as PIXI from "pixi.js";
-import { Graphics, TextStyle } from "pixi.js";
+import { Graphics } from "pixi.js";
 import { io } from 'socket.io-client';
 
 const WIDTH = window.innerWidth;
@@ -12,10 +12,9 @@ const userToken = JSON.parse(localStorage.getItem("user"))?.accessToken;
 const userId = JSON.parse(localStorage.getItem("user"))?.id; 
 let socket, socketAuthenticated = false;
 const port = (window.location.hostname === 'localhost' ? '3000' : '330') // change to local IP address to access via mobile
-let creatureId;
-let myCreatures = [];
+let onlineUsers = [], myCreatures = [];
 
-export async function renderCreature(app) {
+export async function renderAdminCreatures(app) {
   if(userToken) {
    socket = await io(`http://${window.location.hostname}:${port}`, {
      auth: { token: `Bearer ${userToken}` }
@@ -31,28 +30,33 @@ export async function renderCreature(app) {
     console.log('socket connect error', error)
   })
   
-  socket.on('usersUpdate', (users) => {
+  // get data of online users
+ await socket.on('usersUpdate', (users) => {
     for(let i = 0; i < users.length; i++) {
-      if(users[i]._id === userId) {
-        creatureId = users[i].creature;
-      }
-    }
-  })
-  
-  await socket.on('creatures', (creatures) => {
-    console.log(creatures)
-    for(let i = 0; i < creatures.length; i++) {
-      if(creatures[i]._id === creatureId){
-        myCreatures.push(creatures[i])
-      }
+      onlineUsers.push(users[i])
     }
   })
 
+  // render all creatures in each online-user's garden
+  await socket.on('creatures', (creatures) => {
+    for(let i = 0; i < creatures.length; i++) {
+      for(let j = 0; j < onlineUsers.length; j++){
+        const id = onlineUsers[j].creature
+        if(id === creatures[i]._id) {
+          const creature = creatures[i]
+          creature.gardenSection = onlineUsers[j].gardenSection
+          myCreatures.push(creature)
+        }
+      }
+    }
+  });
+
   setTimeout(() => {
-   if(myCreatures.length > 0){
-    render(app, myCreatures)
-   }
-  }, 200);
+    console.log(myCreatures)
+    if(myCreatures.length > 0){
+      render(app, myCreatures)
+    }
+  }, 1500);
 }
 
 function render(app, myCreatures) {
@@ -63,29 +67,32 @@ function render(app, myCreatures) {
     let circle, movement;
 
     const myCreature = myCreatures[i]
-    const r = myCreature.appearance.radius / 2;
+    const r = myCreature.appearance.radius / 10;
     const col = myCreature.appearance.fillColor;
 
     movement = myCreature.movement
+    const garden = myCreature.gardenSection;
     let { fromX, fromY, toX, toY, transitionDuration } = movement;
-    fromX = map(fromX, -1000, 1000, 0, WIDTH)
-    fromY = map(fromY, -1000, 1000, 0, HEIGHT)
-    toX = map(toX, -1000, 1000, 0, WIDTH)
-    toY = map(toY, -1000, 1000, 0, WIDTH)
+    const originX = garden.x/10, originY = garden.y/10              
+    // translate to each user garden's origin xy
+    
+    fromX = map(fromX, -1000, 1000, 0, WIDTH/10) + WIDTH/2 + originX
+    fromY = map(fromY, -1000, 1000, 0, HEIGHT/10) + HEIGHT/2 + originY
+    toX = map(toX, -1000, 1000, 0, WIDTH/10) + WIDTH/2 + originX
+    toY = map(toY, -1000, 1000, 0, WIDTH/10) + HEIGHT/2 + originY
   
     const hex = PIXI.utils.rgb2hex([col.r, col.g, col.b])
     circle = new Graphics();
-    circle.beginFill(hex);
+    circle.lineStyle(4, hex);
     circle.drawCircle(0, 0, r/2);
-    circle.endFill();
     circle.x = fromX;
     circle.y = fromY;
     circle.vx = 0;
     circle.vy = 0;
 
     const destination = new Graphics();
-    destination.beginFill(0xffffff)
-    destination.drawCircle(toX, toY, 5);
+    destination.beginFill(0x000000);
+    destination.drawCircle(toX, toY, 2);
     destination.endFill();
 
     app.stage.addChild(circle);
@@ -117,14 +124,14 @@ function map(n, start1, stop1, start2, stop2) {
   return newVal;
 }
 
-function constrain(n, low, high) {
-  return Math.max(Math.min(n, high), low)
-}
-
 function Vector(mag, angle) {
   const angleRad = (angle * Math.PI) / 180;
   this.magX = mag * Math.cos(angleRad);
   this.magY = mag * Math.sin(angleRad);
+}
+
+function constrain(n, low, high) {
+  return Math.max(Math.min(n, high), low)
 }
 
 function distanceAndAngleBetweenTwoPoints(x1, y1, x2, y2) {
