@@ -10,6 +10,8 @@ npm install
 npm run dev
 ```
 
+`localhost:3000`
+
 This will start the server. If it's the first time you are installing it, the server will create a database and populate it with the `admin` user. The password for the default `admin` user is `dwc!`.
 
 ## For client (new version. pixi + vanilla js)
@@ -37,6 +39,8 @@ cd client
 npm install
 npm run start
 ```
+
+`localhost:3001`
 
 This will start the frontend. Make sure the server is running when starting the frontend, otherwise you will not be able to register / login.
 If you login as `admin`, you have access to the entire garden map of all users in the `Admin Garden` tab.
