@@ -13,7 +13,8 @@ const userId = JSON.parse(localStorage.getItem("user"))?.id;
 let socket, socketAuthenticated = false;
 const port = (window.location.hostname === 'localhost' ? '3000' : '330') // change to local IP address to access via mobile
 let creatureId;
-let myCreatures = [];
+let myCreatures = {};
+let graphics = []
 
 export async function renderCreature(app) {
   if(userToken) {
@@ -40,46 +41,52 @@ export async function renderCreature(app) {
   })
   
   await socket.on('creatures', (creatures) => {
-    console.log(creatures)
     for(let i = 0; i < creatures.length; i++) {
       if(creatures[i]._id === creatureId){
-        myCreatures.push(creatures[i])
+        myCreatures[creatureId] = creatures[i]
+      }
+    }
+  })
+
+  // constantly getting new data of current creatures
+  socket.on('creaturesUpdate', (creaturesToUpdate) => {
+    for (const [key, value] of Object.entries(myCreatures)) {
+      if (creaturesToUpdate[key]) {
+        const curr = creaturesToUpdate[key]
+        value.movement = curr.movement  // update myCreatures data
+        updateTarget(app, key)  // update graphic objects data
       }
     }
   })
 
   setTimeout(() => {
-   if(myCreatures.length > 0){
-    render(app, myCreatures)
+   if(Object.keys(myCreatures).length > 0){
+    render(app)
    }
   }, 200);
 }
 
-function render(app, myCreatures) {
 
-  for(let i = 0; i < myCreatures.length; i++){
-    let lastStep = 0;
-    let milliseconds = 0;
-    let circle, movement;
+function render(app) {
 
-    const myCreature = myCreatures[i]
-    const r = myCreature.appearance.radius / 2;
-    const col = myCreature.appearance.fillColor;
+  for (const [key, value] of Object.entries(myCreatures)) {
 
-    movement = myCreature.movement
+    const { movement, appearance, _id } = value;
+    const { fillColor, radius } = appearance;
     let { fromX, fromY, toX, toY, transitionDuration } = movement;
-    fromX = map(fromX, -1000, 1000, 0, WIDTH)
-    fromY = map(fromY, -1000, 1000, 0, HEIGHT)
-    toX = map(toX, -1000, 1000, 0, WIDTH)
-    toY = map(toY, -1000, 1000, 0, WIDTH)
-  
-    const hex = PIXI.utils.rgb2hex([col.r, col.g, col.b])
-    circle = new Graphics();
+
+    fromX = map(fromX, -1000, 1000, 0, WIDTH)     
+    fromY = map(fromY, -1000, 1000,  0, HEIGHT) 
+    toX = map(toX, -1000, 1000, 0, WIDTH)     
+    toY = map(toY, -1000, 1000,  0, HEIGHT) 
+
+    const hex = PIXI.utils.rgb2hex([fillColor.r, fillColor.g, fillColor.b])
+    let circle = new Graphics();
+    circle.name = _id;
+    circle.target = { x: toX, y: toY }
     circle.beginFill(hex);
-    circle.drawCircle(0, 0, r/2);
+    circle.drawCircle(0, 0, radius/2);
     circle.endFill();
-    circle.x = fromX;
-    circle.y = fromY;
     circle.vx = 0;
     circle.vy = 0;
 
@@ -87,23 +94,59 @@ function render(app, myCreatures) {
     destination.beginFill(0xffffff)
     destination.drawCircle(toX, toY, 5);
     destination.endFill();
+    
+    graphics.push(circle);
 
     app.stage.addChild(circle);
     app.stage.addChild(destination);
 
-    app.ticker.add((delta) => {
-      milliseconds += delta;
-      var elapsed = milliseconds - lastStep;
-      lastStep = milliseconds;
-    
-      var data = distanceAndAngleBetweenTwoPoints(circle.x, circle.y, toX, toY)
-      var velocity = data.distance / 0.1;
-      var toTargetVector = new Vector(velocity, data.angle)
-      var elapsedSeconds = elapsed / 1000;
-    
-      circle.x += (toTargetVector.magX * elapsedSeconds)
-      circle.y += (toTargetVector.magY * elapsedSeconds)
+  }
+  animate(app);
+
+}
+
+function animate(app) {
+  // gotta run app.ticker for every object, all at once
+    app.ticker.add((delta) => { 
+      for (let i = 0; i < graphics.length; i++) {
+        const obj = graphics[i]
+
+        const target = obj.target
+
+        let lastStep = 0;
+        let milliseconds = 0;
+        milliseconds += delta;
+        var elapsed = milliseconds - lastStep;
+        lastStep = milliseconds;
+
+        var data = distanceAndAngleBetweenTwoPoints(obj.x, obj.y, target.x, target.y)
+        var velocity = data.distance / 0.1;
+        var toTargetVector = new Vector(velocity, data.angle)
+        var elapsedSeconds = elapsed / 1000;
+
+        obj.x += (toTargetVector.magX * elapsedSeconds)
+        obj.y += (toTargetVector.magY * elapsedSeconds)
+      }
     })
+}
+
+function updateTarget(app, id) {
+  const c = myCreatures[id]
+  if(graphics.length > 0){
+    const g = graphics.find(ele => ele.name === id)
+  
+    let { toX, toY } = c.movement
+    toX = map(toX, -1000, 1000, 0, WIDTH)
+    toY = map(toY, -1000, 1000, 0, WIDTH)
+  
+    g.target.x = toX
+    g.target.y = toY
+  
+    const destination = new Graphics();
+    destination.beginFill(0xffffff)
+    destination.drawCircle(toX, toY, 5);
+    destination.endFill();
+    app.stage.addChild(destination);
   }
 }
 
