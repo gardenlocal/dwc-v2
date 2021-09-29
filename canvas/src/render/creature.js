@@ -87,6 +87,9 @@ function render(app) {
     circle.beginFill(hex);
     circle.drawCircle(0, 0, radius/2);
     circle.endFill();
+    // weird but have to assign fromX, fromY later - not as drawCircle params
+    circle.x = fromX;
+    circle.y = fromY;
     circle.vx = 0;
     circle.vy = 0;
 
@@ -137,7 +140,7 @@ function updateTarget(app, id) {
   
     let { toX, toY } = c.movement
     toX = map(toX, -1000, 1000, 0, WIDTH)
-    toY = map(toY, -1000, 1000, 0, WIDTH)
+    toY = map(toY, -1000, 1000, 0, HEIGHT)
   
     g.target.x = toX
     g.target.y = toY
