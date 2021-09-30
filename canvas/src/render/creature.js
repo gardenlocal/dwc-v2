@@ -15,7 +15,7 @@ export default class Creature extends PIXI.Graphics {
         const { fillColor, radius } = appearance;
         const hex = PIXI.utils.rgb2hex([fillColor.r, fillColor.g, fillColor.b])
     
-        this.creatureType = appearance.creatureType
+        this.creatureType = 'creature-2'//appearance.creatureType
 
         let { fromX, fromY, toX, toY, transitionDuration } = movement;
         this.x = fromX
@@ -32,6 +32,13 @@ export default class Creature extends PIXI.Graphics {
         const scale = radius / bounds.width
         this.svg.scale.set(scale, scale)
         this.addChild(this.svg)
+        //this.svg.alpha = 0.1
+        
+        this.pts2 = []
+        this.rawPoints = new PIXI.Graphics()
+        this.rawPoints.scale.set(scale, scale)
+        this.rawPoints.pivot.set(bounds.x + bounds.width * 0.5, bounds.y + bounds.height * 0.5)
+        this.addChild(this.rawPoints)
     
         this.destinationMarker = new PIXI.Graphics()        
         this.destinationMarker.beginFill(0xffffff)
@@ -40,6 +47,8 @@ export default class Creature extends PIXI.Graphics {
         this.destinationMarker.x = toX - this.x
         this.destinationMarker.y = toY - this.y
         this.addChild(this.destinationMarker)
+
+        this.totalTime = 0
     }
 
     updateState(newState) {
@@ -51,6 +60,8 @@ export default class Creature extends PIXI.Graphics {
     }
 
     tick(delta) {
+        this.totalTime += delta
+
         const target = this.target
 
         let lastStep = 0;
@@ -69,5 +80,53 @@ export default class Creature extends PIXI.Graphics {
 
         this.destinationMarker.x = target.x - this.x
         this.destinationMarker.y = target.y - this.y
+        
+        //this.drawRawPoints()
+    }
+
+    drawRawPoints() {
+        // TODO (cezar): I will refactor this into another class, right now it's just an experiment.
+        this.pts2 = []
+        this.rawPoints.clear()
+        const pts = this.svg.children[0].children[0]._geometry.points
+        const nowT = new Date().getTime() / 3000
+        
+        for (let i = 0; i < pts.length; i += 2) {
+            const now = nowT + Math.cos(i / 4) * Math.sin(i / 50 + Math.sqrt(nowT))
+            //this.pts2.push(new PIXI.Point(pts[i] + 100 * Math.sin(now / 1000), pts[i + 1] + 100 * Math.cos(now / 1000)))
+            const p = new PIXI.Point(pts[i], pts[i + 1])            
+
+            if (this.svgCenter) {
+                const angle = Math.atan2(p.y - this.svgCenter.y, p.x - this.svgCenter.x)
+                const radius = Math.sqrt((p.y - this.svgCenter.y) ** 2 + (p.x - this.svgCenter.x) ** 2)
+                const factor = 1 + (Math.sin(now) - Math.sin(now) % 0.5) * 0.5
+
+                const pX = Math.cos(angle) * (radius * factor) + this.svgCenter.x
+                const pY = Math.sin(angle) * (radius * factor) + this.svgCenter.y
+
+                p.x = pX
+                p.y = pY
+            }
+
+            this.pts2.push(p)
+        }
+
+        if (!this.svgCenter && this.pts2.length > 0) {
+            let c = { x: 0, y: 0 }
+            for (let i = 0; i < this.pts2.length; i++) {
+                c.x += this.pts2[i].x
+                c.y += this.pts2[i].y
+            }
+            c.x /= this.pts2.length * 1.0
+            c.y /= this.pts2.length * 1.0
+            this.svgCenter = c
+
+            console.log('svg center: ', this.svgCenter)
+        }
+        
+        //console.log(this.pts2)
+        this.rawPoints.beginFill(0xffeedd);
+        this.rawPoints.drawPolygon(this.pts2)
+        this.rawPoints.endFill();
     }
 }
