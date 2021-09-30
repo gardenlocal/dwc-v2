@@ -22,6 +22,8 @@ export function renderAdmin(app) {
       const garden = { 'user': u.username, 'garden': u.gardenSection }
       gardens.push(garden)
     }
+
+    console.log('users: ', allUsers)
   
     for(let i = 0; i < gardens.length; i++) {
       const g = gardens[i].garden

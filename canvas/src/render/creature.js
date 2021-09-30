@@ -13,6 +13,7 @@ const userId = JSON.parse(localStorage.getItem("user"))?.id;
 let socket, socketAuthenticated = false;
 const port = (window.location.hostname === 'localhost' ? '3000' : '330') // change to local IP address to access via mobile
 let creatureId;
+let currentGarden;
 let myCreatures = {};
 let graphics = []
 
@@ -36,6 +37,8 @@ export async function renderCreature(app) {
     for(let i = 0; i < users.length; i++) {
       if(users[i]._id === userId) {
         creatureId = users[i].creature;
+        currentGarden = users[i].gardenSection
+        console.log(currentGarden)
       }
     }
   })
@@ -75,10 +78,16 @@ function render(app) {
     const { fillColor, radius } = appearance;
     let { fromX, fromY, toX, toY, transitionDuration } = movement;
 
+    fromX = fromX - currentGarden.x
+    fromY = fromY - currentGarden.y
+    toX = toX - currentGarden.x
+    toY = toY - currentGarden.y
+    /*
     fromX = map(fromX, -1000, 1000, 0, WIDTH)     
     fromY = map(fromY, -1000, 1000,  0, HEIGHT) 
     toX = map(toX, -1000, 1000, 0, WIDTH)     
     toY = map(toY, -1000, 1000,  0, HEIGHT) 
+    */
 
     const hex = PIXI.utils.rgb2hex([fillColor.r, fillColor.g, fillColor.b])
     let circle = new Graphics();
@@ -139,8 +148,11 @@ function updateTarget(app, id) {
     const g = graphics.find(ele => ele.name === id)
   
     let { toX, toY } = c.movement
-    toX = map(toX, -1000, 1000, 0, WIDTH)
-    toY = map(toY, -1000, 1000, 0, HEIGHT)
+    toX = toX - currentGarden.x
+    toY = toY - currentGarden.y
+
+    //toX = map(toX, -1000, 1000, 0, WIDTH)
+    //toY = map(toY, -1000, 1000, 0, HEIGHT)
   
     g.target.x = toX
     g.target.y = toY

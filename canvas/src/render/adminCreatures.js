@@ -37,6 +37,8 @@ export async function renderAdminCreatures(app) {
     for(let i = 0; i < users.length; i++) {
       onlineUsers.push(users[i])
     }
+
+    console.log(onlineUsers)
   })
   
   await socket.on('creatures', (creatures) => {
@@ -50,6 +52,8 @@ export async function renderAdminCreatures(app) {
         }
       }
     }
+
+    console.log('creatures: ', myCreatures)
   })
 
   // constantly getting new data of current creatures
@@ -79,12 +83,18 @@ function render(app) {
     const { fillColor, radius } = appearance;
     let { fromX, fromY, toX, toY, transitionDuration } = movement;
 
-    const originX = gardenSection.x/10, originY = gardenSection.y/10              
+    const originX = 0, originY = 0              
 
+    fromX = fromX / 10 + WIDTH/2 + originX
+    fromY = fromY / 10 + HEIGHT/2 + originY
+    toX = toX / 10 + WIDTH/2 + originX
+    toY = toY / 10 + HEIGHT/2 + originY
+    /*
     fromX = map(fromX, -1000, 1000, 0, WIDTH/10) + WIDTH/2 + originX
     fromY = map(fromY, -1000, 1000, 0, HEIGHT/10) + HEIGHT/2 + originY
     toX = map(toX, -1000, 1000, 0, WIDTH/10) + WIDTH/2 + originX
     toY = map(toY, -1000, 1000,  0, HEIGHT/10) + HEIGHT/2 + originY
+    */
 
     const hex = PIXI.utils.rgb2hex([fillColor.r, fillColor.g, fillColor.b])
     let circle = new Graphics();
@@ -144,10 +154,13 @@ function updateTarget(app, id) {
   
     let { toX, toY } = c.movement;
     g.gardenSection = c.gardenSection;
-    const originX = g.gardenSection.x/10, originY = g.gardenSection.y/10              
+    const originX = 0, originY = 0
     
-    toX = map(toX, -1000, 1000, 0, WIDTH/10) + WIDTH/2 + originX
-    toY = map(toY, -1000, 1000, 0, HEIGHT/10) + HEIGHT/2 + originY
+    toX = toX / 10 + WIDTH/2 + originX
+    toY = toY / 10 + HEIGHT/2 + originY
+
+    //toX = map(toX, -1000, 1000, 0, WIDTH/10) + WIDTH/2 + originX
+    //toY = map(toY, -1000, 1000, 0, HEIGHT/10) + HEIGHT/2 + originY
   
     g.target.x = toX
     g.target.y = toY
