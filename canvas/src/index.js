@@ -12,6 +12,7 @@ import UserData from "./data/userData";
 import { renderAdmin } from "./render/adminGarden.js";
 import { renderAdminCreatures } from "./render/adminCreatures.js";
 import { renderCreature } from "./render/creature";
+import { renderSVGTest } from "./render/svgTest";
 
 const LOGGEDIN = localStorage.getItem("user") ? true: false;
 
@@ -30,9 +31,13 @@ const app = new Application({
 resizeTo.appendChild(app.view)
 app.renderer.backgroundColor = 0x061639;
 
+console.log('UserData: ', UserData)
+
 if(LOGGEDIN && UserData.role === 'ROLE_ADMIN'){
   renderAdmin(app);
   renderAdminCreatures(app);
+} else if (LOGGEDIN && UserData.user.username == "cezar") {
+  renderSVGTest(app);
 } else if (LOGGEDIN) {
   renderCreature(app)
 }
