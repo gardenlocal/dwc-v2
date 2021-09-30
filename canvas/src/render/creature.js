@@ -1,6 +1,6 @@
 import * as PIXI from 'pixi.js'
 import { distanceAndAngleBetweenTwoPoints, Vector } from './utils';
-import { DWC_META } from './assetLoader';
+import { DWC_META } from '../../../shared-constants';
 import PixiSVG from '../svg-lib'
 
 export default class Creature extends PIXI.Graphics {
@@ -24,7 +24,7 @@ export default class Creature extends PIXI.Graphics {
         this.vy = 0
         this.target = { x: toX, y: toY }
 
-        const svgData = PIXI.Loader.shared.resources[DWC_META.creatures.CREATURE_1].data
+        const svgData = PIXI.Loader.shared.resources[this.creatureType].data
         this.svg = new PixiSVG(svgData, { unpackTree: true })
         const bounds = this.svg.getBounds()
         this.svg.pivot.set(bounds.x + bounds.width * 0.5, bounds.y + bounds.height * 0.5)

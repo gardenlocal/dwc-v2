@@ -2,10 +2,8 @@
 // https://stackoverflow.com/questions/40472364/moving-object-from-a-to-b-smoothly-across-canvas
 
 import * as PIXI from "pixi.js";
-import { Graphics, TextStyle } from "pixi.js";
 import { io } from 'socket.io-client';
 import Creature from './creature'
-import { distanceAndAngleBetweenTwoPoints, Vector, map } from "./utils";
 
 const WIDTH = window.innerWidth;
 const HEIGHT = window.innerHeight;

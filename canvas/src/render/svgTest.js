@@ -2,7 +2,7 @@ import * as PIXI from "pixi.js";
 import PixiSVG from '../svg-lib'
 import { Graphics, TextStyle } from "pixi.js";
 import UserData from "../data/userData";
-import { DWC_META } from "./assetLoader";
+import { DWC_META } from "../../../shared-constants";
 
 //Paletted.registerPlugin(PIXI.Renderer);
 
@@ -23,7 +23,6 @@ export function renderSVGTest(app) {
 
     const bounds = svg.getBounds()
     svg.pivot.set(bounds.x + bounds.width * 0.5, bounds.y + bounds.height * 0.5)
-    //svg.scale.set(0.1, 0.1)
     svg.position.set(500, 500)
     svgContainer.addChild(svg)    
 
