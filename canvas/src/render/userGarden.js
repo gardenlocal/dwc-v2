@@ -43,14 +43,11 @@ export async function renderCreature(app) {
       if(users[i]._id === userId) {
         creatureId = users[i].creature;
         currentGarden = users[i].gardenSection
-        console.log(currentGarden)
       }
     }
   })
   
   await socket.on('creatures', (creatures) => {
-    console.log('Creatures: ', creatures)
-
     for(let i = 0; i < creatures.length; i++) {
       if(creatures[i]._id === creatureId){
         myCreatures[creatureId] = creatures[i]
@@ -69,6 +66,8 @@ export async function renderCreature(app) {
       if (creaturesToUpdate[key]) {
         const creature = allCreaturesContainer.children.find(ele => ele.name === key)
         const newState = creaturesToUpdate[key]
+
+        // Update the target for movement inside of the creature class
         creature.updateState(newState)        
       }
     }
@@ -86,12 +85,9 @@ function render(app) {
   // Make a container for the entire app, and offset it by the garden coordinates.
   // Doing this means that we can work with the global coordinates 
   // as they come from the server everywhere else.
-
-  console.log('Render')
-
-  gardenContainer = new PIXI.Container()
+  gardenContainer = new PIXI.Graphics()  
   gardenContainer.x = -currentGarden.x
-  gardenContainer.y = -currentGarden.y
+  gardenContainer.y = -currentGarden.y  
 
   allCreaturesContainer = new PIXI.Container()
   gardenContainer.addChild(allCreaturesContainer)
@@ -101,6 +97,8 @@ function render(app) {
     allCreaturesContainer.addChild(c)
   }
 
+  console.log(gardenContainer)
+  //
   app.stage.addChild(gardenContainer)
 
   animate(app);
@@ -113,26 +111,4 @@ function animate(app) {
         if (c.tick) c.tick(delta)
       })
     })
-}
-
-function updateTarget(app, id) {
-  /*
-  const c = myCreatures[id]
-  if(graphics.length > 0){
-    const g = graphics.find(ele => ele.name === id)
-  
-    let { toX, toY } = c.movement
-    toX = toX - currentGarden.x
-    toY = toY - currentGarden.y
-  
-    g.target.x = toX
-    g.target.y = toY
-  
-    const destination = new Graphics();
-    destination.beginFill(0xffffff)
-    destination.drawCircle(toX, toY, 5);
-    destination.endFill();
-    app.stage.addChild(destination);
-  }
-  */
 }

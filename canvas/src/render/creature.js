@@ -1,5 +1,7 @@
 import * as PIXI from 'pixi.js'
 import { distanceAndAngleBetweenTwoPoints, Vector } from './utils';
+import { DWC_META } from './assetLoader';
+import PixiSVG from '../svg-lib'
 
 export default class Creature extends PIXI.Graphics {
     constructor(state) {
@@ -22,10 +24,15 @@ export default class Creature extends PIXI.Graphics {
         this.vy = 0
         this.target = { x: toX, y: toY }
 
-        this.beginFill(hex)
-        this.drawCircle(0, 0, radius / 2)        
-        this.endFill()
-
+        const svgData = PIXI.Loader.shared.resources[DWC_META.creatures.CREATURE_1].data
+        this.svg = new PixiSVG(svgData, { unpackTree: true })
+        const bounds = this.svg.getBounds()
+        this.svg.pivot.set(bounds.x + bounds.width * 0.5, bounds.y + bounds.height * 0.5)
+        this.svg.position.set(0, 0)
+        const scale = radius / bounds.width
+        this.svg.scale.set(scale, scale)
+        this.addChild(this.svg)
+    
         this.destinationMarker = new PIXI.Graphics()        
         this.destinationMarker.beginFill(0xffffff)
         this.destinationMarker.drawCircle(0, 0, 5);

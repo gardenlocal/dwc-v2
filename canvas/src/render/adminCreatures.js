@@ -4,6 +4,7 @@
 import * as PIXI from "pixi.js";
 import { Graphics, TextStyle } from "pixi.js";
 import { io } from 'socket.io-client';
+import { distanceAndAngleBetweenTwoPoints, Vector, map, constrain } from "./utils";
 
 const WIDTH = window.innerWidth;
 const HEIGHT = window.innerHeight;
@@ -170,38 +171,5 @@ function updateTarget(app, id) {
     destination.drawCircle(toX, toY, 5);
     destination.endFill();
     app.stage.addChild(destination);
-  }
-}
-
-function map(n, start1, stop1, start2, stop2) {
-  const newVal = (n - start1) / (stop1-start1) * (stop2 - start2) + start2;
-  if(start2 < stop2) {
-    return constrain(newVal, start2, stop2)
-  } else {
-    return constrain(newVal, stop2, start2)
-  }
-  return newVal;
-}
-
-function constrain(n, low, high) {
-  return Math.max(Math.min(n, high), low)
-}
-
-function Vector(mag, angle) {
-  const angleRad = (angle * Math.PI) / 180;
-  this.magX = mag * Math.cos(angleRad);
-  this.magY = mag * Math.sin(angleRad);
-}
-
-function distanceAndAngleBetweenTwoPoints(x1, y1, x2, y2) {
-  var x = x2 - x1,
-    y = y2 - y1;
-
-  return {
-    // x^2 + y^2 = r^2
-    distance: Math.sqrt(x * x + y * y),
-
-    // convert from radians to degrees
-    angle: Math.atan2(y, x) * 180 / Math.PI
   }
 }
