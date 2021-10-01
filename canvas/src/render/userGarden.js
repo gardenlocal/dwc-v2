@@ -95,8 +95,6 @@ function render(app) {
     allCreaturesContainer.addChild(c)
   }
 
-  console.log(gardenContainer)
-  //
   app.stage.addChild(gardenContainer)
 
   animate(app);

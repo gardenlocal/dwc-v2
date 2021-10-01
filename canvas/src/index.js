@@ -9,8 +9,7 @@ import cat1 from '../assets/cat1.jpg';
 import cat2 from '../assets/cat2.jpg';
 import cat3 from '../assets/cat3.jpg';
 import UserData from "./data/userData";
-import { renderAdmin } from "./render/adminGarden.js";
-import { renderAdminCreatures } from "./render/adminCreatures.js";
+import { renderAdminCreatures } from "./render/adminGarden.js";
 import { renderCreature } from "./render/userGarden";
 import { renderSVGTest } from "./render/svgTest";
 import { loadAll, DWC_META } from './render/assetLoader';
@@ -40,8 +39,7 @@ const startApp = async () => {
     console.log('Loading progress: ', t.progress)
   })  
 
-  if(LOGGEDIN && UserData.role === 'ROLE_ADMIN'){
-    renderAdmin(app);
+  if(LOGGEDIN && UserData.role === 'ROLE_ADMIN'){    
     renderAdminCreatures(app);
   } else if (LOGGEDIN && UserData.user.username == "cezar2") {
     renderSVGTest(app);
