@@ -4,7 +4,7 @@ const utils = require("../utils")
 const { getUserInfo, getAllCreaturesInfo } = require('../controllers/db.controller')
 const Creature = require("../models/Creature")
 const database = require("../db")
-
+const { DWC_META } = require("../../shared-constants")
 
 let allCreatures = {}
 
@@ -12,7 +12,8 @@ exports.createCreature = async (garden, user) => {
   console.log('Create creature: ', user._id, user)
   let creature = new Creature({
     appearance: {
-      radius: utils.randomInRange(50, 250),
+      creatureType: utils.randomElementFromArray(Object.values(DWC_META.creatures)),
+      radius: utils.randomInRange(125, 250),
       fillColor: { r: utils.randomIntInRange(0, 255), g: utils.randomIntInRange(0, 255), b: utils.randomIntInRange(0, 255), a: 255 },
       strokeColor: { r: utils.randomIntInRange(0, 255), g: utils.randomIntInRange(0, 255), b: utils.randomIntInRange(0, 255), a: 255 },
       strokeWidth: (utils.randomInRange(0, 10) < 5) ? 0 : utils.randomIntInRange(1, 20)

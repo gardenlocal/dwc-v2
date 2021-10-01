@@ -1,129 +1,68 @@
-// https://jsfiddle.net/jwcarroll/2r69j1ok/3/
-// https://stackoverflow.com/questions/40472364/moving-object-from-a-to-b-smoothly-across-canvas
+import * as PIXI from 'pixi.js'
+import { distanceAndAngleBetweenTwoPoints, Vector } from './utils';
+import { DWC_META } from '../../../shared-constants';
+import PixiSVG from '../svg-lib'
 
-import * as PIXI from "pixi.js";
-import { Graphics, TextStyle } from "pixi.js";
-import { io } from 'socket.io-client';
+export default class Creature extends PIXI.Graphics {
+    constructor(state) {
+        super()
 
-const WIDTH = window.innerWidth;
-const HEIGHT = window.innerHeight;
+        const { movement, appearance, _id } = state;
+        this.name = _id
+        this.movement = movement
+        this.appearance = appearance        
 
-const userToken = JSON.parse(localStorage.getItem("user"))?.accessToken;
-const userId = JSON.parse(localStorage.getItem("user"))?.id; 
-let socket, socketAuthenticated = false;
-const port = (window.location.hostname === 'localhost' ? '3000' : '330') // change to local IP address to access via mobile
-let creatureId;
-let currentGarden;
-let myCreatures = {};
-let graphics = []
-
-export async function renderCreature(app) {
-  if(userToken) {
-   socket = await io(`http://${window.location.hostname}:${port}`, {
-     auth: { token: `Bearer ${userToken}` }
-   })
-  }
-
-  await socket.on('connect', () => {
-    console.log('socket connect')
-    socketAuthenticated = true;
-  })
-  
-  socket.on('connect_error', (error) => {
-    console.log('socket connect error', error)
-  })
-  
-  socket.on('usersUpdate', (users) => {
-    for(let i = 0; i < users.length; i++) {
-      if(users[i]._id === userId) {
-        creatureId = users[i].creature;
-        currentGarden = users[i].gardenSection
-        console.log(currentGarden)
-      }
-    }
-  })
-  
-  await socket.on('creatures', (creatures) => {
-    for(let i = 0; i < creatures.length; i++) {
-      if(creatures[i]._id === creatureId){
-        myCreatures[creatureId] = creatures[i]
-      }
-    }
-  })
-
-  // constantly getting new data of current creatures
-  socket.on('creaturesUpdate', (creaturesToUpdate) => {
-    for (const [key, value] of Object.entries(myCreatures)) {
-      if (creaturesToUpdate[key]) {
-        const curr = creaturesToUpdate[key]
-        value.movement = curr.movement  // update myCreatures data
-        updateTarget(app, key)  // update graphic objects data
-      }
-    }
-  })
-
-  setTimeout(() => {
-   if(Object.keys(myCreatures).length > 0){
-    render(app)
-   }
-  }, 200);
-}
-
-
-function render(app) {
-
-  for (const [key, value] of Object.entries(myCreatures)) {
-
-    const { movement, appearance, _id } = value;
-    const { fillColor, radius } = appearance;
-    let { fromX, fromY, toX, toY, transitionDuration } = movement;
-
-    fromX = fromX - currentGarden.x
-    fromY = fromY - currentGarden.y
-    toX = toX - currentGarden.x
-    toY = toY - currentGarden.y
-    /*
-    fromX = map(fromX, -1000, 1000, 0, WIDTH)     
-    fromY = map(fromY, -1000, 1000,  0, HEIGHT) 
-    toX = map(toX, -1000, 1000, 0, WIDTH)     
-    toY = map(toY, -1000, 1000,  0, HEIGHT) 
-    */
-
-    const hex = PIXI.utils.rgb2hex([fillColor.r, fillColor.g, fillColor.b])
-    let circle = new Graphics();
-    circle.name = _id;
-    circle.target = { x: toX, y: toY }
-    circle.beginFill(hex);
-    circle.drawCircle(0, 0, radius/2);
-    circle.endFill();
-    // weird but have to assign fromX, fromY later - not as drawCircle params
-    circle.x = fromX;
-    circle.y = fromY;
-    circle.vx = 0;
-    circle.vy = 0;
-
-    const destination = new Graphics();
-    destination.beginFill(0xffffff)
-    destination.drawCircle(toX, toY, 5);
-    destination.endFill();
+        const { fillColor, radius } = appearance;
+        const hex = PIXI.utils.rgb2hex([fillColor.r, fillColor.g, fillColor.b])
     
-    graphics.push(circle);
+        this.creatureType = 'creature-2'//appearance.creatureType
 
-    app.stage.addChild(circle);
-    app.stage.addChild(destination);
+        let { fromX, fromY, toX, toY, transitionDuration } = movement;
+        this.x = fromX
+        this.y = fromY
+        this.vx = 0
+        this.vy = 0
+        this.target = { x: toX, y: toY }
 
-  }
-  animate(app);
+        const svgData = PIXI.Loader.shared.resources[this.creatureType].data
+        this.svg = new PixiSVG(svgData, { unpackTree: true })
+        const bounds = this.svg.getBounds()
+        this.svg.pivot.set(bounds.x + bounds.width * 0.5, bounds.y + bounds.height * 0.5)
+        this.svg.position.set(0, 0)
+        const scale = radius / bounds.width
+        this.svg.scale.set(scale, scale)
+        this.addChild(this.svg)
+        //this.svg.alpha = 0.1
+        
+        this.pts2 = []
+        this.rawPoints = new PIXI.Graphics()
+        this.rawPoints.scale.set(scale, scale)
+        this.rawPoints.pivot.set(bounds.x + bounds.width * 0.5, bounds.y + bounds.height * 0.5)
+        this.addChild(this.rawPoints)
+    
+        this.destinationMarker = new PIXI.Graphics()        
+        this.destinationMarker.beginFill(0xffffff)
+        this.destinationMarker.drawCircle(0, 0, 5);
+        this.destinationMarker.endFill();
+        this.destinationMarker.x = toX - this.x
+        this.destinationMarker.y = toY - this.y
+        this.addChild(this.destinationMarker)
 
-}
+        this.totalTime = 0
+    }
 
-function animate(app) {
-  // gotta run app.ticker for every object, all at once
-    app.ticker.add((delta) => { 
-      for (let i = 0; i < graphics.length; i++) {
-        const obj = graphics[i]
+    updateState(newState) {
+        this.movement = newState.movement
+        this.target.x = this.movement.toX
+        this.target.y = this.movement.toY
+        this.destinationMarker.x = this.movement.toX
+        this.destinationMarker.y = this.movement.toY
+    }
 
-        const target = obj.target
+    tick(delta) {
+        this.totalTime += delta
+
+        const target = this.target
 
         let lastStep = 0;
         let milliseconds = 0;
@@ -131,69 +70,63 @@ function animate(app) {
         var elapsed = milliseconds - lastStep;
         lastStep = milliseconds;
 
-        var data = distanceAndAngleBetweenTwoPoints(obj.x, obj.y, target.x, target.y)
+        var data = distanceAndAngleBetweenTwoPoints(this.x, this.y, target.x, target.y)
         var velocity = data.distance / 0.1;
         var toTargetVector = new Vector(velocity, data.angle)
         var elapsedSeconds = elapsed / 1000;
 
-        obj.x += (toTargetVector.magX * elapsedSeconds)
-        obj.y += (toTargetVector.magY * elapsedSeconds)
-      }
-    })
-}
+        this.x += (toTargetVector.magX * elapsedSeconds)
+        this.y += (toTargetVector.magY * elapsedSeconds)
 
-function updateTarget(app, id) {
-  const c = myCreatures[id]
-  if(graphics.length > 0){
-    const g = graphics.find(ele => ele.name === id)
-  
-    let { toX, toY } = c.movement
-    toX = toX - currentGarden.x
-    toY = toY - currentGarden.y
+        this.destinationMarker.x = target.x - this.x
+        this.destinationMarker.y = target.y - this.y
+        
+        //this.drawRawPoints()
+    }
 
-    //toX = map(toX, -1000, 1000, 0, WIDTH)
-    //toY = map(toY, -1000, 1000, 0, HEIGHT)
-  
-    g.target.x = toX
-    g.target.y = toY
-  
-    const destination = new Graphics();
-    destination.beginFill(0xffffff)
-    destination.drawCircle(toX, toY, 5);
-    destination.endFill();
-    app.stage.addChild(destination);
-  }
-}
+    drawRawPoints() {
+        // TODO (cezar): I will refactor this into another class, right now it's just an experiment.
+        this.pts2 = []
+        this.rawPoints.clear()
+        const pts = this.svg.children[0].children[0]._geometry.points
+        const nowT = new Date().getTime() / 3000
+        
+        for (let i = 0; i < pts.length; i += 2) {
+            const now = nowT + Math.cos(i / 4) * Math.sin(i / 50 + Math.sqrt(nowT))
+            //this.pts2.push(new PIXI.Point(pts[i] + 100 * Math.sin(now / 1000), pts[i + 1] + 100 * Math.cos(now / 1000)))
+            const p = new PIXI.Point(pts[i], pts[i + 1])            
 
-function map(n, start1, stop1, start2, stop2) {
-  const newVal = (n - start1) / (stop1-start1) * (stop2 - start2) + start2;
-  if(start2 < stop2) {
-    return constrain(newVal, start2, stop2)
-  } else {
-    return constrain(newVal, stop2, start2)
-  }
-  return newVal;
-}
+            if (this.svgCenter) {
+                const angle = Math.atan2(p.y - this.svgCenter.y, p.x - this.svgCenter.x)
+                const radius = Math.sqrt((p.y - this.svgCenter.y) ** 2 + (p.x - this.svgCenter.x) ** 2)
+                const factor = 1 + (Math.sin(now) - Math.sin(now) % 0.5) * 0.5
 
-function constrain(n, low, high) {
-  return Math.max(Math.min(n, high), low)
-}
+                const pX = Math.cos(angle) * (radius * factor) + this.svgCenter.x
+                const pY = Math.sin(angle) * (radius * factor) + this.svgCenter.y
 
-function Vector(mag, angle) {
-  const angleRad = (angle * Math.PI) / 180;
-  this.magX = mag * Math.cos(angleRad);
-  this.magY = mag * Math.sin(angleRad);
-}
+                p.x = pX
+                p.y = pY
+            }
 
-function distanceAndAngleBetweenTwoPoints(x1, y1, x2, y2) {
-  var x = x2 - x1,
-    y = y2 - y1;
+            this.pts2.push(p)
+        }
 
-  return {
-    // x^2 + y^2 = r^2
-    distance: Math.sqrt(x * x + y * y),
+        if (!this.svgCenter && this.pts2.length > 0) {
+            let c = { x: 0, y: 0 }
+            for (let i = 0; i < this.pts2.length; i++) {
+                c.x += this.pts2[i].x
+                c.y += this.pts2[i].y
+            }
+            c.x /= this.pts2.length * 1.0
+            c.y /= this.pts2.length * 1.0
+            this.svgCenter = c
 
-    // convert from radians to degrees
-    angle: Math.atan2(y, x) * 180 / Math.PI
-  }
+            console.log('svg center: ', this.svgCenter)
+        }
+        
+        //console.log(this.pts2)
+        this.rawPoints.beginFill(0xffeedd);
+        this.rawPoints.drawPolygon(this.pts2)
+        this.rawPoints.endFill();
+    }
 }

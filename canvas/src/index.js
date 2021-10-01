@@ -9,9 +9,10 @@ import cat1 from '../assets/cat1.jpg';
 import cat2 from '../assets/cat2.jpg';
 import cat3 from '../assets/cat3.jpg';
 import UserData from "./data/userData";
-import { renderAdmin } from "./render/adminGarden.js";
-import { renderAdminCreatures } from "./render/adminCreatures.js";
-import { renderCreature } from "./render/creature";
+import { renderAdminCreatures } from "./render/adminGarden.js";
+import { renderCreature } from "./render/userGarden";
+import { renderSVGTest } from "./render/svgTest";
+import { loadAll, DWC_META } from './render/assetLoader';
 
 const LOGGEDIN = localStorage.getItem("user") ? true: false;
 
@@ -30,47 +31,31 @@ const app = new Application({
 resizeTo.appendChild(app.view)
 app.renderer.backgroundColor = 0x061639;
 
-if(LOGGEDIN && UserData.role === 'ROLE_ADMIN'){
-  renderAdmin(app);
-  renderAdminCreatures(app);
-} else if (LOGGEDIN) {
-  renderCreature(app)
-}
+const startApp = async () => {
+  // TODO: Depending on how many assets we end up having,
+  // we can draw a loading screen here, and update the UI
+  // with the progress coming from the loader.
+  await loadAll((t) => {
+    console.log('Loading progress: ', t.progress)
+  })  
 
-app.resize();
-
-// load the texture we need
-// loader.onProgress.add(loadProgressHandler)
-loader.add({
-  name: 'kitty',
-  url: cat2,
-  onComplete: () => console.log('kitty load complete'),
-  crossOrigin:true
-}).load(spriteSetup);
-
-let kitty;
-
-function spriteSetup (loader, resources) {
-  kitty = new Sprite(resources.kitty.texture);
-  // Setup the position of the kitty
-  kitty.position.set(app.renderer.width/2, app.renderer.height/2);
-
-  // Rotate around the center
-  kitty.anchor.set(0.5, 0.5);
-  kitty.scale.set(0.15, 0.15)
-
-  // app.stage.addChild(kitty)
-
-  // Listen for frame updates
-  app.ticker.add(() => {
-    kitty.rotation += 0.01;
+  if(LOGGEDIN && UserData.role === 'ROLE_ADMIN'){    
+    renderAdminCreatures(app);
+  } else if (LOGGEDIN && UserData.user.username == "cezar2") {
+    renderSVGTest(app);
+  } else if (LOGGEDIN) {
+    renderCreature(app)
+  }
+  
+  app.resize();
+  
+  app.renderer.on('resize', (width, height) => {
+    kitty?.position.set(width/2, height/2)
+    kitty?.anchor.set(0.5, 0.5);
+    for(let i = 0; i < app.stage.children.length; i++){
+      const elem = app.stage.children[i]
+    }
   });
 }
 
-app.renderer.on('resize', (width, height) => {
-  kitty?.position.set(width/2, height/2)
-  kitty?.anchor.set(0.5, 0.5);
-  for(let i = 0; i < app.stage.children.length; i++){
-    const elem = app.stage.children[i]
-  }
-});
+startApp()
