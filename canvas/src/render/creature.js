@@ -62,6 +62,7 @@ export default class Creature extends PIXI.Graphics {
     }
 
     tick(delta) {
+        // Movement of the entire creature
         this.totalTime += delta
 
         const target = this.target
@@ -83,7 +84,7 @@ export default class Creature extends PIXI.Graphics {
         this.destinationMarker.x = target.x - this.x
         this.destinationMarker.y = target.y - this.y
 
-        // Per-frame update for the creature SVG Shape
+        // Per-frame update for the creature SVG Shape outlines
         this.svgShape.tick()        
     }
 }
