@@ -23,7 +23,7 @@ let socket, socketAuthenticated = false;
 const port = (window.location.hostname === 'localhost' ? '3000' : '330') // change to local IP address to access via mobile
 let myCreatures = {};
 let graphics = []
-let onlineUsers = []
+let onlineUsers = [], onlineUsernames = []
 
 let gardenContainer
 let allCreaturesContainer
@@ -47,14 +47,16 @@ export async function renderAdminCreatures(app) {
   socket.on('connect_error', (error) => {
     console.log('socket connect error', error)
   })
-  
+
   // get data of all online users
   await socket.on('usersUpdate', (users) => {
+    console.log("users?", users)
     for(let i = 0; i < users.length; i++) {
-      onlineUsers.push(users[i])
+      if(!users[i].isOnline) {   // remove ! later
+        onlineUsers.push(users[i])
+        onlineUsernames.push(users[i].username)
+      }
     }
-
-    console.log(onlineUsers)
   })
   
   await socket.on('creatures', (creatures) => {
@@ -76,7 +78,7 @@ export async function renderAdminCreatures(app) {
   socket.on('creaturesUpdate', (creaturesToUpdate) => {
     for (const [key, value] of Object.entries(myCreatures)) {
       if (creaturesToUpdate[key]) {
-        const creature = allCreaturesContainer.children.find(ele => ele.name === key)
+        const creature = allCreaturesContainer?.children.find(ele => ele.name === key)
         const newState = creaturesToUpdate[key]
 
         // Update the target for movement inside of the creature class
@@ -104,25 +106,30 @@ async function render(app) {
   gardenContainer.y = HEIGHT / 2
   gardenContainer.scale.set(globalScale, globalScale)
 
-  // Create garden grid
+  // Create garden grid and check isOnline
   allGardenSectionsContainer = new PIXI.Container()
   gardenContainer.addChild(allGardenSectionsContainer)
 
   const allUsers = (await UserData.getAdminData()).data
   let gardens = []
-
   for(let i = 0; i < allUsers.length; i++){
     const u = allUsers[i]
-    const garden = { 'user': u.username, 'garden': u.gardenSection }
+    let isOnline = false;
+    if(onlineUsernames.includes(u.username)) {
+      isOnline = true;
+    }
+    const garden = { 'user': u.username, 'garden': u.gardenSection, 'isOnline': isOnline }
     gardens.push(garden)
   }
   
+  // draw gardens
   for(let i = 0; i < gardens.length; i++) {
-    const g = gardens[i].garden
+    const isOnline = gardens[i].isOnline;
+    const g = gardens[i].garden;
     const x = g.x;
     const y = g.y;
     const rectangle = new PIXI.Graphics();
-    const hex = PIXI.utils.rgb2hex([250, 40, 185])
+    const hex = isOnline ? PIXI.utils.rgb2hex([0.1, 0.8, 0.4]) : PIXI.utils.rgb2hex([0.3, 0.3, 0.3])    
     rectangle.lineStyle({width: 20, color: 0x00ff00, alpha: 0.5});
     rectangle.beginFill(hex);
     rectangle.drawRect(x, y, g.width, g.width);

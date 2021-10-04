@@ -48,14 +48,7 @@ const startApp = async () => {
   }
   
   app.resize();
-  
-  app.renderer.on('resize', (width, height) => {
-    kitty?.position.set(width/2, height/2)
-    kitty?.anchor.set(0.5, 0.5);
-    for(let i = 0; i < app.stage.children.length; i++){
-      const elem = app.stage.children[i]
-    }
-  });
+
 }
 
 startApp()
