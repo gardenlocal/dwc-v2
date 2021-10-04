@@ -39,14 +39,14 @@ export async function renderCreature(app) {
     }
   })
   
-  await socket.on('creatures', (creatures) => {
-    console.log(creatures)
+  socket.on('creatures', (creatures) => {
     for(let i = 0; i < creatures.length; i++) {
       if(creatures[i]._id === creatureId){
         myCreature = creatures[i]
       }
     }
   })
+
 
   setTimeout(() => {
    if(myCreature){
