@@ -3,6 +3,7 @@ import { distanceAndAngleBetweenTwoPoints, Vector } from './utils';
 import { DWC_META } from '../../../shared-constants';
 import PixiSVG from '../svg-lib'
 import SVGShape from './Geometry/SVGCreatureShape';
+import { randomElementFromArray, easeInOutBounce } from './utils';
 
 export default class Creature extends PIXI.Graphics {
     constructor(state) {
@@ -18,6 +19,9 @@ export default class Creature extends PIXI.Graphics {
     
         //this.creatureType = appearance.creatureType
         this.creatureType = 'creature-7'
+        this.toCreatureType = 'creature-5'
+        this.shapeMorphAlpha = 0
+        this.shapeMorphAlphaSgn = 1
 
         let { fromX, fromY, toX, toY, transitionDuration } = movement;
         this.x = fromX
@@ -85,6 +89,16 @@ export default class Creature extends PIXI.Graphics {
         this.destinationMarker.y = target.y - this.y
 
         // Per-frame update for the creature SVG Shape outlines
-        this.svgShape.tick()        
+        this.svgShape.tick()
+        this.svgShape.morph(this.creatureType, this.toCreatureType, easeInOutBounce(this.shapeMorphAlpha))
+
+        // Shape morphing prototype
+        this.shapeMorphAlpha += this.shapeMorphAlphaSgn * 0.008
+        if (this.shapeMorphAlpha > 1 || this.shapeMorphAlpha < 0) { 
+            //this.shapeMorphAlphaSgn *= -1 
+            this.shapeMorphAlpha = 0
+            this.creatureType = this.toCreatureType
+            this.toCreatureType = randomElementFromArray(Object.values(DWC_META.creatures))
+        }
     }
 }

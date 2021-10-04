@@ -2,6 +2,8 @@ import * as PIXI from 'pixi.js'
 import * as geometric from 'geometric'
 import { distanceAndAngleBetweenTwoPoints } from '../utils'
 
+const morphOffsetCache = {}
+
 export default class SVGLayer extends PIXI.Graphics {
     constructor(name, svgObj, pointCount = 200) {
         super()
@@ -10,14 +12,11 @@ export default class SVGLayer extends PIXI.Graphics {
         
 
         //this.points = this.svgObj._geometry.points
-        // In order to implement holes, we probably need to do some odd/even stuff here.
+        // In order to implement holes, we probably need to do some odd/even stuff here, based on all the elements of graphicsData
         // For now, we can deal with simple shapes.
         this.points = this.svgObj.geometry.graphicsData[0].points        
         this.points = this.resampleByPoints(pointCount)
         this.draw()
-
-        console.log('g: ', geometric)
-        console.log('Perimeter: ', this.calculatePerimeter())
     }
 
     toGeometricPoly(p) {
@@ -38,6 +37,48 @@ export default class SVGLayer extends PIXI.Graphics {
         }
         this.draw()
         */
+    }
+
+    calculateMorphOffset(from, fromName, to, toName) {
+        if (!morphOffsetCache[fromName]) {
+            morphOffsetCache[fromName] = {}
+        }
+
+        let minDist = 1000000000, minIndex = -1
+
+        // A simple heuristic to determine a rotation of the polygon so that the transform doesn't self-intersect
+        // It's pretty simplistic, but better than nothing. Can be improved if we really want to.
+
+        for (let i = 0; i < to.points.length; i += 2) {
+            let d = distanceAndAngleBetweenTwoPoints(from.points[0], from.points[1], to.points[i], to.points[i + 1])
+            if (d.distance < minDist) {
+                minDist = d.distance
+                minIndex = i
+            }
+        }
+
+        morphOffsetCache[fromName][toName] = minIndex
+    }
+
+    morph(from, fromName, to, toName, alpha) {
+        if (!morphOffsetCache[fromName] || !morphOffsetCache[fromName][toName]) {
+            this.calculateMorphOffset(from, fromName, to, toName)
+        }
+
+        let toIndexWithOffset = morphOffsetCache[fromName][toName]
+        this.points = []
+
+        for (let i = 0; i < from.points.length; i += 2) {
+            const interp = geometric.lineInterpolate([[from.points[i], from.points[i + 1]], [to.points[toIndexWithOffset], to.points[toIndexWithOffset + 1]]])(alpha)
+            this.points.push(interp[0], interp[1])
+
+            toIndexWithOffset += 2
+            if (toIndexWithOffset >= to.points.length) {
+                toIndexWithOffset -= to.points.length
+            }
+        }
+
+        this.draw()
     }
 
     setStyle(style, matrix) {
@@ -81,7 +122,6 @@ export default class SVGLayer extends PIXI.Graphics {
 
         for (let i = 0; i < this.points.length; i += 2) {
             let dst = distanceAndAngleBetweenTwoPoints(this.points[i], this.points[i + 1], this.points[i + 2], this.points[i + 3]).distance
-            console.log(i, dst)
             if (totalDist + dst > targetDist) {
                 let interpAlphas = []
                 while (totalDist + dst > targetDist) {
@@ -91,8 +131,6 @@ export default class SVGLayer extends PIXI.Graphics {
                     dst -= advanceDist
                 }
                 totalDist = dst
-
-                console.log(i, interpAlphas)
 
                 interpAlphas.forEach(a => {
                     let newPoint = geometric.lineInterpolate([[this.points[i], this.points[i + 1]], [this.points[i + 2], this.points[i + 3]]])(a)

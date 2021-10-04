@@ -17,12 +17,15 @@ export default class SVGCreatureShape extends PIXI.Graphics {
     }
 
     initialize() {        
+        // First draw the entire SVG onto an off-screen render texture, in order for the geometry to be computed.
         sharedRenderer.render(this.svg, { renderTexture: sharedRenderTexture })
 
+        // Select the layers of the SVG we want to render. For now, it's just the one called "main-shape"
         const layersOfInterest = {
             [LayerNames.mainShape]: this.findLayerByName(LayerNames.mainShape)
         }
 
+        // Create the layers
         for (const [key, value] of Object.entries(layersOfInterest)) {
             this.layers[key] = new SVGCreatureLayer(key, value)
             this.addChild(this.layers[key])
@@ -31,6 +34,17 @@ export default class SVGCreatureShape extends PIXI.Graphics {
 
     tick() {
         Object.values(this.layers).forEach(l => l.tick())
+    }
+
+    morph(fromKey, toKey, alpha) {
+        //console.log('morph: ', window.DWCCreatureShapes)
+        let fromCreature = window.DWCCreatureShapes[fromKey]
+        let toCreature = window.DWCCreatureShapes[toKey]
+        Object.keys(this.layers).forEach(k => {
+            if (fromCreature.layers[k] && toCreature.layers[k]) {
+                this.layers[k].morph(fromCreature.layers[k], fromKey, toCreature.layers[k], toKey, alpha)
+            }
+        })
     }
 
     findLayerByName(name) {
