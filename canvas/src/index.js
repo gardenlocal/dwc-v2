@@ -31,6 +31,8 @@ const app = new Application({
 resizeTo.appendChild(app.view)
 app.renderer.backgroundColor = 0x061639;
 
+window.DWCApp = app
+
 const startApp = async () => {
   // TODO: Depending on how many assets we end up having,
   // we can draw a loading screen here, and update the UI

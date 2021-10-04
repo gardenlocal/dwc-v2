@@ -286,6 +286,10 @@ export class SVGNode extends PIXI.Graphics {
 	 * @param {PIXI.Matrix} matrix
 	 */
 	fillShapes(style, matrix) {
+
+		this.__style = style
+		this.__matrix = matrix
+
 		const { fill, opacity, stroke, strokeWidth, strokeOpacity, fillOpacity } = style;
 
 		const isStrokable = stroke !== undefined && stroke !== "none" && stroke !== "transparent";
