@@ -89,16 +89,17 @@ export default class Creature extends PIXI.Graphics {
         this.destinationMarker.y = target.y - this.y
 
         // Per-frame update for the creature SVG Shape outlines
-        this.svgShape.tick()
-        this.svgShape.morph(this.creatureType, this.toCreatureType, easeInOutBounce(this.shapeMorphAlpha))
+        this.svgShape.tick()        
 
         // Shape morphing prototype
         this.shapeMorphAlpha += this.shapeMorphAlphaSgn * 0.008
         if (this.shapeMorphAlpha > 1 || this.shapeMorphAlpha < 0) { 
-            //this.shapeMorphAlphaSgn *= -1 
+            // TODO (cezar): This needs to be server driven, just like the movement animation.
             this.shapeMorphAlpha = 0
             this.creatureType = this.toCreatureType
             this.toCreatureType = randomElementFromArray(Object.values(DWC_META.creatures))
         }
+
+        this.svgShape.morph(this.creatureType, this.toCreatureType, easeInOutBounce(this.shapeMorphAlpha))
     }
 }
