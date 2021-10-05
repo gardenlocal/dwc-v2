@@ -53,15 +53,7 @@ export async function renderAdminCreatures(app) {
 
   // set and reset online users
   await socket.on('usersUpdate', (users) => {
-    onlineUsers = {}
-    console.log(users)
-    for (let i = 0; i < users.length; i++) {
-      const user = users[i];
-      const username = users[i].username;
-      const key = username
-      const value = user
-      onlineUsers[key] = value;
-    }
+    onlineUsers = updateUsers(users)
 
     // update creature and garden rendering when online users change
     updateCreaturesList()
@@ -80,27 +72,26 @@ export async function renderAdminCreatures(app) {
 
   function updateCreaturesList(list) {
     const creatures = list || socketCreatures
-    // check current onlineUser's creature keys
-    let currentCreatures = {}
+    
+    onlineCreatures = {}
+    let userNamesCreatureIds = {}
     for (const [key, value] of Object.entries(onlineUsers)) {
-      currentCreatures[value.creature] = value;
+      userNamesCreatureIds[value.creature] = {'username': value.username, 'gardenSection': value.gardenSection }
     }
 
-    // add to onlinecreatures only if users are online
-    for (let i = 0; i < creatures.length; i++) {
-      const id = creatures[i]._id
-      // creature's owner key could be helpful here.
-      if (Object.keys(currentCreatures).includes(id)) {
-        const c = currentCreatures[id]
-        const userinfo = onlineUsers[c.username]
-        updateList(creatures[i], userinfo)
-      } else {
-        if (onlineCreatures[id]) {
-          updateList(creatures[i])
-        }
-      }
-    }
-  }
+    // add creature that belongs to onlineUsers
+    creatures.forEach(elem => {
+      if (Object.keys(userNamesCreatureIds).includes(elem._id)) {
+        const c = userNamesCreatureIds[elem._id]
+        const value = elem
+        value.owner = c.username
+        value.gardenSection = c.gardenSection
+        onlineCreatures[elem._id] = value
+      } 
+    })
+
+    updateCreatureOnCanvas()
+  }    
 
   socket.on('creaturesUpdate', (creaturesToUpdate) => {
     for (const [key, value] of Object.entries(onlineCreatures)) {
@@ -119,17 +110,6 @@ export async function renderAdminCreatures(app) {
     render(app)
    }
   }, 200);
-}
-
-function updateList(creature, user) {
-  const id = creature._id
-  if (user) {
-    creature.gardenSection = user.gardenSection
-    onlineCreatures[id] = creature
-  } else {
-    delete onlineCreatures[id]
-  }
-  updateCreatureOnCanvas()
 }
 
 // add or remove creature on Canvas
