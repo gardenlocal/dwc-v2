@@ -9,6 +9,7 @@ import Creature from './creature'
 import UserData from "../data/userData";
 import grassImg from '../../assets/green1.jpg';
 import { elemIndex } from "prelude-ls";
+import { updateUsers } from "../data/globalData";
 
 const textStyle = new PIXI.TextStyle({
   fontSize: 200,
@@ -50,33 +51,18 @@ export async function renderAdminCreatures(app) {
     console.log('socket connect error', error)
   })
 
-  // get real-time updates online users
+  // set and reset online users
   await socket.on('usersUpdate', (users) => {
+    onlineUsers = {}
+    console.log(users)
     for (let i = 0; i < users.length; i++) {
       const user = users[i];
       const username = users[i].username;
-
-      // add to onlineUserd list, if user joins
-      if (!Object.keys(onlineUsers).includes(username)) { 
-        const key = username
-        const value = user
-        onlineUsers[key] = value;
-      }
+      const key = username
+      const value = user
+      onlineUsers[key] = value;
     }
 
-    // delete from onlineUser list, if user logs out
-    const oldUsernames = Object.keys(onlineUsers)
-    if (users.length < oldUsernames.length) {
-      console.log("//////////////logs out////////////////")
-      let newUsernames = []
-      users.forEach(u => newUsernames.push(u.username))
-  
-      oldUsernames.forEach(elem => {
-        if(!newUsernames.includes(elem)) {
-          delete onlineUsers[elem]
-        }
-      })
-    }
     // update creature and garden rendering when online users change
     updateCreaturesList()
     !!allGardenSectionsContainer && updateGarden()
