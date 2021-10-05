@@ -2,13 +2,15 @@
 // https://stackoverflow.com/questions/40472364/moving-object-from-a-to-b-smoothly-across-canvas
 
 import * as PIXI from "pixi.js";
-import { Graphics, TextStyle } from "pixi.js";
+import { Graphics, Sprite, TextStyle } from "pixi.js";
 import { io } from 'socket.io-client';
 import { distanceAndAngleBetweenTwoPoints, Vector, map, constrain } from "./utils";
 import Creature from './creature'
 import UserData from "../data/userData";
+import grassImg from '../../assets/green1.jpg';
+import { elemIndex } from "prelude-ls";
 
-const style = new PIXI.TextStyle({
+const textStyle = new PIXI.TextStyle({
   fontSize: 200,
   fill: "white",
   stroke: "white",
@@ -21,12 +23,12 @@ const userToken = JSON.parse(localStorage.getItem("user"))?.accessToken;
 const userId = JSON.parse(localStorage.getItem("user"))?.id; 
 let socket, socketAuthenticated = false;
 const port = (window.location.hostname === 'localhost' ? '3000' : '330') // change to local IP address to access via mobile
-let myCreatures = {};
-let graphics = []
-let onlineUsers = [], onlineUsernames = []
+let onlineCreatures = {};
+let onlineUsers = {}, socketCreatures = [], gardens = []
 
-let gardenContainer
-let allCreaturesContainer
+let gardenContainer 
+let allCreaturesContainer = new PIXI.Container()
+
 let allGardenSectionsContainer
 
 let globalScale = 0.1
@@ -48,55 +50,136 @@ export async function renderAdminCreatures(app) {
     console.log('socket connect error', error)
   })
 
-  // get data of all online users
+  // get real-time updates online users
   await socket.on('usersUpdate', (users) => {
-    console.log("users?", users)
-    for(let i = 0; i < users.length; i++) {
-      if(!users[i].isOnline) {   // remove ! later
-        onlineUsers.push(users[i])
-        onlineUsernames.push(users[i].username)
+    for (let i = 0; i < users.length; i++) {
+      const user = users[i];
+      const username = users[i].username;
+
+      // add to onlineUserd list, if user joins
+      if (!Object.keys(onlineUsers).includes(username)) { 
+        const key = username
+        const value = user
+        onlineUsers[key] = value;
       }
     }
+
+    // delete from onlineUser list, if user logs out
+    const oldUsernames = Object.keys(onlineUsers)
+    if (users.length < oldUsernames.length) {
+      console.log("//////////////logs out////////////////")
+      let newUsernames = []
+      users.forEach(u => newUsernames.push(u.username))
+  
+      oldUsernames.forEach(elem => {
+        if(!newUsernames.includes(elem)) {
+          delete onlineUsers[elem]
+        }
+      })
+    }
+    // update creature and garden rendering when online users change
+    updateCreaturesList()
+    !!allGardenSectionsContainer && updateGarden()
   })
   
-  await socket.on('creatures', (creatures) => {
-    for(let i = 0; i < creatures.length; i++) {
-      for(let j = 0; j < onlineUsers.length; j++){
-        const id = onlineUsers[j].creature
-        if(creatures[i]._id === id){
-          const creature = creatures[i]
-          creature.gardenSection = onlineUsers[j].gardenSection
-          myCreatures[id] = creature
+  getCreatures() 
+  updateCreaturesList()
+
+  async function getCreatures() {
+    await socket.on('creatures', (creatures) => {
+      socketCreatures = creatures
+      updateCreaturesList(socketCreatures)
+    })
+  }
+
+  function updateCreaturesList(list) {
+    const creatures = list || socketCreatures
+    // check current onlineUser's creature keys
+    let currentCreatures = {}
+    for (const [key, value] of Object.entries(onlineUsers)) {
+      currentCreatures[value.creature] = value;
+    }
+
+    // add to onlinecreatures only if users are online
+    for (let i = 0; i < creatures.length; i++) {
+      const id = creatures[i]._id
+      // creature's owner key could be helpful here.
+      if (Object.keys(currentCreatures).includes(id)) {
+        const c = currentCreatures[id]
+        const userinfo = onlineUsers[c.username]
+        updateList(creatures[i], userinfo)
+      } else {
+        if (onlineCreatures[id]) {
+          updateList(creatures[i])
         }
       }
     }
+  }
 
-    console.log('creatures: ', myCreatures)
-  })
-
-  // constantly getting new data of current creatures
   socket.on('creaturesUpdate', (creaturesToUpdate) => {
-    for (const [key, value] of Object.entries(myCreatures)) {
+    for (const [key, value] of Object.entries(onlineCreatures)) {
       if (creaturesToUpdate[key]) {
         const creature = allCreaturesContainer?.children.find(ele => ele.name === key)
         const newState = creaturesToUpdate[key]
 
         // Update the target for movement inside of the creature class
         creature.updateState(newState)        
-      }
+      } 
     }
   })
 
   setTimeout(() => {
-   if(Object.keys(myCreatures).length > 0){
+   if (Object.keys(onlineCreatures).length > 0){
     render(app)
    }
   }, 200);
 }
 
+function updateList(creature, user) {
+  const id = creature._id
+  if (user) {
+    creature.gardenSection = user.gardenSection
+    onlineCreatures[id] = creature
+  } else {
+    delete onlineCreatures[id]
+  }
+  updateCreatureOnCanvas()
+}
+
+// add or remove creature on Canvas
+function updateCreatureOnCanvas() {
+  let canvasCreatures = []
+  allCreaturesContainer.children.forEach( c => canvasCreatures.push(c.name) )
+  for (const [key, value] of Object.entries(onlineCreatures)) {
+    // check if creature is already added
+    if (!canvasCreatures.includes(key)) {
+      const c = new Creature(value)
+      allCreaturesContainer.addChild(c)
+    }
+  }
+  // if canvasCreatures have creature that is NOT online, delete it from PIXI.CONTAINER
+  for (let i = 0; i < canvasCreatures.length; i++) {
+    const keyStr = canvasCreatures[i]
+    if (!onlineCreatures[keyStr]){
+      const dead = allCreaturesContainer.children.find(child => child.name === keyStr)
+      allCreaturesContainer.removeChild(dead)
+    }
+  }
+}
+
+// update garden color based on user's online status
+function updateGarden() {
+  const currentGardens = allGardenSectionsContainer.children
+  currentGardens.forEach(elem => {
+    if (Object.keys(onlineUsers).includes(elem.name)) {
+      elem.alpha = 1
+    } else if (elem.name) {
+      elem.alpha = 0.3
+    }
+  })
+}
 
 async function render(app) {
-
   gardenContainer = new PIXI.Graphics()  
 
   // Instead of dividing coordinates by 10 and adding the offset, we create a container;
@@ -109,47 +192,17 @@ async function render(app) {
   // Create garden grid and check isOnline
   allGardenSectionsContainer = new PIXI.Container()
   gardenContainer.addChild(allGardenSectionsContainer)
-
-  const allUsers = (await UserData.getAdminData()).data
-  let gardens = []
-  for(let i = 0; i < allUsers.length; i++){
-    const u = allUsers[i]
-    let isOnline = false;
-    if(onlineUsernames.includes(u.username)) {
-      isOnline = true;
-    }
-    const garden = { 'user': u.username, 'garden': u.gardenSection, 'isOnline': isOnline }
-    gardens.push(garden)
-  }
   
-  // draw gardens
-  for(let i = 0; i < gardens.length; i++) {
-    const isOnline = gardens[i].isOnline;
-    const g = gardens[i].garden;
-    const x = g.x;
-    const y = g.y;
-    const rectangle = new PIXI.Graphics();
-    const hex = isOnline ? PIXI.utils.rgb2hex([0.1, 0.8, 0.4]) : PIXI.utils.rgb2hex([0.3, 0.3, 0.3])    
-    rectangle.lineStyle({width: 20, color: 0x00ff00, alpha: 0.5});
-    rectangle.beginFill(hex);
-    rectangle.drawRect(x, y, g.width, g.width);
-    rectangle.endFill();
-    allGardenSectionsContainer.addChild(rectangle);
+  setGardens()
 
-    const message = new PIXI.Text(gardens[i].user, style);
-    message.position.set(x + 50, y);
-    allGardenSectionsContainer.addChild(message);
-  }
+  PIXI.Loader.shared
+  .add(grassImg)
+  .load(drawGarden)
 
   // Create the creatures that move around garden
-  allCreaturesContainer = new PIXI.Container()
   gardenContainer.addChild(allCreaturesContainer)
-
-  for (const [key, value] of Object.entries(myCreatures)) {
-    const c = new Creature(value)
-    allCreaturesContainer.addChild(c)
-  }
-
+  
+  updateCreatureOnCanvas()
   app.stage.addChild(gardenContainer)
   animate(app);
 
@@ -163,11 +216,44 @@ async function render(app) {
   })
 }
 
+async function setGardens() {
+  const allUsers = (await UserData.getAdminData()).data
+  for (let i = 0; i < allUsers.length; i++){
+    const u = allUsers[i]
+    let isOnline = false;
+    if (Object.keys(onlineUsers).includes(u.username)) {
+      isOnline = true;
+    }
+    const garden = { 'user': u.username, 'garden': u.gardenSection, 'isOnline': isOnline }
+    gardens.push(garden)
+  }
+}
+
+function drawGarden() {
+  for (let i = 0; i < gardens.length; i++) {
+    const square = new PIXI.Sprite(PIXI.Loader.shared.resources[grassImg].texture);
+    const g = gardens[i].garden;
+    square.name = gardens[i].user
+    square.x = g.x;
+    square.y = g.y;
+    square.width = g.width;
+    square.height = g.width;
+
+    // different color for offline garden
+    const isOnline = gardens[i].isOnline;
+    !isOnline && (square.alpha = 0.3)
+    allGardenSectionsContainer.addChild(square);
+    const message = new PIXI.Text(gardens[i].user, textStyle);
+    message.position.set(g.x + 50, g.y);
+    allGardenSectionsContainer.addChild(message);
+  }
+}
+
 function animate(app) {
   // gotta run app.ticker for every object, all at once
-    app.ticker.add((delta) => { 
-      allCreaturesContainer.children.forEach(c => {
-        if (c.tick) c.tick(delta)
-      })
+  app.ticker.add((delta) => {
+    allCreaturesContainer.children.forEach(c => {
+      if (c.tick) c.tick(delta)
     })
+  })
 }

@@ -65,8 +65,8 @@ window.onClickLogo = () => {
 }
 
 // home - logout
-window.onClickLogout = (event) => {
-  event.preventDefault();
+window.onClickLogout = () => {
+  // event.preventDefault();
   AuthService.logout();
 }
 
