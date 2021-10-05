@@ -4,6 +4,7 @@
 import * as PIXI from "pixi.js";
 import { io } from 'socket.io-client';
 import Creature from './creature'
+import { updateUsers, updateCreatures } from "../data/globalData";
 
 const WIDTH = window.innerWidth;
 const HEIGHT = window.innerHeight;
@@ -12,13 +13,13 @@ const userToken = JSON.parse(localStorage.getItem("user"))?.accessToken;
 const userId = JSON.parse(localStorage.getItem("user"))?.id; 
 let socket, socketAuthenticated = false;
 const port = (window.location.hostname === 'localhost' ? '3000' : '330') // change to local IP address to access via mobile
-let creatureId;
 let currentGarden;
-let myCreatures = {};
-let graphics = []
+let onlineUsers = {};
+let onlineCreatures = {};
+let allCreatures = [];
 
-let gardenContainer
-let allCreaturesContainer
+let gardenContainer;
+let allCreaturesContainer;
 
 export async function renderCreature(app) {
   if(userToken) {
@@ -36,43 +37,52 @@ export async function renderCreature(app) {
     console.log('socket connect error', error)
   })
   
-  socket.on('usersUpdate', (users) => {
+  // set and reset online users
+  await socket.on('usersUpdate', (users) => {
+    // get single user's garden data
     for(let i = 0; i < users.length; i++) {
       if(users[i]._id === userId) {
-        creatureId = users[i].creature;
         currentGarden = users[i].gardenSection
       }
     }
+    // get all online users
+    onlineUsers = updateUsers(users)
+    updateOnlineCreatures()
+  })
+
+  await socket.on('creatures', (creatures) => {
+    allCreatures = creatures
+    updateOnlineCreatures(creatures)
   })
   
-  await socket.on('creatures', (creatures) => {
-    for(let i = 0; i < creatures.length; i++) {
-      if(creatures[i]._id === creatureId){
-        myCreatures[creatureId] = creatures[i]
-      }
-    }
-  })
+  updateOnlineCreatures()
 
-  // constantly getting new data of current creatures
+  function updateOnlineCreatures(arr) {
+    const creatures = arr || allCreatures
+    const newCreatures = updateCreatures(creatures, onlineUsers)
+    onlineCreatures = newCreatures
+
+  }  
+
   socket.on('creaturesUpdate', (creaturesToUpdate) => {
-
-    console.log('Creatures Update: ', creaturesToUpdate)
+    // console.log('Creatures Update: ', creaturesToUpdate)
 
     if (!allCreaturesContainer) return
 
-    for (const [key, value] of Object.entries(myCreatures)) {
+    for (const [key, value] of Object.entries(onlineCreatures)) {
       if (creaturesToUpdate[key]) {
         const creature = allCreaturesContainer.children.find(ele => ele.name === key)
         const newState = creaturesToUpdate[key]
 
         // Update the target for movement inside of the creature class
-        creature.updateState(newState)        
+        creature?.updateState(newState)        
       }
     }
   })
 
+  console.log(onlineCreatures)
   setTimeout(() => {
-   if(Object.keys(myCreatures).length > 0){
+   if(Object.keys(onlineCreatures).length > 0){
     render(app)
    }
   }, 200);
@@ -90,7 +100,7 @@ function render(app) {
   allCreaturesContainer = new PIXI.Container()
   gardenContainer.addChild(allCreaturesContainer)
 
-  for (const [key, value] of Object.entries(myCreatures)) {
+  for (const [key, value] of Object.entries(onlineCreatures)) {
     const c = new Creature(value)
     allCreaturesContainer.addChild(c)
   }

@@ -9,7 +9,7 @@ import Creature from './creature'
 import UserData from "../data/userData";
 import grassImg from '../../assets/green1.jpg';
 import { elemIndex } from "prelude-ls";
-import { updateUsers } from "../data/globalData";
+import { updateUsers, updateCreatures } from "../data/globalData";
 
 const textStyle = new PIXI.TextStyle({
   fontSize: 200,
@@ -22,18 +22,18 @@ const HEIGHT = window.innerHeight;
 
 const userToken = JSON.parse(localStorage.getItem("user"))?.accessToken;
 const userId = JSON.parse(localStorage.getItem("user"))?.id; 
-let socket, socketAuthenticated = false;
-const port = (window.location.hostname === 'localhost' ? '3000' : '330') // change to local IP address to access via mobile
+let socket;
+let socketAuthenticated = false;
+const port = (window.location.hostname === 'localhost' ? '3000' : '330'); // change to local IP address to access via mobile
 let onlineCreatures = {};
-let onlineUsers = {}, socketCreatures = [], gardens = []
+let onlineUsers = {};
+let allCreatures = [];
+let gardens = [];
 
-let gardenContainer 
-let allCreaturesContainer = new PIXI.Container()
-
-let allGardenSectionsContainer
-
-let globalScale = 0.1
-
+let gardenContainer; 
+let allGardenSectionsContainer;
+let allCreaturesContainer = new PIXI.Container();
+let globalScale = 0.1;
 
 export async function renderAdminCreatures(app) {
   if(userToken) {
@@ -56,39 +56,22 @@ export async function renderAdminCreatures(app) {
     onlineUsers = updateUsers(users)
 
     // update creature and garden rendering when online users change
-    updateCreaturesList()
+    updateOnlineCreatures()
     !!allGardenSectionsContainer && updateGarden()
   })
   
-  getCreatures() 
-  updateCreaturesList()
+  // get ALL creatures data
+  await socket.on('creatures', (creatures) => {
+    allCreatures = creatures
+    updateOnlineCreatures(creatures)
+  })
 
-  async function getCreatures() {
-    await socket.on('creatures', (creatures) => {
-      socketCreatures = creatures
-      updateCreaturesList(socketCreatures)
-    })
-  }
+  updateOnlineCreatures()
 
-  function updateCreaturesList(list) {
-    const creatures = list || socketCreatures
-    
-    onlineCreatures = {}
-    let userNamesCreatureIds = {}
-    for (const [key, value] of Object.entries(onlineUsers)) {
-      userNamesCreatureIds[value.creature] = {'username': value.username, 'gardenSection': value.gardenSection }
-    }
-
-    // add creature that belongs to onlineUsers
-    creatures.forEach(elem => {
-      if (Object.keys(userNamesCreatureIds).includes(elem._id)) {
-        const c = userNamesCreatureIds[elem._id]
-        const value = elem
-        value.owner = c.username
-        value.gardenSection = c.gardenSection
-        onlineCreatures[elem._id] = value
-      } 
-    })
+  function updateOnlineCreatures(arr) {
+    const creatures = arr || allCreatures
+    const newCreatures = updateCreatures(creatures, onlineUsers)
+    onlineCreatures = newCreatures
 
     updateCreatureOnCanvas()
   }    
