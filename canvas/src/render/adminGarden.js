@@ -10,6 +10,10 @@ import UserData from "../data/userData";
 import grassImg from '../../assets/green1.jpg';
 import { elemIndex } from "prelude-ls";
 import { updateUsers, updateCreatures } from "../data/globalData";
+import cnFragment from './shaders/cnFragment.glsl'
+import vertex from "./shaders/vertex.glsl";
+import impulseFragment from "./shaders/impulse.frag";
+import quadBezierFragment from "./shaders/quadBezier.frag";
 
 const textStyle = new PIXI.TextStyle({
   fontSize: 200,
@@ -118,12 +122,17 @@ function updateCreatureOnCanvas() {
 
 // update garden color based on user's online status
 function updateGarden() {
+  
   const currentGardens = allGardenSectionsContainer.children
+
   currentGardens.forEach(elem => {
-    if (Object.keys(onlineUsers).includes(elem.name)) {
-      elem.alpha = 1
-    } else if (elem.name) {
-      elem.alpha = 0.3
+    
+    if (Object.keys(onlineUsers).includes(elem.name)) {  // garden is online
+      elem.shader = PIXI.Shader.from(vertex, quadBezierFragment, { u_time: 1 });
+
+    } else if (elem.name) {  // garden is offline
+      elem.shader = PIXI.Shader.from(vertex, impulseFragment, { u_time: 1 });
+    
     }
   })
 }
@@ -179,19 +188,52 @@ async function setGardens() {
 }
 
 function drawGarden() {
-  for (let i = 0; i < gardens.length; i++) {
-    const square = new PIXI.Sprite(PIXI.Loader.shared.resources[grassImg].texture);
-    const g = gardens[i].garden;
-    square.name = gardens[i].user
-    square.x = g.x;
-    square.y = g.y;
-    square.width = g.width;
-    square.height = g.width;
+  const app = window.DWCApp;
 
-    // different color for offline garden
+  for (let i = 0; i < gardens.length; i++) {
+    // sprite version
+    // const square = new PIXI.Sprite(PIXI.Loader.shared.resources[grassImg].texture);
+    // square.name = gardens[i].user
+    // square.x = g.x;
+    // square.y = g.y;
+    // square.width = g.width;
+    // square.height = g.width;
+
+    const g = gardens[i].garden;
     const isOnline = gardens[i].isOnline;
-    !isOnline && (square.alpha = 0.3)
-    allGardenSectionsContainer.addChild(square);
+    // !isOnline && (square.alpha = 0.3)
+
+    // webgl shader
+    const geometry = new PIXI.Geometry()
+    .addAttribute('aVertexPosition', // the attribute name
+        [0, 0, // x, y
+          g.width, 0, // x, y
+          g.width, g.height,
+          0, g.height], // x, y
+      2) // the size of the attribute
+    .addAttribute('aUvs', // the attribute name
+        [0, 0, // u, v
+            1, 0, // u, v
+            1, 1,
+            0, 1], // u, v
+      2) // the size of the attribute
+    .addIndex([0, 1, 2, 0, 2, 3]);
+    const uniforms = {
+      u_time: 1,
+    };
+    const frag = isOnline ? quadBezierFragment : impulseFragment;
+    const shader = PIXI.Shader.from(vertex, frag, uniforms);
+    const quad = new PIXI.Mesh(geometry, shader);
+    
+    quad.name = gardens[i].user
+    quad.position.set(g.x, g.y);  
+    quad.scale.set(1);
+    allGardenSectionsContainer.addChild(quad);
+    
+    app.ticker.add((delta) => {
+      quad.shader.uniforms.u_time += Math.sin(delta/20);
+    });
+
     const message = new PIXI.Text(gardens[i].user, textStyle);
     message.position.set(g.x + 50, g.y);
     allGardenSectionsContainer.addChild(message);

@@ -6,7 +6,7 @@ import { io } from 'socket.io-client';
 import Creature from './creature'
 import { updateUsers, updateCreatures } from "../data/globalData";
 import cnFragment from './shaders/cnFragment.glsl.js'
-import cnVertex from "./shaders/cnVertex.glsl";
+import vertex from "./shaders/vertex.glsl";
 
 const WIDTH = window.innerWidth;
 const HEIGHT = window.innerHeight;
@@ -92,7 +92,7 @@ export async function renderCreature(app) {
 
 function render(app) {
   // init webgl renderer
-  // WIDTH/2, HEIGHT/2 is the center of html canvas
+  // WIDTH/2, HEIGHT/2 is the center of html canvas in webgl context
   const geometry = new PIXI.Geometry()
     .addAttribute('aVertexPosition', // the attribute name
         [-WIDTH/2, -HEIGHT/2, // x, y
@@ -112,7 +112,7 @@ function render(app) {
     // uSampler2: PIXI.Texture.from('examples/assets/bg_scene_rotate.jpg'),
     u_time: 1,
   };
-  const cnShader = PIXI.Shader.from(cnVertex, cnFragment, uniforms);
+  const cnShader = PIXI.Shader.from(vertex, cnFragment, uniforms);
 
   // TODO: reponsive to resize window
   const quad = new PIXI.Mesh(geometry, cnShader);
