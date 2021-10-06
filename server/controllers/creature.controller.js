@@ -5,11 +5,16 @@ const { getUserInfo, getAllCreaturesInfo } = require('../controllers/db.controll
 const Creature = require("../models/Creature")
 const database = require("../db")
 const { DWC_META } = require("../../shared-constants")
+const AnimatedProperty = require('../models/AnimatedProperty')
 
 let allCreatures = {}
 
 exports.createCreature = async (garden, user) => {
   console.log('Create creature: ', user._id, user)
+
+  const g = garden
+  const movementTransitionDuration = utils.randomInRange(10, 20)
+
   let creature = new Creature({
     appearance: {
       creatureType: utils.randomElementFromArray(Object.values(DWC_META.creatures)),
@@ -26,7 +31,23 @@ exports.createCreature = async (garden, user) => {
       toY: utils.randomInRange(garden.y, garden.y + garden.height),
       transitionDuration: 20
     },
-    owner: user._id
+    animatedProperties: {
+      position: new AnimatedProperty(
+        DWC_META.creaturePropertyTypes.position,
+        { x: utils.randomInRange(g.x, g.x + g.width), y: utils.randomInRange(g.y, g.y + g.height) },
+        { x: utils.randomInRange(g.x, g.x + g.width), y: utils.randomInRange(g.y, g.y + g.height) },
+        utils.randomInRange(10, 20),
+        true
+      ),
+      shape: new AnimatedProperty(
+        DWC_META.creaturePropertyTypes.shape,
+        utils.randomElementFromArray(Object.values(DWC_META.creatures)),
+        utils.randomElementFromArray(Object.values(DWC_META.creatures)),
+        utils.randomInRange(10, 20),
+        true
+      )
+    },
+    owner: user._id,
   })
 
   creature = await database.insert(creature)
@@ -41,14 +62,75 @@ exports.updateCreatures = async (onlineUsers) => {
 
   const now = new Date().getTime()
 
-  if (Object.keys(allCreatures).length == 0) {
-    allCreatures = (await getAllCreaturesInfo()).reduce((acc, el) => {
-      acc[el._id] = el
-      return acc
-    }, {})
-  }
+  allCreatures = (await getAllCreaturesInfo()).reduce((acc, el) => {
+    acc[el._id] = el
+    return acc
+  }, {})
 
-  for (let key in allCreatures) {
+
+  for (const [key, creature] of Object.entries(allCreatures)) {
+    const { animatedProperties } = creature
+
+    console.log('Checking creature: ', key)
+
+    let updatesForKey = {}
+    for (const [animKey, animProp] of Object.entries(animatedProperties)) {
+
+      if (now - animProp.startTime >= animProp.duration * 1000) {
+        let type, from, to, duration
+
+        type = animProp.type
+        console.log('----Updating property: ', type)
+
+        // The new from is the old to
+        from = animProp.to
+
+        // The new to and duration depend on the property type      
+        switch (animProp.type) {
+
+          case DWC_META.creaturePropertyTypes.position:
+            // For the position, we send the creature to a random user's garden (only online users)
+            const randomUser = onlineUsers[utils.randomIntInRange(0, onlineUsers.length)]    
+            const user = await getUserInfo(randomUser)
+            const g = user.gardenSection      
+            to = { x: utils.randomInRange(g.x, g.x + g.width), y: utils.randomInRange(g.y, g.y + g.height) }
+
+            // Duration for now is at random, between 10 and 20
+            duration = utils.randomInRange(10, 20)
+
+            break
+
+          case DWC_META.creaturePropertyTypes.shape:
+            // For the shape, we just morph into a new shape
+            to = utils.randomElementFromArray(Object.values(DWC_META.creatures))
+
+            // Duration for now is at random, between 10 and 20
+            duration = utils.randomInRange(10, 20)
+
+            break
+
+          default:
+            break
+        }
+
+        const newAnim = new AnimatedProperty(type, from, to, duration)
+
+        console.log('----Updated ', animatedProperties[animKey], ' to ', newAnim)
+
+        animatedProperties[animKey] = updatesForKey[animKey] = newAnim
+      }
+
+      if (Object.keys(updatesForKey).length > 0) {
+        await database.update({ _id: creature._id }, { $set: { animatedProperties: creature.animatedProperties }})
+        updated[key] = updatesForKey
+      }
+    }
+  }
+  
+  console.log('Updates: ', updated)
+
+  return updated
+    /*
     const { directionChangeTimestamp, transitionDuration } = allCreatures[key].movement
     if (now - directionChangeTimestamp >= 1000 * transitionDuration) {
       allCreatures[key].movement.fromX = allCreatures[key].movement.toX
@@ -68,6 +150,5 @@ exports.updateCreatures = async (onlineUsers) => {
       updated[key] = allCreatures[key]
     }
   }
-
-  return updated
+  */  
 }

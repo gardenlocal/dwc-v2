@@ -159,7 +159,7 @@ export default class SVGLayer extends PIXI.Graphics {
         this.drawPolygon(this.points)        
         this.endFill()
 
-        this.drawDebug()
+        //this.drawDebug()
     }
 
     drawDebug() {

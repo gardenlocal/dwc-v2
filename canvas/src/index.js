@@ -5,15 +5,13 @@
 
 import * as PIXI from "pixi.js";
 import { Graphics, TextStyle } from "pixi.js";
-import cat1 from '../assets/cat1.jpg';
-import cat2 from '../assets/cat2.jpg';
-import cat3 from '../assets/cat3.jpg';
 import UserData from "./data/userData";
 import { renderAdminCreatures } from "./render/adminGarden.js";
 import { renderCreature } from "./render/userGarden";
 import { loadAll } from './render/assetLoader';
 import { DWC_META } from "../../shared-constants";
 import SVGCreatureShape from "./render/Geometry/SVGCreatureShape";
+import { addStats, Stats } from 'pixi-stats';
 
 const LOGGEDIN = localStorage.getItem("user") ? true: false;
 
@@ -31,6 +29,11 @@ const app = new Application({
 });
 resizeTo.appendChild(app.view)
 app.renderer.backgroundColor = 0x061639;
+
+const stats = addStats(document, app);
+const ticker = PIXI.Ticker.shared
+
+ticker.add(stats.update, stats, PIXI.UPDATE_PRIORITY.UTILITY)
 
 window.DWCApp = app
 

@@ -39,6 +39,8 @@ let allGardenSectionsContainer;
 let allCreaturesContainer = new PIXI.Container();
 let globalScale = 0.1;
 
+let isAppRunning = false
+
 export async function renderAdminCreatures(app) {
   if(userToken) {
    socket = await io(`http://${window.location.hostname}:${port}`, {
@@ -46,7 +48,7 @@ export async function renderAdminCreatures(app) {
    })
   }
 
-  await socket.on('connect', () => {
+  socket.on('connect', () => {
     console.log('socket connect')
     socketAuthenticated = true;
   })
@@ -56,7 +58,8 @@ export async function renderAdminCreatures(app) {
   })
 
   // set and reset online users
-  await socket.on('usersUpdate', (users) => {
+  socket.on('usersUpdate', (users) => {
+    console.log('socket users update: ', users)
     onlineUsers = updateUsers(users)
 
     // update creature and garden rendering when online users change
@@ -65,9 +68,14 @@ export async function renderAdminCreatures(app) {
   })
   
   // get ALL creatures data
-  await socket.on('creatures', (creatures) => {
+  socket.on('creatures', (creatures) => {
     allCreatures = creatures
     updateOnlineCreatures(creatures)
+
+    if (!isAppRunning) {
+      isAppRunning = true
+      render(app)
+    }
   })
 
   updateOnlineCreatures()
@@ -91,12 +99,6 @@ export async function renderAdminCreatures(app) {
       } 
     }
   })
-
-  setTimeout(() => {
-   if (Object.keys(onlineCreatures).length > 0){
-    render(app)
-   }
-  }, 200);
 }
 
 // add or remove creature on Canvas
@@ -191,19 +193,25 @@ function drawGarden() {
   const app = window.DWCApp;
 
   for (let i = 0; i < gardens.length; i++) {
-    // sprite version
-    // const square = new PIXI.Sprite(PIXI.Loader.shared.resources[grassImg].texture);
-    // square.name = gardens[i].user
-    // square.x = g.x;
-    // square.y = g.y;
-    // square.width = g.width;
-    // square.height = g.width;
 
     const g = gardens[i].garden;
     const isOnline = gardens[i].isOnline;
-    // !isOnline && (square.alpha = 0.3)
+
+    // sprite version
+    const square = new PIXI.Sprite(PIXI.Loader.shared.resources[grassImg].texture);
+    square.name = gardens[i].user
+    square.x = g.x;
+    square.y = g.y;
+    square.width = g.width;
+    square.height = g.width;
+
+    !isOnline && (square.alpha = 0.3)
+    allGardenSectionsContainer.addChild(square)
 
     // webgl shader
+    // (cezar): It didn't seem to render on my computer, so I brought back the sprite version temporarily for development.
+    // Feel free to uncomment once we figure out the issue.
+    /*
     const geometry = new PIXI.Geometry()
     .addAttribute('aVertexPosition', // the attribute name
         [0, 0, // x, y
@@ -228,11 +236,12 @@ function drawGarden() {
     quad.name = gardens[i].user
     quad.position.set(g.x, g.y);  
     quad.scale.set(1);
-    allGardenSectionsContainer.addChild(quad);
+    allGardenSectionsContainer.addChild(quad);    
     
     app.ticker.add((delta) => {
       quad.shader.uniforms.u_time += Math.sin(delta/20);
     });
+    */
 
     const message = new PIXI.Text(gardens[i].user, textStyle);
     message.position.set(g.x + 50, g.y);
