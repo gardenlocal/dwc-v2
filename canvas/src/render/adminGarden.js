@@ -187,10 +187,17 @@ async function setGardens() {
     const garden = { 'user': u.username, 'garden': u.gardenSection, 'isOnline': isOnline }
     gardens.push(garden)
   }
+
+  drawGarden()  
 }
 
 function drawGarden() {
   const app = window.DWCApp;
+
+  // Empty the container, then redraw.
+  while (allGardenSectionsContainer.children[0]) {
+    allGardenSectionsContainer.removeChild(allGardenSectionsContainer.children[0])
+  }  
 
   for (let i = 0; i < gardens.length; i++) {
 
@@ -209,9 +216,7 @@ function drawGarden() {
     allGardenSectionsContainer.addChild(square)
 
     // webgl shader
-    // (cezar): It didn't seem to render on my computer, so I brought back the sprite version temporarily for development.
-    // Feel free to uncomment once we figure out the issue.
-
+    
     const geometry = new PIXI.Geometry()
     .addAttribute('aVertexPosition', // the attribute name
         [0, 0, // x, y
