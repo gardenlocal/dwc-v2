@@ -115,8 +115,10 @@ function render(app) {
     u_time: 1,
   };
   const cnShader = PIXI.Shader.from(vertex, cnFragment, uniforms);
+  const quad = new PIXI.Mesh(geometry, cnShader);
 
-  const uniformsGradient = {
+  /* (cezar): Example of a gradient shader, if we want to implement the designs.
+  const gradientUniforms = {
     u_time: 1.0,
     u_point1: [0.0, 0.0],
     u_radius1: 0.1,
@@ -126,11 +128,13 @@ function render(app) {
     u_color2: [0.8, 0.3, 0.2],
     u_resolution: [WIDTH * 1.0, HEIGHT * 1.0]
   }
-  const fragmentShader = PIXI.Shader.from(vertex, gradientFragment, uniformsGradient);
+  const gradientShader = PIXI.Shader.from(vertex, gradientFragment, gradientUniforms);
+  const quad = new PIXI.Mesh(geometry, gradientShader);
+  */
 
-  // TODO: reponsive to resize window
-  // const quad = new PIXI.Mesh(geometry, cnShader);
-  const quad = new PIXI.Mesh(geometry, fragmentShader);
+  // TODO: reponsive to resize window    
+
+
   quad.position.set(WIDTH/2, HEIGHT/2);  
   quad.scale.set(1);
 
