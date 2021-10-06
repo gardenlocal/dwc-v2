@@ -71,7 +71,7 @@ exports.updateCreatures = async (onlineUsers) => {
   for (const [key, creature] of Object.entries(allCreatures)) {
     const { animatedProperties } = creature
 
-    console.log('Checking creature: ', key)
+    // console.log('Checking creature: ', key)
 
     let updatesForKey = {}
     for (const [animKey, animProp] of Object.entries(animatedProperties)) {
@@ -80,7 +80,7 @@ exports.updateCreatures = async (onlineUsers) => {
         let type, from, to, duration
 
         type = animProp.type
-        console.log('----Updating property: ', type)
+        // console.log('----Updating property: ', type)
 
         // The new from is the old to
         from = animProp.to
@@ -115,7 +115,7 @@ exports.updateCreatures = async (onlineUsers) => {
 
         const newAnim = new AnimatedProperty(type, from, to, duration)
 
-        console.log('----Updated ', animatedProperties[animKey], ' to ', newAnim)
+        // console.log('----Updated ', animatedProperties[animKey], ' to ', newAnim)
 
         animatedProperties[animKey] = updatesForKey[animKey] = newAnim
       }
@@ -127,7 +127,7 @@ exports.updateCreatures = async (onlineUsers) => {
     }
   }
   
-  console.log('Updates: ', updated)
+  // console.log('Updates: ', updated)
 
   return updated
     /*

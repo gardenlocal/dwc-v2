@@ -9,7 +9,7 @@ exports.createGardenSection = async () => {
 
   // Start from an arbitrary garden section
   try {
-    let gardenSections = await database.find({ type: TYPES.gardenSection })
+    let gardenSections = await database.find({ type: TYPES.gardenSection, x: 0, y: 0 })
 
     if (gardenSections && gardenSections.length > 0) {
       gardenSection = gardenSections[Math.floor(Math.random() * gardenSections.length)]
@@ -18,8 +18,6 @@ exports.createGardenSection = async () => {
   } catch (e) {
     console.error("Caught error in getting arbitrary garden section: ", e)
   }
-
-  console.log('garden section is: ', gardenSection)
 
   let newGarden = null
 
@@ -31,7 +29,7 @@ exports.createGardenSection = async () => {
     let visited = {}
 
     while (!newGarden) {
-      visited[gardenSection._id] = true
+      visited[gardenSection._id] = true      
 
       let sKeys = Object.keys(gardenSection.neighbors)
       sKeys = shuffle(sKeys)
@@ -48,12 +46,13 @@ exports.createGardenSection = async () => {
         // If all neighbors are busy, keep going to one that wasn't visited.
         let nextId
         for (let key of sKeys) {
+          console.log('Checking for ', key, ' ', gardenSection.neighbors[key])
           if (!visited[gardenSection.neighbors[key]])
             nextId = gardenSection.neighbors[key]
         }
 
         try {
-          gardenSection = await database.find({ _id: nextId }) //GardenSection.findById(nextId)
+          gardenSection = await database.findOne({ _id: nextId }) //GardenSection.findById(nextId)
         } catch (e) {
           console.error(e)
           return null

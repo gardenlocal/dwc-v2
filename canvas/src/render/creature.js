@@ -98,9 +98,6 @@ export default class Creature extends PIXI.Graphics {
     tick(d) {
         const delta = PIXI.Ticker.shared.elapsedMS
 
-        this.destinationMarker.x = this.target.x - this.x
-        this.destinationMarker.y = this.target.y - this.y
-
         // Per-frame update for the creature SVG Shape outlines
         this.svgShape.tick()
 
@@ -124,6 +121,9 @@ export default class Creature extends PIXI.Graphics {
             this.shapeMorphAlpha += step
             this.svgShape.morph(this.creatureType, this.toCreatureType, easeInOutBounce(this.shapeMorphAlpha))
             // console.log('delta: ', delta, 'step: ', step, ' alpha: ', this.shapeMorphAlpha)
-        }     
+        }
+
+        this.destinationMarker.x = this.target.x - this.x
+        this.destinationMarker.y = this.target.y - this.y
     }
 }
