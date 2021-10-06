@@ -6,6 +6,7 @@ import { io } from 'socket.io-client';
 import Creature from './creature'
 import { updateUsers, updateCreatures } from "../data/globalData";
 import cnFragment from './shaders/cnFragment.glsl.js'
+import gradientFragment from './shaders/gradient.glsl'
 import vertex from "./shaders/vertex.glsl";
 
 const WIDTH = window.innerWidth;
@@ -115,8 +116,21 @@ function render(app) {
   };
   const cnShader = PIXI.Shader.from(vertex, cnFragment, uniforms);
 
+  const uniformsGradient = {
+    u_time: 1.0,
+    u_point1: [0.0, 0.0],
+    u_radius1: 0.1,
+    u_color1: [0.2, 0.3, 0.8],
+    u_point2: [1.0, 1.0],
+    u_radius2: 0.1,
+    u_color2: [0.8, 0.3, 0.2],
+    u_resolution: [WIDTH * 1.0, HEIGHT * 1.0]
+  }
+  const fragmentShader = PIXI.Shader.from(vertex, gradientFragment, uniformsGradient);
+
   // TODO: reponsive to resize window
-  const quad = new PIXI.Mesh(geometry, cnShader);
+  // const quad = new PIXI.Mesh(geometry, cnShader);
+  const quad = new PIXI.Mesh(geometry, fragmentShader);
   quad.position.set(WIDTH/2, HEIGHT/2);  
   quad.scale.set(1);
 
