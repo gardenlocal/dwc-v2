@@ -5,6 +5,8 @@ import * as PIXI from "pixi.js";
 import { io } from 'socket.io-client';
 import Creature from './creature'
 import { updateUsers, updateCreatures } from "../data/globalData";
+import cnFragment from './shaders/cnFragment.glsl.js'
+import vertex from "./shaders/vertex.glsl";
 
 const WIDTH = window.innerWidth;
 const HEIGHT = window.innerHeight;
@@ -89,8 +91,41 @@ export async function renderCreature(app) {
   })
 }
 
-
 function render(app) {
+  // init webgl renderer
+  // WIDTH/2, HEIGHT/2 is the center of html canvas in webgl context
+  const geometry = new PIXI.Geometry()
+    .addAttribute('aVertexPosition', // the attribute name
+        [-WIDTH/2, -HEIGHT/2, // x, y
+          WIDTH/2, -HEIGHT/2, // x, y
+          WIDTH/2, HEIGHT/2,
+          -WIDTH/2, HEIGHT/2], // x, y
+      2) // the size of the attribute
+    .addAttribute('aUvs', // the attribute name
+        [0, 0, // u, v
+            1, 0, // u, v
+            1, 1,
+            0, 1], // u, v
+      2) // the size of the attribute
+    .addIndex([0, 1, 2, 0, 2, 3]);
+  
+  const uniforms = {
+    // uSampler2: PIXI.Texture.from('examples/assets/bg_scene_rotate.jpg'),
+    u_time: 1,
+  };
+  const cnShader = PIXI.Shader.from(vertex, cnFragment, uniforms);
+
+  // TODO: reponsive to resize window
+  const quad = new PIXI.Mesh(geometry, cnShader);
+  quad.position.set(WIDTH/2, HEIGHT/2);  
+  quad.scale.set(1);
+
+  app.stage.addChild(quad);
+
+  app.ticker.add((delta) => {
+    quad.shader.uniforms.u_time += Math.sin(delta/20);
+  });
+
   // Make a container for the entire app, and offset it by the garden coordinates.
   // Doing this means that we can work with the global coordinates 
   // as they come from the server everywhere else.
@@ -119,3 +154,4 @@ function animate(app) {
       })
     })
 }
+
