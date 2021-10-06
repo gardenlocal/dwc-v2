@@ -211,7 +211,7 @@ function drawGarden() {
     // webgl shader
     // (cezar): It didn't seem to render on my computer, so I brought back the sprite version temporarily for development.
     // Feel free to uncomment once we figure out the issue.
-    /*
+
     const geometry = new PIXI.Geometry()
     .addAttribute('aVertexPosition', // the attribute name
         [0, 0, // x, y
@@ -227,7 +227,7 @@ function drawGarden() {
       2) // the size of the attribute
     .addIndex([0, 1, 2, 0, 2, 3]);
     const uniforms = {
-      u_time: 1,
+      u_time: 1.0,
     };
     const frag = isOnline ? quadBezierFragment : impulseFragment;
     const shader = PIXI.Shader.from(vertex, frag, uniforms);
@@ -241,7 +241,6 @@ function drawGarden() {
     app.ticker.add((delta) => {
       quad.shader.uniforms.u_time += Math.sin(delta/20);
     });
-    */
 
     const message = new PIXI.Text(gardens[i].user, textStyle);
     message.position.set(g.x + 50, g.y);
