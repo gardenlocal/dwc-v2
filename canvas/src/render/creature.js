@@ -9,21 +9,28 @@ export default class Creature extends PIXI.Graphics {
     constructor(state) {
         super()
 
-        const { movement, appearance, _id } = state;
+        const { appearance, _id, animatedProperties } = state;        
         this.name = _id
-        this.movement = movement
+        this.animatedProperties = animatedProperties
+        // this.movement = movement
         this.appearance = appearance        
 
         const { fillColor, radius } = appearance;
         const hex = PIXI.utils.rgb2hex([fillColor.r, fillColor.g, fillColor.b])
     
         //this.creatureType = appearance.creatureType
-        this.creatureType = 'creature-7'
-        this.toCreatureType = 'creature-5'
+        this.creatureType = this.animatedProperties.shape.from        
+        this.toCreatureType = this.animatedProperties.shape.to
+        this.shapeMorphDuration = this.animatedProperties.shape.duration
         this.shapeMorphAlpha = 0
         this.shapeMorphAlphaSgn = 1
 
-        let { fromX, fromY, toX, toY, transitionDuration } = movement;
+        let fromX = this.animatedProperties.position.from.x
+        let fromY = this.animatedProperties.position.from.y
+        let toX = this.animatedProperties.position.to.x
+        let toY = this.animatedProperties.position.to.y
+
+        // This should actually be somewhere between from and to, depending on the timestamp.
         this.x = fromX
         this.y = fromY
         this.vx = 0
@@ -39,13 +46,7 @@ export default class Creature extends PIXI.Graphics {
         const scale = radius / bounds.width
         this.svgShape.scale.set(scale, scale)
         this.addChild(this.svgShape)
-        
-        this.pts2 = []
-        this.rawPoints = new PIXI.Graphics()
-        this.rawPoints.scale.set(scale, scale)
-        this.rawPoints.pivot.set(bounds.x + bounds.width * 0.5, bounds.y + bounds.height * 0.5)
-        this.addChild(this.rawPoints)
-    
+            
         this.destinationMarker = new PIXI.Graphics()        
         this.destinationMarker.beginFill(0xffffff)
         this.destinationMarker.drawCircle(0, 0, 5);
@@ -58,11 +59,36 @@ export default class Creature extends PIXI.Graphics {
     }
 
     updateState(newState) {
-        this.movement = newState.movement
-        this.target.x = this.movement.toX
-        this.target.y = this.movement.toY
-        this.destinationMarker.x = this.movement.toX
-        this.destinationMarker.y = this.movement.toY
+        for (const [key, prop] of Object.entries(newState)) {
+            this.animatedProperties[key] = prop
+
+            switch (key) {
+                case (DWC_META.creaturePropertyTypes.position):
+                    this.updateTargetPosition(prop)
+                    break
+
+                case (DWC_META.creaturePropertyTypes.shape):
+                    this.updateTargetShape(prop)
+                    break
+
+                default:
+                    break
+            }
+        }
+    }
+
+    updateTargetPosition(prop) {
+        this.target.x = prop.to.x
+        this.target.y = prop.to.y
+        this.destinationMarker.x = this.target.x
+        this.destinationMarker.y = this.target.y
+    }
+
+    updateTargetShape(prop) {
+        this.creatureType = prop.from
+        this.toCreatureType = prop.to
+        this.shapeMorphAlpha = 0
+        this.shapeMorphDuration = prop.duration
     }
 
     tick(delta) {
@@ -90,16 +116,16 @@ export default class Creature extends PIXI.Graphics {
 
         // Per-frame update for the creature SVG Shape outlines
         this.svgShape.tick()        
-
-        // Shape morphing prototype
-        this.shapeMorphAlpha += this.shapeMorphAlphaSgn * 0.008
-        if (this.shapeMorphAlpha > 1 || this.shapeMorphAlpha < 0) { 
-            // TODO (cezar): This needs to be server driven, just like the movement animation.
-            this.shapeMorphAlpha = 0
-            this.creatureType = this.toCreatureType
-            this.toCreatureType = randomElementFromArray(Object.values(DWC_META.creatures))
+        
+        // Shape morphing 
+        if (this.shapeMorphAlpha >= 1) {
+            // TODO (cezar): Shape morphing should only start when current transition has been completed,
+            // otherwise we might see jumps.
+        } else {            
+            const step = delta / (1000 * this.shapeMorphDuration)
+            this.shapeMorphAlpha += step
+            this.svgShape.morph(this.creatureType, this.toCreatureType, easeInOutBounce(this.shapeMorphAlpha))
+            // console.log('delta: ', delta, 'step: ', step, ' alpha: ', this.shapeMorphAlpha)
         }
-
-        this.svgShape.morph(this.creatureType, this.toCreatureType, easeInOutBounce(this.shapeMorphAlpha))
     }
 }

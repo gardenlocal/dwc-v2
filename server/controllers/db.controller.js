@@ -24,7 +24,7 @@ exports.getUserInfo = async (id) => {
 
   let userData = null, gardenSection = null
   try {
-    userData = await database.findOne({ _id: id })
+    userData = await database.findOne({ _id: id }, { password: 0 })
     if (userData)
       gardenSection = await database.findOne({ _id: userData.gardenSection })
 
@@ -64,8 +64,7 @@ exports.isUserAdmin = async (id) => {
 
 exports.getAllCreaturesInfo = async () => {
   let creatures = null
-  try {
-    //creatures = await Creature.find({}).populate("owner", "-creature").exec()
+  try {    
     creatures = await database.find({ type: TYPES.creature })
     if (!creatures) return []
 

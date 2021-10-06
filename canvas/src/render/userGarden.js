@@ -21,6 +21,9 @@ let allCreatures = [];
 let gardenContainer;
 let allCreaturesContainer;
 
+
+let isAppRunning = false
+
 export async function renderCreature(app) {
   if(userToken) {
    socket = await io(`http://${window.location.hostname}:${port}`, {
@@ -28,7 +31,7 @@ export async function renderCreature(app) {
    })
   }
 
-  await socket.on('connect', () => {
+  socket.on('connect', () => {
     console.log('socket connect')
     socketAuthenticated = true;
   })
@@ -38,7 +41,7 @@ export async function renderCreature(app) {
   })
   
   // set and reset online users
-  await socket.on('usersUpdate', (users) => {
+  socket.on('usersUpdate', (users) => {
     // get single user's garden data
     for(let i = 0; i < users.length; i++) {
       if(users[i]._id === userId) {
@@ -50,9 +53,15 @@ export async function renderCreature(app) {
     updateOnlineCreatures()
   })
 
-  await socket.on('creatures', (creatures) => {
+  socket.on('creatures', (creatures) => {
+    console.log('socket received creatures', creatures)
     allCreatures = creatures
     updateOnlineCreatures(creatures)
+
+    if (!isAppRunning) {
+      isAppRunning = true
+      render(app)
+    }
   })
   
   updateOnlineCreatures()
@@ -61,11 +70,10 @@ export async function renderCreature(app) {
     const creatures = arr || allCreatures
     const newCreatures = updateCreatures(creatures, onlineUsers)
     onlineCreatures = newCreatures
-
-  }  
+  }
 
   socket.on('creaturesUpdate', (creaturesToUpdate) => {
-    // console.log('Creatures Update: ', creaturesToUpdate)
+    console.log('Creatures Update: ', creaturesToUpdate)
 
     if (!allCreaturesContainer) return
 
@@ -79,13 +87,6 @@ export async function renderCreature(app) {
       }
     }
   })
-
-  console.log(onlineCreatures)
-  setTimeout(() => {
-   if(Object.keys(onlineCreatures).length > 0){
-    render(app)
-   }
-  }, 200);
 }
 
 

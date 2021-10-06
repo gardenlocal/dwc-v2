@@ -35,6 +35,8 @@ let allGardenSectionsContainer;
 let allCreaturesContainer = new PIXI.Container();
 let globalScale = 0.1;
 
+let isAppRunning = false
+
 export async function renderAdminCreatures(app) {
   if(userToken) {
    socket = await io(`http://${window.location.hostname}:${port}`, {
@@ -42,7 +44,7 @@ export async function renderAdminCreatures(app) {
    })
   }
 
-  await socket.on('connect', () => {
+  socket.on('connect', () => {
     console.log('socket connect')
     socketAuthenticated = true;
   })
@@ -52,7 +54,8 @@ export async function renderAdminCreatures(app) {
   })
 
   // set and reset online users
-  await socket.on('usersUpdate', (users) => {
+  socket.on('usersUpdate', (users) => {
+    console.log('socket users update: ', users)
     onlineUsers = updateUsers(users)
 
     // update creature and garden rendering when online users change
@@ -61,9 +64,14 @@ export async function renderAdminCreatures(app) {
   })
   
   // get ALL creatures data
-  await socket.on('creatures', (creatures) => {
+  socket.on('creatures', (creatures) => {
     allCreatures = creatures
     updateOnlineCreatures(creatures)
+
+    if (!isAppRunning) {
+      isAppRunning = true
+      render(app)
+    }
   })
 
   updateOnlineCreatures()
@@ -87,12 +95,6 @@ export async function renderAdminCreatures(app) {
       } 
     }
   })
-
-  setTimeout(() => {
-   if (Object.keys(onlineCreatures).length > 0){
-    render(app)
-   }
-  }, 200);
 }
 
 // add or remove creature on Canvas
