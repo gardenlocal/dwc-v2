@@ -130,10 +130,10 @@ function updateGarden() {
   currentGardens.forEach(elem => {
     
     if (Object.keys(onlineUsers).includes(elem.name)) {  // garden is online
-      elem.shader = PIXI.Shader.from(vertex, quadBezierFragment, { u_time: 1 });
+      elem.shader = PIXI.Shader.from(vertex, quadBezierFragment, { u_time: 1.0 });
 
     } else if (elem.name) {  // garden is offline
-      elem.shader = PIXI.Shader.from(vertex, impulseFragment, { u_time: 1 });
+      elem.shader = PIXI.Shader.from(vertex, impulseFragment, { u_time: 1.0 });
     
     }
   })
