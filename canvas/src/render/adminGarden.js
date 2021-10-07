@@ -167,10 +167,11 @@ async function render(app) {
   animate(app);
 
   window.addEventListener('wheel', (e) => {
+    const d = 0.025 / 4
     console.log('wheel', e.deltaY)
-    if (e.deltaY < 0) { globalScale -= 0.025 } 
-    else { globalScale += 0.025 }
-    if (globalScale < 0.025) globalScale = 0.025
+    if (e.deltaY < 0) { globalScale -= d } 
+    else { globalScale += d }
+    if (globalScale < d) globalScale = d
 
     gardenContainer.scale.set(globalScale, globalScale)
   })

@@ -155,7 +155,9 @@ export default class SVGLayer extends PIXI.Graphics {
 
     draw() {
         this.clear()
-        this.setStyle(this.svgObj.__style, this.svgObj.__matrix)
+        // this.setStyle(this.svgObj.__style, this.svgObj.__matrix)
+        this.beginFill(0xfafafa)
+        this.lineStyle(10, 0x2a2a2a, 1)
         this.drawPolygon(this.points)        
         this.endFill()
 

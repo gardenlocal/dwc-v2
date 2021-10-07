@@ -50,7 +50,8 @@ void main() {
   vec2 cp = vec2(cos(u_time),sin(u_time)) * 0.45 + 0.5;
   float l = quadraticBezier(st.x, cp);
   vec3 color = vec3(smoothstep(l, l+px, st.y));
-  color = color + vec3(0.370,1.000,0.507);
+  color = color + vec3(0.170,1.000,0.207);
+  if (color.x > 0.9) color = vec3(0.8, 0.6, 0.2);
   
   // draw control point
   //color = mix(vec3(0.5), color, lineSegment(st, vec2(0.0), cp));
