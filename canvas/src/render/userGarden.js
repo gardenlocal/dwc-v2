@@ -8,6 +8,7 @@ import { updateUsers, updateCreatures } from "../data/globalData";
 import cnFragment from './shaders/cnFragment.glsl.js'
 import gradientFragment from './shaders/gradient.glsl'
 import vertex from "./shaders/vertex.glsl";
+import { DWC_META } from "../../../shared-constants";
 
 const WIDTH = window.innerWidth;
 const HEIGHT = window.innerHeight;
@@ -23,6 +24,7 @@ let allCreatures = [];
 
 let gardenContainer;
 let allCreaturesContainer;
+let tilesContainer;
 
 
 let isAppRunning = false
@@ -110,27 +112,29 @@ function render(app) {
       2) // the size of the attribute
     .addIndex([0, 1, 2, 0, 2, 3]);
   
+  /*  
+  // Example of voronoi cells
   const uniforms = {
     // uSampler2: PIXI.Texture.from('examples/assets/bg_scene_rotate.jpg'),
     u_time: 1,
   };
   const cnShader = PIXI.Shader.from(vertex, cnFragment, uniforms);
   const quad = new PIXI.Mesh(geometry, cnShader);
+  */
 
-  /* (cezar): Example of a gradient shader, if we want to implement the designs.
+  // (cezar): Example of a gradient shader, if we want to implement the designs.
   const gradientUniforms = {
     u_time: 1.0,
     u_point1: [0.0, 0.0],
     u_radius1: 0.1,
-    u_color1: [0.2, 0.3, 0.8],
+    u_color1: [0.6, 0.2, 0.3],
     u_point2: [1.0, 1.0],
     u_radius2: 0.1,
-    u_color2: [0.8, 0.3, 0.2],
+    u_color2: [0.2, 0.5, 0.8],
     u_resolution: [WIDTH * 1.0, HEIGHT * 1.0]
   }
   const gradientShader = PIXI.Shader.from(vertex, gradientFragment, gradientUniforms);
   const quad = new PIXI.Mesh(geometry, gradientShader);
-  */
 
   // TODO: reponsive to resize window    
 
@@ -147,7 +151,7 @@ function render(app) {
   // Make a container for the entire app, and offset it by the garden coordinates.
   // Doing this means that we can work with the global coordinates 
   // as they come from the server everywhere else.
-  gardenContainer = new PIXI.Graphics()  
+  gardenContainer = new PIXI.Graphics()
   gardenContainer.x = -currentGarden.x
   gardenContainer.y = -currentGarden.y  
 
@@ -159,9 +163,54 @@ function render(app) {
     allCreaturesContainer.addChild(c)
   }
 
-  app.stage.addChild(gardenContainer)
+  drawTiles()
+
+  app.stage.addChild(gardenContainer)  
 
   animate(app);
+}
+
+function drawTiles() {
+
+  const horizontalTiles = 6
+
+  tilesContainer = new PIXI.Graphics()
+
+  const img = PIXI.Loader.shared.resources[DWC_META.tiles.TILE_1].texture
+  const spriteSample = PIXI.Sprite.from(img)
+
+  const tileWidth = WIDTH / horizontalTiles
+  const spriteScale = tileWidth / spriteSample.width
+  const tileHeight = spriteSample.height * spriteScale
+  
+  const verticalTiles = Math.ceil(HEIGHT / tileHeight)
+
+  const allTiles = []
+  Object.values(DWC_META.tiles).forEach(tileAsset => {
+    const img = PIXI.Loader.shared.resources[tileAsset].texture
+    allTiles.push(img)
+  })
+
+  for (let i = 0; i < horizontalTiles; i++) {
+    for (let j = 0; j < verticalTiles; j++) {
+      const x = i * tileWidth
+      const y = j * tileHeight
+
+      const currTexture = allTiles[Math.floor(Math.random() * allTiles.length)]
+      const currSprite = PIXI.Sprite.from(currTexture)
+
+      const sgnX = (Math.random() < 0.5) ? -1 : 1
+      const sgnY = (Math.random() < 0.5) ? -1 : 1
+
+      currSprite.scale.set(sgnX * spriteScale, sgnY * spriteScale)
+      currSprite.x = x + (sgnX < 0 ? tileWidth : 0)
+      currSprite.y = y + (sgnY < 0 ? tileHeight : 0)
+
+      tilesContainer.addChild(currSprite)
+    }
+  }
+
+  window.DWCApp.stage.addChild(tilesContainer)  
 }
 
 function animate(app) {

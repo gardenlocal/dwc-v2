@@ -10,5 +10,11 @@ exports.DWC_META = {
     creaturePropertyTypes: {
         position: 'position',
         shape: 'shape'
+    },
+    tiles: {
+        TILE_1: "tile-1",
+        TILE_2: "tile-2",
+        TILE_3: "tile-3",
+        TILE_4: "tile-4"
     }
 }
