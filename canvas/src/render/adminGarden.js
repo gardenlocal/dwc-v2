@@ -22,8 +22,8 @@ const textStyle = new PIXI.TextStyle({
   stroke: "white",
 })
 
-const WIDTH = window.innerWidth;
-const HEIGHT = window.innerHeight;
+const WIDTH = window.GARDEN_WIDTH;
+const HEIGHT = window.GARDEN_HEIGHT;
 
 const userToken = JSON.parse(localStorage.getItem("user"))?.accessToken;
 const userId = JSON.parse(localStorage.getItem("user"))?.id; 
@@ -146,8 +146,8 @@ async function render(app) {
   // Instead of dividing coordinates by 10 and adding the offset, we create a container;
   // we set its position to the offset and scale it, and then we can work with global coordinates
   // in the other parts of rendering.
-  gardenContainer.x = WIDTH / 2
-  gardenContainer.y = HEIGHT / 2
+  gardenContainer.x = window.GARDEN_WIDTH / 2 - globalScale * window.GARDEN_WIDTH / 2
+  gardenContainer.y = window.GARDEN_HEIGHT / 2 - globalScale * window.GARDEN_HEIGHT / 2
   gardenContainer.scale.set(globalScale, globalScale)
 
   // Create garden grid and check isOnline
@@ -215,7 +215,7 @@ function drawGarden() {
     square.height = g.width;
 
     !isOnline && (square.alpha = 0.3)
-    allGardenSectionsContainer.addChild(square)
+    //allGardenSectionsContainer.addChild(square)
 
     // webgl shader
     
@@ -252,6 +252,7 @@ function drawGarden() {
     tilesBackground.y = g.y
     tilesBackground.width = g.width
     tilesBackground.height = g.height
+    tilesBackground.alpha = (isOnline ? 1 : 0.2)
     allGardenSectionsContainer.addChild(tilesBackground)    
     
     app.ticker.add((delta) => {
