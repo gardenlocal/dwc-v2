@@ -36,6 +36,8 @@ const ticker = PIXI.Ticker.shared
 ticker.add(stats.update, stats, PIXI.UPDATE_PRIORITY.UTILITY)
 
 window.DWCApp = app
+window.GARDEN_WIDTH = 1000
+window.GARDEN_HEIGHT = 1000
 
 const startApp = async () => {
   // TODO: Depending on how many assets we end up having,
@@ -53,6 +55,8 @@ const startApp = async () => {
   }, {})  
 
   console.log(window.DWCCreatureShapes)
+
+  window.DWCApp.stage.scale.set(window.innerHeight / 1000)
 
   if(LOGGEDIN && UserData.role === 'ROLE_ADMIN'){    
     renderAdminCreatures(app);

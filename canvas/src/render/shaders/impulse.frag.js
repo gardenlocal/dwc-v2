@@ -34,7 +34,7 @@ void main() {
     vec3 color = vec3(y);
 
     float pct = plot(st,y);
-    color = vec3(1.0,1.0,1.0) - pct*vec3(0.140,0.755,0.674);
+    color = vec3(0.6,0.7,1.0) - pct*vec3(0.140,0.755,0.674);
 
     gl_FragColor = vec4(color,1.0);
 }

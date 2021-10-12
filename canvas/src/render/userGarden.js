@@ -9,9 +9,10 @@ import cnFragment from './shaders/cnFragment.glsl.js'
 import gradientFragment from './shaders/gradient.glsl'
 import vertex from "./shaders/vertex.glsl";
 import { DWC_META } from "../../../shared-constants";
+import UserBackground from "./Backgrounds/UserBackground";
 
-const WIDTH = window.innerWidth;
-const HEIGHT = window.innerHeight;
+const WIDTH = window.GARDEN_WIDTH;
+const HEIGHT = window.GARDEN_HEIGHT;
 
 const userToken = JSON.parse(localStorage.getItem("user"))?.accessToken;
 const userId = JSON.parse(localStorage.getItem("user"))?.id; 
@@ -125,19 +126,18 @@ function render(app) {
   // (cezar): Example of a gradient shader, if we want to implement the designs.
   const gradientUniforms = {
     u_time: 1.0,
-    u_point1: [0.0, 0.0],
-    u_radius1: 0.1,
-    u_color1: [0.6, 0.2, 0.3],
-    u_point2: [1.0, 1.0],
-    u_radius2: 0.1,
-    u_color2: [0.2, 0.5, 0.8],
+    u_point1: [0.0, 0.0], // first center of the radial gradient, coordinates go from (0, 0) to (1, 1)
+    u_radius1: 0.1, // radius of first point of radial gradient
+    u_color1: [0.6, 0.2, 0.3], // color of first point of radial gradient
+    u_point2: [1.0, 1.0], // second center of the radial gradient, coordinates go from (0, 0) to (1, 1)
+    u_radius2: 0.1, // radius of second point of radial gradient
+    u_color2: [0.2, 0.5, 0.8], // color of second point of radial gradient
     u_resolution: [WIDTH * 1.0, HEIGHT * 1.0]
   }
   const gradientShader = PIXI.Shader.from(vertex, gradientFragment, gradientUniforms);
   const quad = new PIXI.Mesh(geometry, gradientShader);
 
   // TODO: reponsive to resize window    
-
 
   quad.position.set(WIDTH/2, HEIGHT/2);  
   quad.scale.set(1);
@@ -171,46 +171,8 @@ function render(app) {
 }
 
 function drawTiles() {
-
-  const horizontalTiles = 6
-
-  tilesContainer = new PIXI.Graphics()
-
-  const img = PIXI.Loader.shared.resources[DWC_META.tiles.TILE_1].texture
-  const spriteSample = PIXI.Sprite.from(img)
-
-  const tileWidth = WIDTH / horizontalTiles
-  const spriteScale = tileWidth / spriteSample.width
-  const tileHeight = spriteSample.height * spriteScale
-  
-  const verticalTiles = Math.ceil(HEIGHT / tileHeight)
-
-  const allTiles = []
-  Object.values(DWC_META.tiles).forEach(tileAsset => {
-    const img = PIXI.Loader.shared.resources[tileAsset].texture
-    allTiles.push(img)
-  })
-
-  for (let i = 0; i < horizontalTiles; i++) {
-    for (let j = 0; j < verticalTiles; j++) {
-      const x = i * tileWidth
-      const y = j * tileHeight
-
-      const currTexture = allTiles[Math.floor(Math.random() * allTiles.length)]
-      const currSprite = PIXI.Sprite.from(currTexture)
-
-      const sgnX = (Math.random() < 0.5) ? -1 : 1
-      const sgnY = (Math.random() < 0.5) ? -1 : 1
-
-      currSprite.scale.set(sgnX * spriteScale, sgnY * spriteScale)
-      currSprite.x = x + (sgnX < 0 ? tileWidth : 0)
-      currSprite.y = y + (sgnY < 0 ? tileHeight : 0)
-
-      tilesContainer.addChild(currSprite)
-    }
-  }
-
-  window.DWCApp.stage.addChild(tilesContainer)  
+  const tilesBackground = new UserBackground(currentGarden)
+  window.DWCApp.stage.addChild(tilesBackground)  
 }
 
 function animate(app) {
