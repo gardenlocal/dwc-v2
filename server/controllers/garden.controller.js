@@ -3,6 +3,8 @@ const constants = require("../constants")
 const database = require('../db.js')
 const TYPES = require('../datatypes')
 const GardenSection = require('../models/GardenSection')
+const { randomElementFromArray } = require('../utils')
+const { DWC_META } = require("../../shared-constants")
 
 exports.createGardenSection = async () => {
   let gardenSection
@@ -76,6 +78,11 @@ exports.createGardenSection = async () => {
       }
     }
   }
+
+  // Set up garden background
+  newGarden.backgroundTile = randomElementFromArray(Object.values(DWC_META.tiles))
+  newGarden.tileScaleX = (Math.random() < 0.5) ? -1 : 1
+  newGarden.tileScaleY = (Math.random() < 0.5) ? -1 : 1
 
   let garden = new GardenSection({ ...newGarden })
 

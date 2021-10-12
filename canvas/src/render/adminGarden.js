@@ -14,6 +14,7 @@ import cnFragment from './shaders/cnFragment.glsl'
 import vertex from "./shaders/vertex.glsl";
 import impulseFragment from "./shaders/impulse.frag";
 import quadBezierFragment from "./shaders/quadBezier.frag";
+import UserBackground from "./Backgrounds/UserBackground";
 
 const textStyle = new PIXI.TextStyle({
   fontSize: 200,
@@ -21,8 +22,8 @@ const textStyle = new PIXI.TextStyle({
   stroke: "white",
 })
 
-const WIDTH = window.innerWidth;
-const HEIGHT = window.innerHeight;
+const WIDTH = window.GARDEN_WIDTH;
+const HEIGHT = window.GARDEN_HEIGHT;
 
 const userToken = JSON.parse(localStorage.getItem("user"))?.accessToken;
 const userId = JSON.parse(localStorage.getItem("user"))?.id; 
@@ -146,8 +147,8 @@ async function render(app) {
   // Instead of dividing coordinates by 10 and adding the offset, we create a container;
   // we set its position to the offset and scale it, and then we can work with global coordinates
   // in the other parts of rendering.
-  gardenContainer.x = WIDTH / 2
-  gardenContainer.y = HEIGHT / 2
+  gardenContainer.x = window.GARDEN_WIDTH / 2 - globalScale * window.GARDEN_WIDTH / 2
+  gardenContainer.y = window.GARDEN_HEIGHT / 2 - globalScale * window.GARDEN_HEIGHT / 2
   gardenContainer.scale.set(globalScale, globalScale)
 
   // Create garden grid and check isOnline
@@ -168,10 +169,11 @@ async function render(app) {
   animate(app);
 
   window.addEventListener('wheel', (e) => {
+    const d = 0.025 / 4
     console.log('wheel', e.deltaY)
-    if (e.deltaY < 0) { globalScale -= 0.025 } 
-    else { globalScale += 0.025 }
-    if (globalScale < 0.025) globalScale = 0.025
+    if (e.deltaY < 0) { globalScale -= d } 
+    else { globalScale += d }
+    if (globalScale < d) globalScale = d
 
     gardenContainer.scale.set(globalScale, globalScale)
   })
@@ -219,6 +221,7 @@ function drawGarden() {
 
     // webgl shader
     
+    /*
     const geometry = new PIXI.Geometry()
     .addAttribute('aVertexPosition', // the attribute name
         [0, 0, // x, y
@@ -243,10 +246,19 @@ function drawGarden() {
     quad.name = gardens[i].user
     quad.position.set(g.x, g.y);  
     quad.scale.set(1);
-    allGardenSectionsContainer.addChild(quad);    
+    allGardenSectionsContainer.addChild(quad);
+    */
+
+    const tilesBackground = new UserBackground(g)
+    tilesBackground.x = g.x
+    tilesBackground.y = g.y
+    tilesBackground.width = g.width
+    tilesBackground.height = g.height
+    tilesBackground.alpha = (isOnline ? 1 : 0.2)
+    allGardenSectionsContainer.addChild(tilesBackground)    
     
     app.ticker.add((delta) => {
-      quad.shader.uniforms.u_time += Math.sin(delta/20);
+      // quad.shader.uniforms.u_time += Math.sin(delta/20);
     });
 
     const message = new PIXI.Text(gardens[i].user, textStyle);
