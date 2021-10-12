@@ -10,8 +10,8 @@ import gradientFragment from './shaders/gradient.glsl'
 import vertex from "./shaders/vertex.glsl";
 import { DWC_META } from "../../../shared-constants";
 
-const WIDTH = window.innerWidth;
-const HEIGHT = window.innerHeight;
+const WIDTH = 1000;
+const HEIGHT = 1000;
 
 const userToken = JSON.parse(localStorage.getItem("user"))?.accessToken;
 const userId = JSON.parse(localStorage.getItem("user"))?.id; 
@@ -138,7 +138,6 @@ function render(app) {
 
   // TODO: reponsive to resize window    
 
-
   quad.position.set(WIDTH/2, HEIGHT/2);  
   quad.scale.set(1);
 
@@ -172,11 +171,11 @@ function render(app) {
 
 function drawTiles() {
 
-  const horizontalTiles = 6
+  const horizontalTiles = 1
 
   tilesContainer = new PIXI.Graphics()
 
-  const img = PIXI.Loader.shared.resources[DWC_META.tiles.TILE_1].texture
+  const img = PIXI.Loader.shared.resources[currentGarden.backgroundTile].texture
   const spriteSample = PIXI.Sprite.from(img)
 
   const tileWidth = WIDTH / horizontalTiles
@@ -196,11 +195,11 @@ function drawTiles() {
       const x = i * tileWidth
       const y = j * tileHeight
 
-      const currTexture = allTiles[Math.floor(Math.random() * allTiles.length)]
+      const currTexture = PIXI.Loader.shared.resources[currentGarden.backgroundTile].texture //allTiles[Math.floor(Math.random() * allTiles.length)]
       const currSprite = PIXI.Sprite.from(currTexture)
 
-      const sgnX = (Math.random() < 0.5) ? -1 : 1
-      const sgnY = (Math.random() < 0.5) ? -1 : 1
+      const sgnX = currentGarden.tileScaleX || 1
+      const sgnY = currentGarden.tileScaleY || 1
 
       currSprite.scale.set(sgnX * spriteScale, sgnY * spriteScale)
       currSprite.x = x + (sgnX < 0 ? tileWidth : 0)
@@ -210,7 +209,11 @@ function drawTiles() {
     }
   }
 
-  window.DWCApp.stage.addChild(tilesContainer)  
+  //tilesContainer.drawRect(0, 0, 1000, 1000)
+
+  window.DWCApp.stage.addChild(tilesContainer)
+
+  window.DWCApp.stage.scale.set(window.innerHeight / 1000)
 }
 
 function animate(app) {
