@@ -9,9 +9,10 @@ import cnFragment from './shaders/cnFragment.glsl.js'
 import gradientFragment from './shaders/gradient.glsl'
 import vertex from "./shaders/vertex.glsl";
 import { DWC_META } from "../../../shared-constants";
+import UserBackground from "./Backgrounds/UserBackground";
 
-const WIDTH = 1000;
-const HEIGHT = 1000;
+const WIDTH = window.GARDEN_WIDTH;
+const HEIGHT = window.GARDEN_HEIGHT;
 
 const userToken = JSON.parse(localStorage.getItem("user"))?.accessToken;
 const userId = JSON.parse(localStorage.getItem("user"))?.id; 
@@ -170,50 +171,8 @@ function render(app) {
 }
 
 function drawTiles() {
-
-  const horizontalTiles = 1
-
-  tilesContainer = new PIXI.Graphics()
-
-  const img = PIXI.Loader.shared.resources[currentGarden.backgroundTile].texture
-  const spriteSample = PIXI.Sprite.from(img)
-
-  const tileWidth = WIDTH / horizontalTiles
-  const spriteScale = tileWidth / spriteSample.width
-  const tileHeight = spriteSample.height * spriteScale
-  
-  const verticalTiles = Math.ceil(HEIGHT / tileHeight)
-
-  const allTiles = []
-  Object.values(DWC_META.tiles).forEach(tileAsset => {
-    const img = PIXI.Loader.shared.resources[tileAsset].texture
-    allTiles.push(img)
-  })
-
-  for (let i = 0; i < horizontalTiles; i++) {
-    for (let j = 0; j < verticalTiles; j++) {
-      const x = i * tileWidth
-      const y = j * tileHeight
-
-      const currTexture = PIXI.Loader.shared.resources[currentGarden.backgroundTile].texture //allTiles[Math.floor(Math.random() * allTiles.length)]
-      const currSprite = PIXI.Sprite.from(currTexture)
-
-      const sgnX = currentGarden.tileScaleX || 1
-      const sgnY = currentGarden.tileScaleY || 1
-
-      currSprite.scale.set(sgnX * spriteScale, sgnY * spriteScale)
-      currSprite.x = x + (sgnX < 0 ? tileWidth : 0)
-      currSprite.y = y + (sgnY < 0 ? tileHeight : 0)
-
-      tilesContainer.addChild(currSprite)
-    }
-  }
-
-  //tilesContainer.drawRect(0, 0, 1000, 1000)
-
-  window.DWCApp.stage.addChild(tilesContainer)
-
-  window.DWCApp.stage.scale.set(window.innerHeight / 1000)
+  const tilesBackground = new UserBackground(currentGarden)
+  window.DWCApp.stage.addChild(tilesBackground)  
 }
 
 function animate(app) {
