@@ -16,11 +16,13 @@ export const updateGlobalData = (data) => {
 export function updateUsers (users) {
   let onlineUsers = {}
   for (let i = 0; i < users.length; i++) {
-    const user = users[i];
-    const username = users[i].username;
-    const key = username
-    const value = user
-    onlineUsers[key] = value;
+    if(users[i]) {
+      const user = users[i];
+      const username = users[i].username;
+      const key = username
+      const value = user
+      onlineUsers[key] = value;
+    }
   }
   // globalUsers = onlineUsers
   return onlineUsers
@@ -28,21 +30,19 @@ export function updateUsers (users) {
 
 export function updateCreatures (creatures, users) {
   let onlineCreatures = {}
-  let userNamesCreatureIds = {}
-  for (const [key, value] of Object.entries(users)) {
-    userNamesCreatureIds[value.creature] = {'username': value.username, 'gardenSection': value.gardenSection }
+
+  const onlineUsers = Object.keys(users);
+
+  for(let i = 0; i < creatures.length; i++){
+    const c = creatures[i];
+
+    // check if creature's owner is online
+    if(onlineUsers.includes(c.owner.username)) { 
+      onlineCreatures[c._id] = c;     
+    }
   }
 
-  // add creature that belongs to onlineUsers
-  creatures.forEach(elem => {
-    if (Object.keys(userNamesCreatureIds).includes(elem._id)) {
-      const c = userNamesCreatureIds[elem._id]
-      const value = elem
-      value.owner = c.username
-      value.gardenSection = c.gardenSection
-      onlineCreatures[elem._id] = value
-    } 
-  })
-  // globalCreatures = onlineCreatures;
+  globalCreatures = onlineCreatures;
+
   return onlineCreatures
 }

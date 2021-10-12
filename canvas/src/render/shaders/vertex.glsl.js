@@ -1,6 +1,6 @@
 // https://pixijs.io/examples/#/mesh-and-shaders/uniforms.js
 
-const cnVertex = `
+const vertex = `
 
    precision mediump float;
 
@@ -17,6 +17,7 @@ const cnVertex = `
        vUvs = aUvs;
        gl_Position = vec4((projectionMatrix * translationMatrix * vec3(aVertexPosition, 1.0)).xy, 0.0, 1.0);
 
-   }`;
+   }
+`
 
-export default cnVertex;
+export default vertex;

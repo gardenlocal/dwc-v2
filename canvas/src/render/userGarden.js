@@ -49,7 +49,7 @@ export async function renderCreature(app) {
   socket.on('usersUpdate', (users) => {
     // get single user's garden data
     for(let i = 0; i < users.length; i++) {
-      if(users[i]._id === userId) {
+      if(users[i] && (users[i]._id === userId)) {
         currentGarden = users[i].gardenSection
       }
     }
@@ -69,7 +69,7 @@ export async function renderCreature(app) {
     }
   })
   
-  updateOnlineCreatures()
+  // updateOnlineCreatures()
 
   function updateOnlineCreatures(arr) {
     const creatures = arr || allCreatures
@@ -78,7 +78,7 @@ export async function renderCreature(app) {
   }
 
   socket.on('creaturesUpdate', (creaturesToUpdate) => {
-    console.log('Creatures Update: ', creaturesToUpdate)
+    // console.log('Creatures Update: ', creaturesToUpdate)
 
     if (!allCreaturesContainer) return
 
@@ -170,6 +170,22 @@ function render(app) {
   animate(app);
 }
 
+// test resize with one tile for one garden
+function drawTile() {
+  tilesContainer = new PIXI.Graphics()
+
+  const img = PIXI.Loader.shared.resources[DWC_META.tiles.TILE_1].texture
+  const sprite = PIXI.Sprite.from(img)
+  
+  sprite.scale.set(1)
+  sprite.position.set(0, 0)
+  sprite.height = window.innerHeight;
+  sprite.width = window.innerWidth;
+  tilesContainer.addChild(sprite)
+
+  window.DWCApp.stage.addChild(tilesContainer)  
+
+}
 function drawTiles() {
 
   const horizontalTiles = 6
@@ -219,6 +235,11 @@ function animate(app) {
       allCreaturesContainer.children.forEach(c => {
         if (c.tick) c.tick(delta)
       })
+      // window.onresize = function() {
+      //   console.log('resize!')
+      //   tilesContainer.children[0].width = window.innerWidth;
+      //   tilesContainer.children[0].height = window.innerHeight;
+      // }
     })
 }
 

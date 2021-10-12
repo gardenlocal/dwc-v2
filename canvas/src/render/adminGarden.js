@@ -63,8 +63,9 @@ export async function renderAdminCreatures(app) {
     onlineUsers = updateUsers(users)
 
     // update creature and garden rendering when online users change
+    setGardens()
     updateOnlineCreatures()
-    !!allGardenSectionsContainer && updateGarden()
+    !!allGardenSectionsContainer && updateGarden()  // update gardens based on online status
   })
   
   // get ALL creatures data
@@ -78,7 +79,7 @@ export async function renderAdminCreatures(app) {
     }
   })
 
-  updateOnlineCreatures()
+  // updateOnlineCreatures()
 
   function updateOnlineCreatures(arr) {
     const creatures = arr || allCreatures
@@ -153,7 +154,7 @@ async function render(app) {
   allGardenSectionsContainer = new PIXI.Container()
   gardenContainer.addChild(allGardenSectionsContainer)
   
-  setGardens()
+  setGardens() // initialize gardens for current users
 
   PIXI.Loader.shared
   .add(grassImg)
@@ -178,6 +179,7 @@ async function render(app) {
 
 async function setGardens() {
   const allUsers = (await UserData.getAdminData()).data
+  gardens = []  // reset gardens data 
   for (let i = 0; i < allUsers.length; i++){
     const u = allUsers[i]
     let isOnline = false;
@@ -194,8 +196,8 @@ async function setGardens() {
 function drawGarden() {
   const app = window.DWCApp;
 
-  // Empty the container, then redraw.
-  while (allGardenSectionsContainer.children[0]) {
+  // Empty the container, then redraw. 
+  while (allGardenSectionsContainer?.children[0]) { // null check
     allGardenSectionsContainer.removeChild(allGardenSectionsContainer.children[0])
   }  
 
@@ -205,15 +207,15 @@ function drawGarden() {
     const isOnline = gardens[i].isOnline;
 
     // sprite version
-    const square = new PIXI.Sprite(PIXI.Loader.shared.resources[grassImg].texture);
-    square.name = gardens[i].user
-    square.x = g.x;
-    square.y = g.y;
-    square.width = g.width;
-    square.height = g.width;
+    // const square = new PIXI.Sprite(PIXI.Loader.shared.resources[grassImg].texture);
+    // square.name = gardens[i].user
+    // square.x = g.x;
+    // square.y = g.y;
+    // square.width = g.width;
+    // square.height = g.width;
 
-    !isOnline && (square.alpha = 0.3)
-    allGardenSectionsContainer.addChild(square)
+    // !isOnline && (square.alpha = 0.3)
+    // allGardenSectionsContainer.addChild(square)
 
     // webgl shader
     
