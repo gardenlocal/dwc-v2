@@ -43,7 +43,8 @@ exports.getUserInfo = async (id) => {
 exports.getUsersInfo = async (ids) => {
   let res = []
   for (let i = 0; i < ids.length; i++) {
-    res.push(await exports.getUserInfo(ids[i]))
+    const u = await exports.getUserInfo(ids[i])
+    if (u) res.push(u)
   }
   return res
 }

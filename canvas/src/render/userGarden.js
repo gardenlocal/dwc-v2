@@ -55,6 +55,7 @@ export async function renderCreature(app) {
       }
     }
     // get all online users
+    console.log('Users update: ', users)
     onlineUsers = updateUsers(users)
     updateOnlineCreatures()
   })
