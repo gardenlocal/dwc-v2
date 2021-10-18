@@ -45,7 +45,7 @@ export default class Creature extends PIXI.Graphics {
         const bounds = this.svgShape.getBounds()
         this.svgShape.pivot.set(bounds.x + bounds.width * 0.5, bounds.y + bounds.height * 0.5)
         this.svgShape.position.set(0, 0)
-        const scale = radius / bounds.width
+        const scale = radius / bounds.width * 2
         this.svgShape.scale.set(scale, scale)
         this.addChild(this.svgShape)
             

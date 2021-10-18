@@ -28,7 +28,8 @@ const app = new Application({
   resizeTo
 });
 resizeTo.appendChild(app.view)
-app.renderer.backgroundColor = 0x061639;
+//app.renderer.backgroundColor = 0x061639;
+app.renderer.backgroundColor = 0xf2f2f2;
 
 const stats = addStats(document, app);
 const ticker = PIXI.Ticker.shared
