@@ -5,7 +5,7 @@ import { distanceAndAngleBetweenTwoPoints, randomInRange } from '../utils'
 const morphOffsetCache = {}
 
 export default class SVGLayer extends PIXI.Graphics {
-    constructor(name, svgObj, pointCount = 200) {
+    constructor(name, svgObj, pointCount = 100) {
         super()
         this.name = name
         this.svgObj = svgObj
@@ -14,7 +14,10 @@ export default class SVGLayer extends PIXI.Graphics {
         //this.points = this.svgObj._geometry.points
         // In order to implement holes, we probably need to do some odd/even stuff here, based on all the elements of graphicsData
         // For now, we can deal with simple shapes.
-        this.points = this.svgObj.geometry.graphicsData[0].points        
+        this.points = this.svgObj.geometry.graphicsData[0].points
+        
+        console.log('points: ', this.points)
+        
         this.points = this.resampleByPoints(pointCount)
 
         this.pRandom = []
@@ -27,7 +30,8 @@ export default class SVGLayer extends PIXI.Graphics {
             })
         }
 
-        this.draw()        
+        this.addChild(this.svgObj)
+        //this.draw()        
     }
 
     toGeometricPoly(p) {
@@ -145,9 +149,13 @@ export default class SVGLayer extends PIXI.Graphics {
                 }
                 totalDist = dst
 
-                interpAlphas.forEach(a => {
-                    let newPoint = geometric.lineInterpolate([pC, pN])(a)
-                    newPoints.push(newPoint[0], newPoint[1])
+                interpAlphas.forEach((a, index) => {
+                    if (index == interpAlphas.length - 1) {
+                        newPoints.push(pN[0], pN[1])
+                    } else {
+                        let newPoint = geometric.lineInterpolate([pC, pN])(a)
+                        newPoints.push(newPoint[0], newPoint[1])    
+                    }
                 })
             } else {
                 totalDist += dst
@@ -168,7 +176,7 @@ export default class SVGLayer extends PIXI.Graphics {
 
     draw() {
         this.clear()
-        // this.setStyle(this.svgObj.__style, this.svgObj.__matrix)
+        this.setStyle(this.svgObj.__style, this.svgObj.__matrix)
         this.drawFillAndStroke()
 
         // Outline drawing experiments
@@ -181,7 +189,7 @@ export default class SVGLayer extends PIXI.Graphics {
 
     drawFillAndStroke() {
         // this.beginFill(0xfafafa)
-        this.lineStyle(3, 0x2a2a2a, 1)
+        //this.lineStyle(3, 0x2a2a2a, 1)
         this.drawPolygon(this.points)        
         // this.endFill()
     }

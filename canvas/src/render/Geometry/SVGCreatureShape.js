@@ -7,16 +7,21 @@ let sharedRenderer = PIXI.autoDetectRenderer()
 let sharedRenderTexture = PIXI.RenderTexture.create({ width: 2000, height: 2000 })
 
 export default class SVGCreatureShape extends PIXI.Graphics {
-    constructor(svgAsset) {
+    constructor(svgAsset, elementType, connectedElements) {
         super()
         this.svgAsset = svgAsset
+        this.elementType = elementType
+        this.connectedElements = connectedElements
         this.svg = new PixiSVG(this.svgAsset, { unpackTree: true })
 
         this.layers = {}
+        this.initialized = false
         this.initialize()
     }
 
     initialize() {        
+        if (this.initialized) return
+        this.initialized = true
         // First draw the entire SVG onto an off-screen render texture, in order for the geometry to be computed.
         sharedRenderer.render(this.svg, { renderTexture: sharedRenderTexture })
 
@@ -30,9 +35,45 @@ export default class SVGCreatureShape extends PIXI.Graphics {
             this.layers[key] = new SVGCreatureLayer(key, value)
             this.addChild(this.layers[key])
         }
+
+        // Read meta-data from SVG        
+        const origin = this.findLayerByName(LayerNames.origin)
+
+        if (origin) {
+            this.origin = {
+                x: origin.px,
+                y: origin.py
+            }
+        }
+
+        this.connectors = {}
+
+        const connectorsGroup = this.findLayerByName(LayerNames.connectors)
+        if (connectorsGroup && this.connectedElements) {
+            for (let connectorType of this.connectedElements) {
+                const el = this.findChildByName(connectorsGroup, connectorType)
+                if (!el) continue
+
+                this.connectors[connectorType] = []
+                for (let connector of el.children) {
+                    let props = connector.name.split(',')
+                    let offsetY = 0
+                    if (props.length >= 2) offsetY = parseFloat(props[1])
+
+                    this.connectors[connectorType].push({ x: connector.px, y: connector.py, verticalOffset: offsetY })
+                }
+            }
+        }
+    }
+
+    getConnectorForType(type, index) {
+        return this.connectors[type][index]
     }
 
     tick() {
+        if (!this.initialized) {
+            this.initialize()
+        }
         Object.values(this.layers).forEach(l => l.tick())
     }
 
@@ -48,13 +89,17 @@ export default class SVGCreatureShape extends PIXI.Graphics {
     }
 
     findLayerByName(name) {
-        return this._dfsFindName(this.svg, name)
+        return this.findChildByName(this.svg, name)
     }
 
-    _dfsFindName(el, name) {
+    findChildByName(el, name) {
+        // Equal
         if (el.name == name) return el
+        // Or prefix
+        if (el.name && el.name.indexOf(name) == 0) return el
+
         for (let child of el.children) {
-            let res = this._dfsFindName(child, name)
+            let res = this.findChildByName(child, name)
             if (res != null) return res
         }
         return null

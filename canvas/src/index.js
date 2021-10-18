@@ -9,6 +9,7 @@ import UserData from "./data/userData";
 import { renderAdminCreatures } from "./render/adminGarden.js";
 import { renderCreature } from "./render/userGarden";
 import { loadAll } from './render/assetLoader';
+import { renderCreatureTest } from "./render/creatureTest";
 import { DWC_META } from "../../shared-constants";
 import SVGCreatureShape from "./render/Geometry/SVGCreatureShape";
 import { addStats, Stats } from 'pixi-stats';
@@ -62,7 +63,7 @@ const startApp = async () => {
   if(LOGGEDIN && UserData.role === 'ROLE_ADMIN'){    
     renderAdminCreatures(app);
   } else if (LOGGEDIN && UserData.user.username == "cezar2") {
-    renderCreature(app)
+    renderCreatureTest(app)
   } else if (LOGGEDIN) {
     renderCreature(app)
   }

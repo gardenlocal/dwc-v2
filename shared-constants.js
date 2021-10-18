@@ -7,6 +7,24 @@ exports.DWC_META = {
         CREATURE_6: "creature-6",
         CREATURE_7: "creature-7",
     },
+    creaturesNew: {
+        moss: {
+            "moss-element-1": {
+                name: "moss-element-1",
+                connectors: {
+                    "moss-element-1": 5,
+                    "moss-element-2": 3
+                }
+            },
+            "moss-element-2": {
+                name: "moss-element-2",
+                connectors: {
+                    "moss-element-1": 3,
+                    "moss-element-2": 4
+                }
+            }
+        }
+    },
     creaturePropertyTypes: {
         position: 'position',
         shape: 'shape'

@@ -11,8 +11,8 @@ import vertex from "./shaders/vertex.glsl";
 import { DWC_META } from "../../../shared-constants";
 import UserBackground from "./Backgrounds/UserBackground";
 
-const WIDTH = window.GARDEN_WIDTH;
-const HEIGHT = window.GARDEN_HEIGHT;
+const WIDTH = window.GARDEN_WIDTH || 1000;
+const HEIGHT = window.GARDEN_HEIGHT || 1000;
 
 const userToken = JSON.parse(localStorage.getItem("user"))?.accessToken;
 const userId = JSON.parse(localStorage.getItem("user"))?.id; 

@@ -12,6 +12,9 @@ import Tile2 from '../../assets/tile-2-color.png';
 import Tile3 from '../../assets/tile-3-color.png';
 import Tile4 from '../../assets/tile-4-color.png';
 
+import MossElement1 from '../../assets/moss-element-1.svg';
+import MossElement2 from '../../assets/moss-element-2.svg';
+
 import { DWC_META } from '../../../shared-constants';
 
 const loader = PIXI.Loader.shared
@@ -32,9 +35,15 @@ const addBackgroundTiles = () => {
     loader.add(DWC_META.tiles.TILE_4, Tile4)
 }
 
+const addNewCreatures = () => {
+    loader.add(DWC_META.creaturesNew.moss["moss-element-1"].name, MossElement1)
+    loader.add(DWC_META.creaturesNew.moss["moss-element-2"].name, MossElement2)
+}
+
 export const loadAll = async (onProgress) => {
     addCreatures()
     addBackgroundTiles()
+    addNewCreatures()
 
     return new Promise((res, rej) => {
         loader.load((loader, resources) => { res(resources) })
