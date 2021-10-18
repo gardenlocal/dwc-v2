@@ -167,17 +167,16 @@ export default class SVGLayer extends PIXI.Graphics {
     }
 
     draw() {
-
-
         this.clear()
+        // this.setStyle(this.svgObj.__style, this.svgObj.__matrix)
         this.drawFillAndStroke()
+
+        // Outline drawing experiments
         // this.drawStar()
         // this.drawSquiggleGeneral()
         // this.drawSquiggleOutline()
-        this.drawBubblyOutline()
-        // this.setStyle(this.svgObj.__style, this.svgObj.__matrix)
-
-        //this.drawDebug()
+        // this.drawBubblyOutline()        
+        // this.drawDebug()
     }
 
     drawFillAndStroke() {
@@ -187,10 +186,17 @@ export default class SVGLayer extends PIXI.Graphics {
         // this.endFill()
     }
 
+    drawDebug() {
+        this.beginFill(0xff0000);
+        for (let i = 0; i < this.points.length; i += 2) {
+            this.drawCircle(this.points[i], this.points[i + 1], 5)
+        }
+        this.endFill()
+    }
+
     drawStar() {    
-        // if (!this.points50) {
-            this.points50 = this.resampleByPoints(100)
-        // }
+        this.points50 = this.resampleByPoints(100)
+        
         const p = this.points50
         const center = geometric.polygonCentroid(this.toGeometricPoly(p))
 
@@ -327,13 +333,5 @@ export default class SVGLayer extends PIXI.Graphics {
         
         // this.drawPolygon(polygon)        
         this.closePath()
-    }
-
-    drawDebug() {
-        this.beginFill(0xff0000);
-        for (let i = 0; i < this.points.length; i += 2) {
-            this.drawCircle(this.points[i], this.points[i + 1], 5)
-        }
-        this.endFill()
     }
 }
