@@ -5,7 +5,7 @@ import { distanceAndAngleBetweenTwoPoints, randomInRange } from '../utils'
 const morphOffsetCache = {}
 
 export default class SVGLayer extends PIXI.Graphics {
-    constructor(name, svgObj, pointCount = 100) {
+    constructor(name, svgObj, pointCount = 20) {
         super()
         this.name = name
         this.svgObj = svgObj
@@ -14,10 +14,7 @@ export default class SVGLayer extends PIXI.Graphics {
         //this.points = this.svgObj._geometry.points
         // In order to implement holes, we probably need to do some odd/even stuff here, based on all the elements of graphicsData
         // For now, we can deal with simple shapes.
-        this.points = this.svgObj.geometry.graphicsData[0].points
-        
-        console.log('points: ', this.points)
-        
+        this.points = this.svgObj.geometry.graphicsData[0].points            
         this.points = this.resampleByPoints(pointCount)
 
         this.pRandom = []

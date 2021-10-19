@@ -10,7 +10,8 @@ import gradientFragment from './shaders/gradient.glsl'
 import vertex from "./shaders/vertex.glsl";
 import { DWC_META } from "../../../shared-constants";
 import UserBackground from "./Backgrounds/UserBackground";
-import ComplexCreature from "./Creatures/ComplexCreature"
+import Particle from "./Creatures/Particle"
+import Cluster from "./Creatures/Cluster"
 
 let gardenContainer;
 let allCreaturesContainer;
@@ -78,7 +79,10 @@ function render(app) {
 
   app.stage.addChild(gardenContainer)
 
-  drawCreatures()
+  setInterval(() => {
+    drawCreatures()
+  }, 1000)
+  //drawCreatures()
 
   //app.stage.addChild(gardenContainer)  
 
@@ -92,7 +96,15 @@ function animate(app) {
     })
 }
 
-function drawCreatures() {  
-  const creature = new ComplexCreature(DWC_META.creaturesNew.moss["moss-element-1"].name)
-  gardenContainer.addChild(creature)
+function drawCreatures() {
+  while (gardenContainer.children[0]) {
+    gardenContainer.removeChild(gardenContainer.children[0])
+  }
+  const cluster = new Cluster(DWC_META.creaturesNew.moss["moss-element-1"].name)
+  gardenContainer.addChild(cluster)
+  cluster.scale.set(2, 2)
+  const bounds = cluster.getBounds()
+  //cluster.x = -bounds.width / 2
+  //cluster.y = -bounds.height / 2  
+  //creature.skew.x = -Math.PI / 8
 }

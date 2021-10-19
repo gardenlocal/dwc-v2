@@ -3,18 +3,15 @@ import { DWC_META } from '../../../../shared-constants';
 import SVGCreatureShape from '../Geometry/SVGCreatureShape';
 import { randomElementFromArray, randomIntInRange } from '../utils';
 
-export default class ComplexCreature  extends PIXI.Graphics {
-    constructor(svgAssetName) {
+export default class Particle extends PIXI.Graphics {
+    constructor(svgAssetName, noElements, elementsProps) {
         super()
         this.svgAssetName = svgAssetName
-        const svgData = PIXI.Loader.shared.resources[this.svgAssetName].data
+        this.noElements = noElements
+        this.elementsProps = elementsProps
 
-        const allElements = Object.values(DWC_META.creaturesNew.moss)
-
-        //this.svgShape = new SVGCreatureShape(svgData, DWC_META.creaturesNew.moss, Object.values(DWC_META.creaturesNew.moss))
-        //this.addChild(this.svgShape)
-
-        this.noElements = randomIntInRange(2, 16)
+        /*
+        this.noElements = randomIntInRange(2, 5)
         this.elementsProps = []
         let typeKey, nextTypeKey
 
@@ -29,6 +26,7 @@ export default class ComplexCreature  extends PIXI.Graphics {
                 connectorIndex: randomIntInRange(0, DWC_META.creaturesNew.moss[typeKey].connectors[nextTypeKey])
             })
         }
+        */
 
         this.elements = []
         let xOffset = 0, yOffset = 0
@@ -43,8 +41,6 @@ export default class ComplexCreature  extends PIXI.Graphics {
             element.y = yOffset
 
             this.addChild(element)
-
-            console.log('x offset', xOffset, element.getBounds())
             
             xOffset += element.getBounds().width                
             yOffset += element.getConnectorForType(nextTypeKey, connectorIndex).y
