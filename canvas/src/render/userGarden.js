@@ -17,7 +17,8 @@ const HEIGHT = window.GARDEN_HEIGHT;
 const userToken = JSON.parse(localStorage.getItem("user"))?.accessToken;
 const userId = JSON.parse(localStorage.getItem("user"))?.id; 
 let socket, socketAuthenticated = false;
-const port = (window.location.hostname === 'localhost' ? '3000' : '1012') // change to local IP address to access via mobile
+const port = window.location.hostname.includes('iptime') ? '1012' : '3000'
+// const port = (window.location.hostname === 'localhost' ? '3000' : '1012') // change to local IP address to access via mobile
 let currentGarden;
 let onlineUsers = {};
 let onlineCreatures = {};
