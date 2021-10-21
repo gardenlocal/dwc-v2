@@ -22,6 +22,20 @@ exports.DWC_META = {
                     "moss-element-1": 3,
                     "moss-element-2": 4
                 }
+            },
+            "moss-element-3": {
+                name: "moss-element-3",
+                connectors: {
+                    "moss-element-3": 4,
+                    "moss-element-4": 3
+                }
+            },
+            "moss-element-4": {
+                name: "moss-element-4",
+                connectors: {
+                    "moss-element-3": 4,
+                    "moss-element-4": 4
+                }
             }
         }
     },

@@ -5,7 +5,7 @@ import { distanceAndAngleBetweenTwoPoints, randomInRange } from '../utils'
 const morphOffsetCache = {}
 
 export default class SVGLayer extends PIXI.Graphics {
-    constructor(name, svgObj, pointCount = 20) {
+    constructor(name, svgObj, pointCount = 40) {
         super()
         this.name = name
         this.svgObj = svgObj
@@ -27,8 +27,8 @@ export default class SVGLayer extends PIXI.Graphics {
             })
         }
 
-        this.addChild(this.svgObj)
-        //this.draw()        
+        //this.addChild(this.svgObj)
+        this.draw()        
     }
 
     toGeometricPoly(p) {

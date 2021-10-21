@@ -14,6 +14,8 @@ import Tile4 from '../../assets/tile-4-color.png';
 
 import MossElement1 from '../../assets/moss-element-1.svg';
 import MossElement2 from '../../assets/moss-element-2.svg';
+import MossElement3 from '../../assets/moss-element-3.svg';
+import MossElement4 from '../../assets/moss-element-4.svg';
 
 import { DWC_META } from '../../../shared-constants';
 
@@ -38,6 +40,8 @@ const addBackgroundTiles = () => {
 const addNewCreatures = () => {
     loader.add(DWC_META.creaturesNew.moss["moss-element-1"].name, MossElement1)
     loader.add(DWC_META.creaturesNew.moss["moss-element-2"].name, MossElement2)
+    loader.add(DWC_META.creaturesNew.moss["moss-element-3"].name, MossElement3)
+    loader.add(DWC_META.creaturesNew.moss["moss-element-4"].name, MossElement4)
 }
 
 export const loadAll = async (onProgress) => {

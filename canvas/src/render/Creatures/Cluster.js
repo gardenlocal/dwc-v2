@@ -5,26 +5,29 @@ import { randomElementFromArray, randomIntInRange } from '../utils';
 import Particle from './Particle';
 
 export default class Cluster extends PIXI.Graphics {
-    constructor() {
+    constructor(elementA, elementB) {
         super()
 
+        this.elementA = elementA
+        this.elementB = elementB
         let c1, c2
-        c1 = this.getElementParams(2, 4)
-        if (Math.random() < 0.5) {
-            c2 = this.getElementParams(2, 4)
+        c1 = this.getElementParams(this.elementA, 2, 3)
+        if (Math.random() < 0.5 || elementA != elementB) {
+            c2 = this.getElementParams(this.elementB, 2, 3)
         } else {
             c2 = c1
         }
 
         this.top = new PIXI.Graphics()
 
-        let skew = randomElementFromArray([0, 0, 0, Math.PI / 4, Math.PI / 8])
+        //let skew = randomElementFromArray([0, 0, 0, Math.PI / 4, Math.PI / 8])
+        let skew = 0
 
-        this.creature = new Particle(DWC_META.creaturesNew.moss["moss-element-1"].name, c1.noElements, c1.elementsProps)
+        this.creature = new Particle(this.elementA, c1.noElements, c1.elementsProps)
         this.creature.skew.x = -skew
         this.top.addChild(this.creature)
 
-        this.creature2 = new Particle(DWC_META.creaturesNew.moss["moss-element-1"].name, c2.noElements, c2.elementsProps)
+        this.creature2 = new Particle(this.elementB, c2.noElements, c2.elementsProps)
         if (Math.random() < 0.5) {
             this.creature2.scale.set(-1, 1)
             this.creature2.x = 2 * this.creature2.getBounds().width    
@@ -41,11 +44,11 @@ export default class Cluster extends PIXI.Graphics {
         sp.y = -220        
         this.addChild(sp)
 
-        this.drawElement()
+        //this.drawElement()
         //this.drawGroup()
         //this.drawSquare()
         //this.drawCircle()
-        //this.drawRandom()
+        this.drawRandom()
     }
 
     drawRandom() {
@@ -131,16 +134,16 @@ export default class Cluster extends PIXI.Graphics {
         }
     }
 
-    getElementParams(min, max) {
+    getElementParams(elType, min, max) {
         let noElements = randomIntInRange(min, max)
         let elementsProps = []
         let typeKey, nextTypeKey
-        let type = randomElementFromArray(Object.keys(DWC_META.creaturesNew.moss))
+        let type = randomElementFromArray(Object.keys(DWC_META.creaturesNew.moss[elType].connectors))
 
         nextTypeKey = type
         for (let i = 0; i < noElements; i++) {
             typeKey = nextTypeKey
-            nextTypeKey = randomElementFromArray(Object.keys(DWC_META.creaturesNew.moss))
+            nextTypeKey = randomElementFromArray(Object.keys(DWC_META.creaturesNew.moss[typeKey].connectors))
 
             elementsProps.push({
                 typeKey: typeKey,

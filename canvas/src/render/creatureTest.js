@@ -79,6 +79,7 @@ function render(app) {
 
   app.stage.addChild(gardenContainer)
 
+  drawCreatures()
   setInterval(() => {
     drawCreatures()
   }, 1000)
@@ -100,7 +101,7 @@ function drawCreatures() {
   while (gardenContainer.children[0]) {
     gardenContainer.removeChild(gardenContainer.children[0])
   }
-  const cluster = new Cluster(DWC_META.creaturesNew.moss["moss-element-1"].name)
+  const cluster = new Cluster(DWC_META.creaturesNew.moss["moss-element-1"].name, DWC_META.creaturesNew.moss["moss-element-3"].name)
   gardenContainer.addChild(cluster)
   cluster.scale.set(2, 2)
   const bounds = cluster.getBounds()
