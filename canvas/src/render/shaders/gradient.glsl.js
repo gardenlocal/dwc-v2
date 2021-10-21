@@ -25,9 +25,6 @@ highp float dist(vec2 a, vec2 b) {
 }
 
 void main() {
-    vec2 st = vUvs;
-    // vec2 st = gl_FragCoord.xy/u_resolution;    
-
     vec3 color;
 
     highp float d1 = dist(gl_FragCoord.xy, u_point1 * u_resolution);

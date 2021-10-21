@@ -100,10 +100,12 @@ function animate(app) {
 function drawCreatures() {
   while (gardenContainer.children[0]) {
     gardenContainer.removeChild(gardenContainer.children[0])
-  }
-  const cluster = new Cluster('moss', DWC_META.creaturesNew.moss["moss-element-1"].name, DWC_META.creaturesNew.moss["moss-element-3"].name)
+  }  
+
+  const creatureType = 'mushroom'
+  const cluster = new Cluster(creatureType, 0, 0)
   gardenContainer.addChild(cluster)
-  cluster.scale.set(2, 2)
+  cluster.scale.set(1, 1)
   const bounds = cluster.getBounds()
   //cluster.x = -bounds.width / 2
   //cluster.y = -bounds.height / 2  

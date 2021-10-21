@@ -37,6 +37,52 @@ exports.DWC_META = {
                     "moss-element-4": 4
                 }
             }
+        },
+        lichen: {
+            "lichen-element-1": {
+                name: "lichen-element-1",
+                connectors: {
+                    "lichen-element-1": 1,
+                    "lichen-element-2": 1
+                }
+            },
+            "lichen-element-2": {
+                name: "lichen-element-2",
+                connectors: {
+                    "lichen-element-1": 1,
+                    "lichen-element-2": 1
+                }
+            },
+            "lichen-element-3": {
+                name: "lichen-element-3",
+                connectors: {
+                    "lichen-element-3": 1,
+                    "lichen-element-4": 1
+                }
+            },
+            "lichen-element-4": {
+                name: "lichen-element-4",
+                connectors: {
+                    "lichen-element-3": 1,
+                    "lichen-element-4": 1
+                }
+            }
+        },
+        mushroom: {
+            "mushroom-element-1": {
+                name: "mushroom-element-1",
+                connectors: {
+                    "mushroom-element-1": 1,
+                    "mushroom-element-2": 1
+                }
+            },
+            "mushroom-element-2": {
+                name: "mushroom-element-2",
+                connectors: {
+                    "mushroom-element-1": 1,
+                    "mushroom-element-2": 1
+                }
+            }
         }
     },
     creaturePropertyTypes: {

@@ -173,8 +173,10 @@ export default class SVGLayer extends PIXI.Graphics {
 
     draw() {
         this.clear()
-        this.setStyle(this.svgObj.__style, this.svgObj.__matrix)
+        //this.setStyle(this.svgObj.__style, this.svgObj.__matrix)
+        this.beginFill(0xffffff)
         this.drawFillAndStroke()
+        this.endFill()
 
         // Outline drawing experiments
         // this.drawStar()
