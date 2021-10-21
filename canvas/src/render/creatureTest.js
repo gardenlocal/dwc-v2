@@ -12,6 +12,7 @@ import { DWC_META } from "../../../shared-constants";
 import UserBackground from "./Backgrounds/UserBackground";
 import Particle from "./Creatures/Particle"
 import Cluster from "./Creatures/Cluster"
+import { randomElementFromArray, randomIntInRange } from "./utils";
 
 let gardenContainer;
 let allCreaturesContainer;
@@ -102,8 +103,9 @@ function drawCreatures() {
     gardenContainer.removeChild(gardenContainer.children[0])
   }  
 
-  const creatureType = 'mushroom'
-  const cluster = new Cluster(creatureType, 0, 0)
+  const creatureType = randomElementFromArray(['moss', 'lichen', 'mushroom'])
+  const noA = Object.keys(DWC_META.creaturesNew[creatureType]).length
+  const cluster = new Cluster(creatureType, randomIntInRange(0, noA), randomIntInRange(0, noA))
   gardenContainer.addChild(cluster)
   cluster.scale.set(1, 1)
   const bounds = cluster.getBounds()

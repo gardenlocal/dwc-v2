@@ -4,7 +4,7 @@ import SVGCreatureShape from '../Geometry/SVGCreatureShape';
 import { randomElementFromArray, randomIntInRange } from '../utils';
 import Particle from './Particle';
 import { BlurFilter } from '@pixi/filter-blur';
-import gradientFragment from '../shaders/gradient.glsl'
+import gradientFragment from '../shaders/radialGradient.glsl'
 import vertex from "../shaders/vertex.glsl";
 
 export default class Cluster extends PIXI.Graphics {
@@ -17,7 +17,7 @@ export default class Cluster extends PIXI.Graphics {
         let c1, c2
         c1 = this.getElementParams(this.elementA, 2, 3)
         if (Math.random() < 0.5 || this.elementA != this.elementB) {
-            c2 = this.getElementParams(this.elementB, 2, 3)
+            c2 = this.getElementParams(this.elementB, 1, 2)
         } else {
             c2 = c1
         }
@@ -43,16 +43,16 @@ export default class Cluster extends PIXI.Graphics {
 
         var texture = window.DWCApp.renderer.generateTexture(this.top);
         let sp = new PIXI.Sprite(texture)
-        sp.scale.set(0.2, 0.2)
+        sp.scale.set(0.4, 0.4)
         sp.x = -220
         sp.y = -220        
-        this.addChild(sp)
+        //this.addChild(sp)
 
         //this.drawElement()
         //this.drawGroup()
         //this.drawSquare()
-        this.drawCircle()
-        //this.drawRandom()
+        //this.drawCircle()
+        this.drawRandom()
     }
 
     drawRandom() {
@@ -143,12 +143,11 @@ export default class Cluster extends PIXI.Graphics {
           
         const gradientUniforms = {
             u_time: 1.0,
-            u_point1: [0.0, 0.0], // first center of the radial gradient, coordinates go from (0, 0) to (1, 1)
-            u_radius1: 0.1, // radius of first point of radial gradient
-            u_color1: [0.8, 0.1, 0.1], // color of first point of radial gradient
-            u_point2: [1.0, 1.0], // second center of the radial gradient, coordinates go from (0, 0) to (1, 1)
-            u_radius2: 0.1, // radius of second point of radial gradient
-            u_color2: [0.1, 0.9, 0.07], // color of second point of radial gradient
+            u_radius1: 0.2, // radius of first point of radial gradient
+            u_color1: [12.0 / 256, 239.0 / 256, 66.0 / 256, 1.0], // color of first point of radial gradient            
+            u_radius2: 0.6, // radius of second point of radial gradient
+            u_color2: [1.0, 1.0, 1.0, 1.0], // color of second point of radial gradient
+            u_color3: [253.0 / 256, 136.0 / 256, 11.0 / 256, 1.0], // color of second point of radial gradient
             u_resolution: [bbox.width, bbox.height]
         }
 
@@ -165,11 +164,12 @@ export default class Cluster extends PIXI.Graphics {
 
         var textureMask = window.DWCApp.renderer.generateTexture(shapeMask);
         var spriteMask = new PIXI.Sprite(textureMask)
+        //spriteMask.scale.set(0.95)
         spriteMask.position.set(bbox.x, bbox.y)
 
         container.addChild(spriteMask)
         container.mask = spriteMask
-        container.filters = [new BlurFilter(4, 4)]
+        container.filters = [new BlurFilter(3, 4)]
         
         this.addChild(container)
     }
