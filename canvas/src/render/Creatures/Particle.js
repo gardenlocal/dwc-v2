@@ -4,10 +4,11 @@ import SVGCreatureShape from '../Geometry/SVGCreatureShape';
 import { randomElementFromArray, randomIntInRange } from '../utils';
 
 export default class Particle extends PIXI.Graphics {
-    constructor(particleName, noElements, elementsProps) {
+    constructor(creatureType, elementType, noElements, elementsProps) {
         super()
-        console.log('particle constructor: ', particleName, noElements, elementsProps)
-        this.particleName = particleName
+        console.log('particle constructor: ', elementType, noElements, elementsProps)
+        this.creatureType = creatureType
+        this.elementType = elementType
         this.noElements = noElements
         this.elementsProps = elementsProps
 
@@ -18,7 +19,7 @@ export default class Particle extends PIXI.Graphics {
             const { typeKey, nextTypeKey, connectorIndex } = this.elementsProps[i]            
             const svgData = PIXI.Loader.shared.resources[typeKey].data
 
-            let element = new SVGCreatureShape(svgData, typeKey, Object.keys(DWC_META.creaturesNew.moss[particleName].connectors))
+            let element = new SVGCreatureShape(svgData, typeKey, Object.keys(DWC_META.creaturesNew[creatureType][elementType].connectors))
             this.elements.push(element)
             element.x = xOffset
             element.y = yOffset

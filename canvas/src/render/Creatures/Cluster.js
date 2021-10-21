@@ -5,9 +5,9 @@ import { randomElementFromArray, randomIntInRange } from '../utils';
 import Particle from './Particle';
 
 export default class Cluster extends PIXI.Graphics {
-    constructor(elementA, elementB) {
+    constructor(creatureType, elementA, elementB) {
         super()
-
+        this.creatureType = creatureType
         this.elementA = elementA
         this.elementB = elementB
         let c1, c2
@@ -20,14 +20,14 @@ export default class Cluster extends PIXI.Graphics {
 
         this.top = new PIXI.Graphics()
 
-        //let skew = randomElementFromArray([0, 0, 0, Math.PI / 4, Math.PI / 8])
-        let skew = 0
+        let skew = randomElementFromArray([0, 0, 0, Math.PI / 4, Math.PI / 8])
+        //let skew = 0
 
-        this.creature = new Particle(this.elementA, c1.noElements, c1.elementsProps)
+        this.creature = new Particle(this.creatureType, this.elementA, c1.noElements, c1.elementsProps)
         this.creature.skew.x = -skew
         this.top.addChild(this.creature)
 
-        this.creature2 = new Particle(this.elementB, c2.noElements, c2.elementsProps)
+        this.creature2 = new Particle(this.creatureType, this.elementB, c2.noElements, c2.elementsProps)
         if (Math.random() < 0.5) {
             this.creature2.scale.set(-1, 1)
             this.creature2.x = 2 * this.creature2.getBounds().width    
@@ -134,24 +134,24 @@ export default class Cluster extends PIXI.Graphics {
         }
     }
 
-    getElementParams(elType, min, max) {
+    getElementParams(elementType, min, max) {
         let noElements = randomIntInRange(min, max)
         let elementsProps = []
         let typeKey, nextTypeKey
-        let type = randomElementFromArray(Object.keys(DWC_META.creaturesNew.moss[elType].connectors))
+        let currElementType = elementType //randomElementFromArray(Object.keys(DWC_META.creaturesNew[creatureType][elementType].connectors))
 
-        nextTypeKey = type
+        nextTypeKey = currElementType
         for (let i = 0; i < noElements; i++) {
             typeKey = nextTypeKey
-            nextTypeKey = randomElementFromArray(Object.keys(DWC_META.creaturesNew.moss[typeKey].connectors))
+            nextTypeKey = randomElementFromArray(Object.keys(DWC_META.creaturesNew[this.creatureType][typeKey].connectors))
 
             elementsProps.push({
                 typeKey: typeKey,
                 nextTypeKey: nextTypeKey,
-                connectorIndex: randomIntInRange(0, DWC_META.creaturesNew.moss[typeKey].connectors[nextTypeKey])
+                connectorIndex: randomIntInRange(0, DWC_META.creaturesNew[this.creatureType][typeKey].connectors[nextTypeKey])
             })
         }
 
-        return { type, noElements, elementsProps }
+        return { type: currElementType, noElements, elementsProps }
     }
 }
