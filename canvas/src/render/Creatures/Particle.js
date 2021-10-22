@@ -6,7 +6,6 @@ import { randomElementFromArray, randomIntInRange } from '../utils';
 export default class Particle extends PIXI.Graphics {
     constructor(creatureType, elementType, noElements, elementsProps) {
         super()
-        console.log('particle constructor: ', elementType, noElements, elementsProps)
         this.creatureType = creatureType
         this.elementType = elementType
         this.noElements = noElements

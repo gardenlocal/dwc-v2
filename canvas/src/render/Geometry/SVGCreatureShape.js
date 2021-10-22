@@ -17,8 +17,6 @@ export default class SVGCreatureShape extends PIXI.Graphics {
         this.layers = {}
         this.initialized = false
         this.initialize()
-
-        console.log('Shape: ', elementType, connectedElements)
     }
 
     initialize() {        
@@ -69,7 +67,6 @@ export default class SVGCreatureShape extends PIXI.Graphics {
     }
 
     getConnectorForType(type, index) {
-        console.log('get connector for type: ', this.elementType, type, index)        
         return this.connectors[type][index]
     }
 

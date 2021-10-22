@@ -17,7 +17,7 @@ export default class Cluster extends PIXI.Graphics {
         let c1, c2
         c1 = this.getElementParams(this.elementA, 2, 3)
         if (Math.random() < 0.5 || this.elementA != this.elementB) {
-            c2 = this.getElementParams(this.elementB, 1, 2)
+            c2 = this.getElementParams(this.elementB, 1, 3)
         } else {
             c2 = c1
         }
@@ -56,42 +56,83 @@ export default class Cluster extends PIXI.Graphics {
     }
 
     drawRandom() {
+        let shapeMask
         let r = Math.random()
 
         if (r <= 0.25) {
-            this.drawElement()
+            shapeMask = this.drawElement()
         } else if (r <= 0.5) {
-            this.drawGroup()
+            shapeMask = this.drawGroup()
         } else if (r <= 0.75) {
-            this.drawSquare()
+            shapeMask = this.drawSquare()
         } else {
-            this.drawCircle()
+            shapeMask = this.drawCircle()
         }
+        
+        // Gradient
+        const bbox = shapeMask.getBounds()
+          
+        const gradientUniforms = {
+            u_time: 1.0,
+            u_radius1: 0.4, // radius of first point of radial gradient
+            u_color1: [244.0 / 256, 17.0 / 256, 190.0 / 256, 1.0], // color of first point of radial gradient            
+            u_radius2: 0.6, // radius of second point of radial gradient            
+            u_color2: [3.0 / 256, 120.0 / 256, 245.0 / 256, 1.0], // color of second point of radial gradient
+            u_color3: [0.0, 0.0, 0.0, 0.8], // color of second point of radial gradient
+            u_resolution: [bbox.width, bbox.height]
+        }
+
+        const gradientFilter = new PIXI.Filter(null, gradientFragment, gradientUniforms);
+        const gradientSprite = new PIXI.Sprite(PIXI.Texture.WHITE)
+        gradientSprite.x = bbox.x
+        gradientSprite.y = bbox.y
+        gradientSprite.width = bbox.width
+        gradientSprite.height = bbox.height
+        gradientSprite.filters = [gradientFilter]        
+
+        const container = new PIXI.Container()
+        container.addChild(gradientSprite)
+
+        var textureMask = window.DWCApp.renderer.generateTexture(shapeMask);
+        var spriteMask = new PIXI.Sprite(textureMask)
+        //spriteMask.scale.set(0.95)
+        spriteMask.position.set(bbox.x, bbox.y)
+
+        container.addChild(spriteMask)
+        container.mask = spriteMask
+        container.filters = [new BlurFilter(16, 8)]
+        
+        this.addChild(container)
+        shapeMask.filters = [new BlurFilter(1, 2)]
+        this.addChild(shapeMask)
     }
 
     drawElement() {
+        const shapeMask = new PIXI.Graphics()
         var texture = window.DWCApp.renderer.generateTexture(this.creature);
         let sp = new PIXI.Sprite(texture)
-        sp.scale.set(0.5, 0.5)
         sp.x = -sp.width / 2
         sp.y = -sp.height / 2
-        this.addChild(sp)
+        shapeMask.addChild(sp)
+        return shapeMask
     }
 
     drawGroup() {
+        const shapeMask = new PIXI.Graphics()
         var texture = window.DWCApp.renderer.generateTexture(this.top);
         let sp = new PIXI.Sprite(texture)
-        sp.scale.set(0.5, 0.5)
         sp.x = -sp.width / 2
         sp.y = -sp.height / 2
         //sp.pivot.set(sp.width / 2, sp.height / 2)
-        this.addChild(sp)
+        shapeMask.addChild(sp)
+        return shapeMask
     }
 
     drawSquare() {
+        const shapeMask = new PIXI.Graphics()
+
         var texture = window.DWCApp.renderer.generateTexture(this.top);
         let sp = new PIXI.Sprite(texture)
-        sp.scale.set(0.5, 0.5)
         sp.x = -sp.width / 2
         sp.y = -sp.height
         let sp2 = new PIXI.Sprite(texture)
@@ -115,8 +156,10 @@ export default class Cluster extends PIXI.Graphics {
         }
 
         //sp.pivot.set(sp.width / 2, sp.height / 2)
-        this.addChild(sp)
-        this.addChild(sp2)
+        shapeMask.addChild(sp)
+        shapeMask.addChild(sp2)
+
+        return shapeMask
     }
 
     drawCircle() {
@@ -135,43 +178,13 @@ export default class Cluster extends PIXI.Graphics {
             sprite.pivot.set(0, -sprite.height * -radiusFactor)
             sprite.rotation = r
             shapeMask.addChild(sprite);
+            if (totalPoints == 4 && i == 2) {
+                sprite.alpha = 0
+            }                
             r += 2 * Math.PI / totalPoints
         }
 
-        // Gradient
-        const bbox = shapeMask.getBounds()
-          
-        const gradientUniforms = {
-            u_time: 1.0,
-            u_radius1: 0.2, // radius of first point of radial gradient
-            u_color1: [12.0 / 256, 239.0 / 256, 66.0 / 256, 1.0], // color of first point of radial gradient            
-            u_radius2: 0.6, // radius of second point of radial gradient
-            u_color2: [1.0, 1.0, 1.0, 1.0], // color of second point of radial gradient
-            u_color3: [253.0 / 256, 136.0 / 256, 11.0 / 256, 1.0], // color of second point of radial gradient
-            u_resolution: [bbox.width, bbox.height]
-        }
-
-        const gradientFilter = new PIXI.Filter(null, gradientFragment, gradientUniforms);
-        const ggg = new PIXI.Sprite(PIXI.Texture.WHITE)
-        ggg.x = bbox.x
-        ggg.y = bbox.y
-        ggg.width = bbox.width
-        ggg.height = bbox.height
-        ggg.filters = [gradientFilter]        
-
-        const container = new PIXI.Container()
-        container.addChild(ggg)
-
-        var textureMask = window.DWCApp.renderer.generateTexture(shapeMask);
-        var spriteMask = new PIXI.Sprite(textureMask)
-        //spriteMask.scale.set(0.95)
-        spriteMask.position.set(bbox.x, bbox.y)
-
-        container.addChild(spriteMask)
-        container.mask = spriteMask
-        container.filters = [new BlurFilter(3, 4)]
-        
-        this.addChild(container)
+        return shapeMask
     }
 
     getElementParams(elementType, min, max) {

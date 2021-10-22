@@ -52,10 +52,10 @@ function render(app) {
     u_time: 1.0,
     u_point1: [0.0, 0.0], // first center of the radial gradient, coordinates go from (0, 0) to (1, 1)
     u_radius1: 0.1, // radius of first point of radial gradient
-    u_color1: [0.6, 0.2, 0.3], // color of first point of radial gradient
+    u_color1: [12.0 / 256, 239.0 / 256, 66.0 / 256],
     u_point2: [1.0, 1.0], // second center of the radial gradient, coordinates go from (0, 0) to (1, 1)
     u_radius2: 0.1, // radius of second point of radial gradient
-    u_color2: [0.2, 0.5, 0.8], // color of second point of radial gradient
+    u_color2: [253.0 / 256, 136.0 / 256, 11.0 / 256],
     u_resolution: [WIDTH * 1.0, HEIGHT * 1.0]
   }
   const gradientShader = PIXI.Shader.from(vertex, gradientFragment, gradientUniforms);
@@ -72,8 +72,8 @@ function render(app) {
   // Doing this means that we can work with the global coordinates 
   // as they come from the server everywhere else.
   gardenContainer = new PIXI.Graphics()
-  gardenContainer.x = WIDTH / 2
-  gardenContainer.y = HEIGHT / 2
+  //gardenContainer.x = WIDTH / 2
+  //gardenContainer.y = HEIGHT / 2
 
   allCreaturesContainer = new PIXI.Container()
   gardenContainer.addChild(allCreaturesContainer)
@@ -83,7 +83,7 @@ function render(app) {
   drawCreatures()
   setInterval(() => {
     drawCreatures()
-  }, 1000)
+  }, 200)
   //drawCreatures()
 
   //app.stage.addChild(gardenContainer)  
@@ -98,10 +98,14 @@ function animate(app) {
     })
 }
 
+let PADDING = 50
+let currX = PADDING
+let currY = PADDING
+let maxY = 0
+
 function drawCreatures() {
-  while (gardenContainer.children[0]) {
-    gardenContainer.removeChild(gardenContainer.children[0])
-  }  
+  /*
+  */ 
 
   const creatureType = randomElementFromArray(['moss', 'lichen', 'mushroom'])
   const noA = Object.keys(DWC_META.creaturesNew[creatureType]).length
@@ -109,6 +113,25 @@ function drawCreatures() {
   gardenContainer.addChild(cluster)
   cluster.scale.set(1, 1)
   const bounds = cluster.getBounds()
+  const s = 50 / bounds.height 
+
+  if (currX + bounds.width * s + PADDING > window.GARDEN_WIDTH) {
+    currY += maxY + PADDING
+    currX = PADDING
+    maxY = bounds.height * s
+
+    if (currY + bounds.height * s + PADDING > window.GARDEN_HEIGHT) {
+      currX = PADDING
+      currY = PADDING
+      while (gardenContainer.children[0]) {
+        gardenContainer.removeChild(gardenContainer.children[0])
+      }    
+    }
+  }  
+  cluster.scale.set(s, s)
+  cluster.position.set(currX + bounds.width * s / 2, currY + bounds.height * s / 2)
+  currX += bounds.width * s + PADDING
+  maxY = Math.max(bounds.height * s, maxY)
   //cluster.x = -bounds.width / 2
   //cluster.y = -bounds.height / 2  
   //creature.skew.x = -Math.PI / 8
