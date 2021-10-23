@@ -10,6 +10,10 @@ import gradientFragment from './shaders/gradient.glsl'
 import vertex from "./shaders/vertex.glsl";
 import { DWC_META } from "../../../shared-constants";
 import UserBackground from "./Backgrounds/UserBackground";
+import grassTxt from "../../assets/green1.jpg"
+import rainbow from "../../assets/gradientTest.jpg"
+import rainbow2 from "../../assets/gradientTest2.jpg"
+import { map } from "./utils.js"
 
 const WIDTH = window.GARDEN_WIDTH;
 const HEIGHT = window.GARDEN_HEIGHT;
@@ -26,7 +30,8 @@ let allCreatures = [];
 
 let gardenContainer;
 let allCreaturesContainer;
-let tilesContainer;
+let tilesContainer = new PIXI.Graphics()
+let gardenSprite, gardenArc;
 
 
 let isAppRunning = false
@@ -165,7 +170,13 @@ function render(app) {
     allCreaturesContainer.addChild(c)
   }
 
-  drawTiles()
+  // drawTiles()
+  gardenSprite = drawGarden()
+  tilesContainer.addChild(gardenSprite)
+  window.DWCApp.stage.addChild(tilesContainer);
+
+  gardenArc = drawArc(600, 400)
+  tilesContainer.mask = gardenArc;
 
   app.stage.addChild(gardenContainer)  
 
@@ -188,22 +199,55 @@ function drawTile() {
   window.DWCApp.stage.addChild(tilesContainer)  
 
 }
+
+function drawGarden(x, y) {
+
+  const gardenImg = new PIXI.Sprite.from(rainbow2);
+  gardenImg.anchor.set(0.5);
+
+  return gardenImg
+}
+
+function drawArc(x, y){
+  const arcShape = new PIXI.Graphics();
+  arcShape.beginFill(0xff3300)
+  // arcShape.lineStyle(3, 0xfd880b, 1)
+  arcShape.moveTo(600,0)
+  arcShape.bezierCurveTo(x,y,300,800,20,800);
+  arcShape.lineTo(0,1000)
+  arcShape.lineTo(1000,1000)
+  arcShape.endFill()
+
+  return arcShape;
+}
 function drawTiles() {
   const tilesBackground = new UserBackground(currentGarden)
   window.DWCApp.stage.addChild(tilesBackground)  
 }
 
+var time = 0
 function animate(app) {
+
   // gotta run app.ticker for every object, all at once
     app.ticker.add((delta) => {
+
+      time += delta
+
+      gardenArc.clear();
+      gardenArc.beginFill(0xff3300)
+      gardenArc.moveTo(600,0)
+      gardenArc.bezierCurveTo(Math.sin(time*0.005)*600, Math.cos(time*0.005)*600,300,800,0,1000);
+      gardenArc.lineTo(0,1000)
+      gardenArc.lineTo(1000,1000)
+      gardenArc.endFill()
+
+      gardenSprite.rotation += 0.01;
+
       allCreaturesContainer.children.forEach(c => {
         if (c.tick) c.tick(delta)
+        const currentPos = new PIXI.Point(map(c.x, 0, 2000, 0, window.innerHeight), map(c.y, 0, 2000, 0, window.innerHeight))
+        // garden.containsPoint(currentPos) && console.log(true)
       })
-      // window.onresize = function() {
-      //   console.log('resize!')
-      //   tilesContainer.children[0].width = window.innerWidth;
-      //   tilesContainer.children[0].height = window.innerHeight;
-      // }
     })
 }
 
