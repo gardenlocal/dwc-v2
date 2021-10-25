@@ -81,21 +81,12 @@ function render(app) {
   app.stage.addChild(gardenContainer)
 
   drawCreatures()
+  drawMaskedGradient()
+  /*
   setInterval(() => {
     drawCreatures()
   }, 200)
-  //drawCreatures()
-
-  //app.stage.addChild(gardenContainer)  
-
-  animate(app);
-}
-
-function animate(app) {
-  // gotta run app.ticker for every object, all at once
-    app.ticker.add((delta) => {
-
-    })
+  */
 }
 
 let PADDING = 50
@@ -135,4 +126,57 @@ function drawCreatures() {
   //cluster.x = -bounds.width / 2
   //cluster.y = -bounds.height / 2  
   //creature.skew.x = -Math.PI / 8
+}
+
+function drawMaskedGradient() {
+  const W = 500
+  const H = 500
+
+  // First, we create the background gradient
+  const gradientUniforms = {
+    u_time: 1.0,
+    u_point1: [0.0, 0.0],
+    u_radius1: 0.1,
+    u_color1: [12.0 / 256, 239.0 / 256, 66.0 / 256],
+    u_point2: [1.0, 1.0],
+    u_radius2: 0.1,
+    u_color2: [253.0 / 256, 136.0 / 256, 11.0 / 256],
+    u_resolution: [W, H]
+  }
+
+  // This is another way of applying a fragment shader: 
+  // as a PIXI Filter, instead of going through a quad / Pixi Mesh / etc.
+  const gradientFilter = new PIXI.Filter(null, gradientFragment, gradientUniforms);
+  const gradientSprite = new PIXI.Sprite(PIXI.Texture.WHITE)
+  gradientSprite.width = W
+  gradientSprite.height = H
+  gradientSprite.filters = [gradientFilter]      
+  
+  
+  // Second, we create the background mask.
+  // We simply draw a triangle.
+  const shapeMask = new PIXI.Graphics()
+  // It's important for the color of the mask to be white.
+  shapeMask.beginFill(0xffffff)
+  shapeMask.moveTo(0, 0)
+  shapeMask.lineTo(W, 0)
+  shapeMask.lineTo(W, H)
+  shapeMask.closePath()
+
+  // Third, we create a container for the final composition
+  const container = new PIXI.Container()
+
+  // We add the background shader as a child
+  container.addChild(gradientSprite)
+
+  // Then we add the shape mask as a child.
+  // Working with a PIXI Graphics object as a mask is a little tricky, 
+  // so we render it into a texture, create a sprite from that texture,
+  // and use the sprite as a mask.
+  var textureMask = window.DWCApp.renderer.generateTexture(shapeMask);
+  var spriteMask = new PIXI.Sprite(textureMask)  
+  container.addChild(spriteMask)
+  container.mask = spriteMask
+
+  window.DWCApp.stage.addChild(container)
 }
