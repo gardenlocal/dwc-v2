@@ -34,7 +34,7 @@ let arcShapeMask, gradientUniforms;
 
 let isAppRunning = false
 
-// PIXI.settings.SPRITE_MAX_TEXTURES = Math.min(PIXI.settings.SPRITE_MAX_TEXTURES , 16);
+PIXI.settings.SPRITE_MAX_TEXTURES = Math.min(PIXI.settings.SPRITE_MAX_TEXTURES , 16);
 
 export async function renderCreature(app) {
   if(userToken) {
@@ -134,7 +134,7 @@ function drawTiles() {
 }
 
 // graident + mask + shader
-function drawGradientBackground() {
+function drawGradientBackground(app) {
   const W = 1000;
   const H = 1000;
 
@@ -155,6 +155,10 @@ function drawGradientBackground() {
   gradientSprite.height = H
   gradientSprite.filters = [gradientFilter]  
 
+  const gradientContainer = new PIXI.Container()
+  gradientContainer.addChild(gradientSprite)
+  app.stage.addChild(gradientContainer);
+
   // outline shape
   arcShapeMask = new PIXI.Graphics();
   arcShapeMask.beginFill(0xffffff)
@@ -163,19 +167,14 @@ function drawGradientBackground() {
   arcShapeMask.lineTo(0,1000)
   arcShapeMask.lineTo(1000,1000)
   arcShapeMask.endFill()
+  app.stage.addChild(arcShapeMask);
 
-  const container = new PIXI.Container()
-  container.addChild(gradientSprite)
+  gradientContainer.mask = arcShapeMask
 
-  const textureMask = window.DWCApp.renderer.generateTexture(arcShapeMask);
-  const spriteMask = new PIXI.Sprite(textureMask);
-  container.addChild(spriteMask);
-  container.mask = spriteMask;
-  
-  window.DWCApp.stage.addChild(container);
 }
 
 var time = 0
+
 function animate(app) {
 
   // gotta run app.ticker for every object, all at once
@@ -185,14 +184,14 @@ function animate(app) {
 
       arcShapeMask.clear();
       arcShapeMask.beginFill(0xffffff)
-      arcShapeMask.moveTo(600,0)
-      arcShapeMask.bezierCurveTo(Math.sin(time*0.005)*600, Math.cos(time*0.005)*600,300,800,0,1000);
+      arcShapeMask.moveTo(Math.sin(time*0.05)*60, Math.cos(time*0.05)*200)
+      arcShapeMask.bezierCurveTo(Math.sin(time*0.05)*60, Math.cos(time*0.05)*200,300,800,0,1000);
       arcShapeMask.lineTo(0,1000)
       arcShapeMask.lineTo(1000,1000)
       arcShapeMask.endFill()
 
       gradientUniforms.u_radius1 = Math.sin(time/40)*500;
-      // gradientUniforms.u_radius2 = Math.cos(time/20)*800;
+      gradientUniforms.u_radius2 = Math.cos(time/20)*800;
       gradientUniforms.u_point1 = [Math.tan(time/40), Math.cos(time/40)];
 
       allCreaturesContainer.children.forEach(c => {
