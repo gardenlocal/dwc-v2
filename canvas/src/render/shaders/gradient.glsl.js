@@ -8,7 +8,7 @@ const gradientFragment = `
 precision mediump float;
 #endif
 
-varying vec2 vUvs;
+// varying vec2 vUvs;
 uniform vec2 u_resolution;
 uniform float u_time;
 
@@ -25,7 +25,7 @@ highp float dist(vec2 a, vec2 b) {
 }
 
 void main() {
-    vec2 st = vUvs;
+    vec2 st = gl_FragCoord.xy;
     // vec2 st = gl_FragCoord.xy/u_resolution;    
 
     vec3 color;
@@ -39,10 +39,10 @@ void main() {
       color = u_color2;
     } else {
       highp float t1, t2, sum;
-      t1 = max(0., 1. / pow(d1 - u_radius1, 2.1));
+      t1 = max(0., 1. / pow(d1 - u_radius1*u_time, 2.1));
       t2 = max(0., 1. / pow(d2 - u_radius2, 2.1));
       sum = (t1 + t2);
-      color = u_color1 * (t1 / sum) + u_color2 * (t2 / sum);
+      color = u_color1 * u_time * (t1 / sum) + u_color2 * (t2 / sum);
     }
 
     //color.x = (gl_FragCoord.x / 1000.0);
