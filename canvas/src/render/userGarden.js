@@ -10,7 +10,8 @@ import gradientFragment from './shaders/gradient.glsl'
 import vertex from "./shaders/vertex.glsl";
 import { DWC_META } from "../../../shared-constants";
 import UserBackground from "./Backgrounds/UserBackground";
-import oragneGreen from "../../assets/bg2000ver.jpeg"
+import orangeGreen from "../../assets/bg2000ver.jpeg"
+import horizontalGradient from "../../assets/horizontal1000.png";
 import { map } from "./utils.js"
 
 const WIDTH = window.GARDEN_WIDTH;
@@ -29,7 +30,7 @@ let allCreatures = [];
 let gardenContainer;
 let allCreaturesContainer;
 let tilesContainer = new PIXI.Graphics()
-let arcShapeMask, gradientUniforms;
+let arcShapeMask, gradientUniforms, gardenImg;
 
 
 let isAppRunning = false
@@ -138,26 +139,7 @@ function drawGradientBackground(app) {
   const W = 1000;
   const H = 1000;
 
-  // uniforms
-  gradientUniforms = {
-    u_time: 1.0,
-    u_point1: [0.0, 0.0],
-    u_radius1: 0.1,
-    u_color1: [12.0 / 256, 239.0 / 256, 66.0 / 256],
-    u_point2: [1.0, 1.0],
-    u_radius2: 0.1,
-    u_color2: [253.0 / 256, 136.0 / 256, 11.0 / 256],
-    u_resolution: [W, H]
-  }
-  const gradientFilter = new PIXI.Filter(null, gradientFragment, gradientUniforms);
-  const gradientSprite = new PIXI.Sprite(PIXI.Texture.WHITE)
-  gradientSprite.width = W
-  gradientSprite.height = H
-  gradientSprite.filters = [gradientFilter]  
-
   const gradientContainer = new PIXI.Container()
-  gradientContainer.addChild(gradientSprite)
-  app.stage.addChild(gradientContainer);
 
   // outline shape
   arcShapeMask = new PIXI.Graphics();
@@ -168,6 +150,31 @@ function drawGradientBackground(app) {
   arcShapeMask.lineTo(1000,1000)
   arcShapeMask.endFill()
   app.stage.addChild(arcShapeMask);
+
+  // version 1: uniforms for shader Sprite
+  gradientUniforms = {
+    u_time: 1.0,
+    u_point1: [0.5, 0.0],
+    u_radius1: 0.1,
+    u_color1: [12.0 / 256, 239.0 / 256, 66.0 / 256],
+    u_point2: [0.5, 1.0],
+    u_radius2: 0.1,
+    u_color2: [253.0 / 256, 136.0 / 256, 11.0 / 256],
+    u_resolution: [W, H]
+  }
+  const gradientFilter = new PIXI.Filter(null, gradientFragment, gradientUniforms);
+  const gradientSprite = new PIXI.Sprite(PIXI.Texture.WHITE)
+  gradientSprite.width = W
+  gradientSprite.height = H
+  gradientSprite.filters = [gradientFilter]  
+  // gradientContainer.addChild(gradientSprite)
+
+  // version2: image sprite
+  gardenImg = new PIXI.Sprite.from(horizontalGradient);
+  gardenImg.anchor.set(0.5, 0.5);
+  gradientContainer.addChild(gardenImg)
+
+  app.stage.addChild(gradientContainer);
 
   gradientContainer.mask = arcShapeMask
 
@@ -181,18 +188,23 @@ function animate(app) {
     app.ticker.add((delta) => {
 
       time += delta
+      const x = 500 + Math.sin(time*0.005)*600, y = 150 + Math.cos(time*0.005)*100;
 
       arcShapeMask.clear();
       arcShapeMask.beginFill(0xffffff)
-      arcShapeMask.moveTo(Math.sin(time*0.05)*60, Math.cos(time*0.05)*200)
-      arcShapeMask.bezierCurveTo(Math.sin(time*0.05)*60, Math.cos(time*0.05)*200,300,800,0,1000);
+      arcShapeMask.moveTo(x, y)
+      arcShapeMask.bezierCurveTo(x, y, 300,800,0,1000);
       arcShapeMask.lineTo(0,1000)
       arcShapeMask.lineTo(1000,1000)
       arcShapeMask.endFill()
 
-      gradientUniforms.u_radius1 = Math.sin(time/40)*500;
-      gradientUniforms.u_radius2 = Math.cos(time/20)*800;
-      gradientUniforms.u_point1 = [Math.tan(time/40), Math.cos(time/40)];
+      // move image horizontally
+      gardenImg.position.y = Math.sin(time/100) * 2000;
+
+      // variate shader uniforms
+      // gradientUniforms.u_radius1 = Math.sin(time/40)*500;
+      // gradientUniforms.u_radius2 = Math.cos(time/60)*800;
+      // gradientUniforms.u_point1 = [Math.tan(time/80), Math.cos(time/80)];
 
       allCreaturesContainer.children.forEach(c => {
         if (c.tick) c.tick(delta)
