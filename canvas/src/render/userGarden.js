@@ -7,6 +7,7 @@ import Creature from './creature'
 import { updateUsers, updateCreatures } from "../data/globalData";
 import cnFragment from './shaders/cnFragment.glsl.js'
 import gradientFragment from './shaders/gradient.glsl'
+import HorizontalGradientFrag from "./shaders/horizontal.frag";
 import vertex from "./shaders/vertex.glsl";
 import { DWC_META } from "../../../shared-constants";
 import UserBackground from "./Backgrounds/UserBackground";
@@ -156,23 +157,23 @@ function drawGradientBackground(app) {
     u_time: 1.0,
     u_point1: [0.5, 0.0],
     u_radius1: 0.1,
-    u_color1: [12.0 / 256, 239.0 / 256, 66.0 / 256],
+    u_color1: [12.0 / 256.0, 239.0 / 256.0, 66.0 / 256.0],
     u_point2: [0.5, 1.0],
     u_radius2: 0.1,
-    u_color2: [253.0 / 256, 136.0 / 256, 11.0 / 256],
+    u_color2: [253.0 / 256.0, 136.0 / 256.0, 11.0 / 256.0],
     u_resolution: [W, H]
   }
-  const gradientFilter = new PIXI.Filter(null, gradientFragment, gradientUniforms);
+  const gradientFilter = new PIXI.Filter(null, HorizontalGradientFrag, gradientUniforms);
   const gradientSprite = new PIXI.Sprite(PIXI.Texture.WHITE)
   gradientSprite.width = W
   gradientSprite.height = H
   gradientSprite.filters = [gradientFilter]  
-  // gradientContainer.addChild(gradientSprite)
+  gradientContainer.addChild(gradientSprite)
 
   // version2: image sprite
   gardenImg = new PIXI.Sprite.from(horizontalGradient);
   gardenImg.anchor.set(0.5, 0.5);
-  gradientContainer.addChild(gardenImg)
+  // gradientContainer.addChild(gardenImg)
 
   app.stage.addChild(gradientContainer);
 
