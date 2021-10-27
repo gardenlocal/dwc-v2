@@ -150,7 +150,7 @@ function drawMaskedGradient() {
   const gradientSprite = new PIXI.Sprite(PIXI.Texture.WHITE)
   gradientSprite.width = W
   gradientSprite.height = H
-  gradientSprite.filters = [gradientFilter]      
+  gradientSprite.filters = [gradientFilter]
   
   
   // Second, we create the background mask.
