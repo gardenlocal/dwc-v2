@@ -27,7 +27,7 @@ highp float dist(vec2 a, vec2 b) {
 void main() {
     vec4 color;
 
-    highp float distanceFromCenter = dist(gl_FragCoord.xy / u_resolution, vec2(0.48, 0.48));
+    highp float distanceFromCenter = dist(gl_FragCoord.xy / u_resolution, vec2(0.5, 0.5));
 
     if (distanceFromCenter <= u_radius1) {
         highp float d = distanceFromCenter;

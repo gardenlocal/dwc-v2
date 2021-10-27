@@ -80,13 +80,14 @@ function render(app) {
 
   app.stage.addChild(gardenContainer)
 
-  drawCreatures()
-  drawMaskedGradient()
-  /*
-  setInterval(() => {
+  for (let i = 0; i < 10; i++)
     drawCreatures()
-  }, 200)
-  */
+  //drawMaskedGradient()
+
+  // setInterval(() => {
+  //   drawCreatures()
+  // }, 1000)
+
 }
 
 let PADDING = 50
@@ -98,7 +99,8 @@ function drawCreatures() {
   /*
   */ 
 
-  const creatureType = randomElementFromArray(['moss', 'lichen', 'mushroom'])
+  //const creatureType = randomElementFromArray(['moss', 'lichen', 'mushroom'])
+  const creatureType = randomElementFromArray(['moss'])
   const noA = Object.keys(DWC_META.creaturesNew[creatureType]).length
   const cluster = new Cluster(creatureType, randomIntInRange(0, noA), randomIntInRange(0, noA))
   gardenContainer.addChild(cluster)

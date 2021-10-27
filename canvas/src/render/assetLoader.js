@@ -25,6 +25,9 @@ import LichenElement4 from '../../assets/lichen-element-4.svg';
 import MushroomElement1 from '../../assets/mushroom-element-1.svg';
 import MushroomElement2 from '../../assets/mushroom-element-2.svg';
 
+import MossNew1 from '../../assets/moss-new-1.svg';
+import MossNew2 from '../../assets/moss-new-2.svg';
+
 import { DWC_META } from '../../../shared-constants';
 
 const loader = PIXI.Loader.shared
@@ -46,18 +49,23 @@ const addBackgroundTiles = () => {
 }
 
 const addNewCreatures = () => {
-    loader.add(DWC_META.creaturesNew.moss["moss-element-1"].name, MossElement1)
-    loader.add(DWC_META.creaturesNew.moss["moss-element-2"].name, MossElement2)
-    loader.add(DWC_META.creaturesNew.moss["moss-element-3"].name, MossElement3)
-    loader.add(DWC_META.creaturesNew.moss["moss-element-4"].name, MossElement4)
+    loader.add(DWC_META.creaturesNew.moss["moss-element-1"].name, MossNew1)
+    loader.add(DWC_META.creaturesNew.moss["moss-element-2"].name, MossNew2)
+}
 
-    loader.add(DWC_META.creaturesNew.lichen["lichen-element-1"].name, LichenElement1)
-    loader.add(DWC_META.creaturesNew.lichen["lichen-element-2"].name, LichenElement2)
-    loader.add(DWC_META.creaturesNew.lichen["lichen-element-3"].name, LichenElement3)
-    loader.add(DWC_META.creaturesNew.lichen["lichen-element-4"].name, LichenElement4)
+const addOldCreatures = () => {
+    loader.add(DWC_META.creaturesOld.moss["moss-element-1"].name, MossElement1)
+    loader.add(DWC_META.creaturesOld.moss["moss-element-2"].name, MossElement2)
+    loader.add(DWC_META.creaturesOld.moss["moss-element-3"].name, MossElement3)
+    loader.add(DWC_META.creaturesOld.moss["moss-element-4"].name, MossElement4)
 
-    loader.add(DWC_META.creaturesNew.mushroom["mushroom-element-1"].name, MushroomElement1)
-    loader.add(DWC_META.creaturesNew.mushroom["mushroom-element-2"].name, MushroomElement2)
+    loader.add(DWC_META.creaturesOld.lichen["lichen-element-1"].name, LichenElement1)
+    loader.add(DWC_META.creaturesOld.lichen["lichen-element-2"].name, LichenElement2)
+    loader.add(DWC_META.creaturesOld.lichen["lichen-element-3"].name, LichenElement3)
+    loader.add(DWC_META.creaturesOld.lichen["lichen-element-4"].name, LichenElement4)
+
+    loader.add(DWC_META.creaturesOld.mushroom["mushroom-element-1"].name, MushroomElement1)
+    loader.add(DWC_META.creaturesOld.mushroom["mushroom-element-2"].name, MushroomElement2)
 }
 
 export const loadAll = async (onProgress) => {

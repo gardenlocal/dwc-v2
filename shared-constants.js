@@ -12,6 +12,24 @@ exports.DWC_META = {
             "moss-element-1": {
                 name: "moss-element-1",
                 connectors: {
+                    "moss-element-1": 6,
+                    "moss-element-2": 9
+                }
+            },
+            "moss-element-2": {
+                name: "moss-element-2",
+                connectors: {
+                    "moss-element-1": 6,
+                    "moss-element-2": 6
+                }
+            }
+        }
+    },
+    creaturesOld: {
+        moss: {
+            "moss-element-1": {
+                name: "moss-element-1",
+                connectors: {
                     "moss-element-1": 5,
                     "moss-element-2": 3
                 }

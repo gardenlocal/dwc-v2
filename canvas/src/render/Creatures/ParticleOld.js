@@ -13,7 +13,6 @@ export default class Particle extends PIXI.Graphics {
 
         this.elements = []
         let xOffset = 0, yOffset = 0
-        let prevElement = null
 
         for (let i = 0; i < this.noElements; i++) {
             const { typeKey, nextTypeKey, connectorIndex } = this.elementsProps[i]            
@@ -25,14 +24,9 @@ export default class Particle extends PIXI.Graphics {
             element.y = yOffset
 
             this.addChild(element)
-
-            const connector = element.getConnectorForType(nextTypeKey, connectorIndex)
-            console.log('Connector: ', connector)
-
-            xOffset += connector.x
-            yOffset += connector.y//element.getConnectorForType(nextTypeKey, connectorIndex).y
-
-            prevElement = element
+            
+            xOffset += element.getBounds().width                
+            yOffset += element.getConnectorForType(nextTypeKey, connectorIndex).y
         }
     }
 }
