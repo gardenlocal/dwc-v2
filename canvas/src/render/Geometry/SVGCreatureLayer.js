@@ -5,10 +5,11 @@ import { distanceAndAngleBetweenTwoPoints, randomInRange } from '../utils'
 const morphOffsetCache = {}
 
 export default class SVGLayer extends PIXI.Graphics {
-    constructor(name, svgObj, pointCount = 40) {
+    constructor(name, svgObj, fillColor, pointCount = 40) {
         super()
         this.name = name
         this.svgObj = svgObj
+        this.fillColor = fillColor
         
 
         //this.points = this.svgObj._geometry.points
@@ -40,6 +41,7 @@ export default class SVGLayer extends PIXI.Graphics {
     }
 
     tick() {
+        this.draw()
         /*
         const now = new Date().getTime() / 100
         for (let i = 0; i < this.points.length; i += 2) {
@@ -174,7 +176,7 @@ export default class SVGLayer extends PIXI.Graphics {
     draw() {
         this.clear()
         //this.setStyle(this.svgObj.__style, this.svgObj.__matrix)
-        this.beginFill(0xffffff)
+        this.beginFill(this.fillColor)
         this.drawFillAndStroke()
         this.endFill()
 
