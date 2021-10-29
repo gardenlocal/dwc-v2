@@ -14,6 +14,7 @@ import UserBackground from "./Backgrounds/UserBackground";
 import orangeGreen from "../../assets/bg2000ver.jpeg"
 import horizontalGradient from "../../assets/horizontal1000.png";
 import { map } from "./utils.js"
+import GradientBackground from "./Backgrounds/GradientBackground";
 
 const WIDTH = window.GARDEN_WIDTH;
 const HEIGHT = window.GARDEN_HEIGHT;
@@ -30,7 +31,7 @@ let allCreatures = [];
 
 let gardenContainer;
 let allCreaturesContainer;
-let tilesContainer = new PIXI.Graphics()
+let tilesContainer = new PIXI.Container();
 let arcShapeMask, gradientUniforms, gardenImg;
 
 
@@ -123,7 +124,7 @@ function render(app) {
     allCreaturesContainer.addChild(c)
   }
 
-  drawGradientBackground(app);
+  drawGradientBackground();
 
   app.stage.addChild(gardenContainer)  
 
@@ -136,49 +137,10 @@ function drawTiles() {
 }
 
 // graident + mask + shader
-function drawGradientBackground(app) {
-  const W = 1000;
-  const H = 1000;
-
-  const gradientContainer = new PIXI.Container()
-
-  // outline shape
-  arcShapeMask = new PIXI.Graphics();
-  arcShapeMask.beginFill(0xffffff)
-  arcShapeMask.moveTo(0, 0)
-  arcShapeMask.lineTo(1000, 0)
-  arcShapeMask.lineTo(1000,1000)
-  arcShapeMask.quadraticCurveTo(500, 500, 0, 0)
-  arcShapeMask.endFill()
-  app.stage.addChild(arcShapeMask);
-
-  // version 1: uniforms for shader Sprite
-  gradientUniforms = {
-    u_time: 1.0,
-    u_point1: [0.5, 0.0],
-    u_radius1: 0.1,
-    u_color1: [12.0 / 256.0, 239.0 / 256.0, 66.0 / 256.0],
-    u_point2: [0.5, 1.0],
-    u_radius2: 0.1,
-    u_color2: [253.0 / 256.0, 136.0 / 256.0, 11.0 / 256.0],
-    u_resolution: [W, H]
-  }
-  const gradientFilter = new PIXI.Filter(null, HorizontalGradientFrag, gradientUniforms);
-  const gradientSprite = new PIXI.Sprite(PIXI.Texture.WHITE)
-  gradientSprite.width = W
-  gradientSprite.height = H
-  gradientSprite.filters = [gradientFilter]  
-  gradientContainer.addChild(gradientSprite)
-
-  // version2: image sprite
-  gardenImg = new PIXI.Sprite.from(horizontalGradient);
-  gardenImg.anchor.set(0.5, 0.5);
-  // gradientContainer.addChild(gardenImg)
-
-  app.stage.addChild(gradientContainer);
-
-  gradientContainer.mask = arcShapeMask
-
+function drawGradientBackground() {
+  const gradientGarden = new GradientBackground(currentGarden);
+  tilesContainer.addChild(gradientGarden);
+  window.DWCApp.stage.addChild(tilesContainer);
 }
 
 var time = 0
@@ -190,29 +152,16 @@ function animate(app) {
 
       time += delta
 
-      let r = 50 + (Math.sin(time*0.01)) * 300
-      const cpx1 = 1000 - (Math.SQRT2 / 2 * r)
-      const cpy1 = Math.SQRT2 / 2 * r 
-
-      arcShapeMask.clear();
-      arcShapeMask.beginFill(0xffffff)
-      arcShapeMask.moveTo(0, 0)
-      arcShapeMask.lineTo(1000, 0)
-      arcShapeMask.lineTo(1000,1000)
-      arcShapeMask.quadraticCurveTo(cpx1, cpy1, 0, 0)
-      arcShapeMask.endFill()
-
-      // move image horizontally
-      // gardenImg.position.y = Math.sin(time/100) * 2000;
-
-      // variate shader uniforms
-      gradientUniforms.u_time = time * 0.005;
-
       allCreaturesContainer.children.forEach(c => {
         if (c.tick) c.tick(delta)
         const currentPos = new PIXI.Point(map(c.x, 0, 2000, 0, window.innerHeight), map(c.y, 0, 2000, 0, window.innerHeight))
         // garden.containsPoint(currentPos) && console.log(true)
       })
+
+      tilesContainer.children.forEach(bg => {
+        if(bg.tick) bg.tick(time);
+      })
+      
     })
 }
 
