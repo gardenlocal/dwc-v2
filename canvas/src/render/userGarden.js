@@ -145,10 +145,10 @@ function drawGradientBackground(app) {
   // outline shape
   arcShapeMask = new PIXI.Graphics();
   arcShapeMask.beginFill(0xffffff)
-  arcShapeMask.moveTo(600,0)
-  arcShapeMask.bezierCurveTo(600, 0,300,800,20,800);
-  arcShapeMask.lineTo(0,1000)
+  arcShapeMask.moveTo(0, 0)
+  arcShapeMask.lineTo(1000, 0)
   arcShapeMask.lineTo(1000,1000)
+  arcShapeMask.quadraticCurveTo(500, 500, 0, 0)
   arcShapeMask.endFill()
   app.stage.addChild(arcShapeMask);
 
@@ -189,23 +189,24 @@ function animate(app) {
     app.ticker.add((delta) => {
 
       time += delta
-      const x = 500 + Math.sin(time*0.005)*600, y = 150 + Math.cos(time*0.005)*100;
+
+      let r = 50 + (Math.sin(time*0.01)) * 300
+      const cpx1 = 1000 - (Math.SQRT2 / 2 * r)
+      const cpy1 = Math.SQRT2 / 2 * r 
 
       arcShapeMask.clear();
       arcShapeMask.beginFill(0xffffff)
-      arcShapeMask.moveTo(x, y)
-      arcShapeMask.bezierCurveTo(x, y, 300,800,0,1000);
-      arcShapeMask.lineTo(0,1000)
+      arcShapeMask.moveTo(0, 0)
+      arcShapeMask.lineTo(1000, 0)
       arcShapeMask.lineTo(1000,1000)
+      arcShapeMask.quadraticCurveTo(cpx1, cpy1, 0, 0)
       arcShapeMask.endFill()
 
       // move image horizontally
-      gardenImg.position.y = Math.sin(time/100) * 2000;
+      // gardenImg.position.y = Math.sin(time/100) * 2000;
 
       // variate shader uniforms
-      // gradientUniforms.u_radius1 = Math.sin(time/40)*500;
-      // gradientUniforms.u_radius2 = Math.cos(time/60)*800;
-      // gradientUniforms.u_point1 = [Math.tan(time/80), Math.cos(time/80)];
+      gradientUniforms.u_time = time * 0.005;
 
       allCreaturesContainer.children.forEach(c => {
         if (c.tick) c.tick(delta)

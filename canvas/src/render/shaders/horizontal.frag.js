@@ -1,5 +1,6 @@
 // horizontal gradient 
 // orange - white - green
+// https://www.shadertoy.com/view/sdyXWt
 
 const HorizontalGradientFrag = `
 
@@ -22,16 +23,16 @@ void main() {
     vec2 st = gl_FragCoord.xy/u_resolution;    
 
     vec3 color;
-    vec2 u_point1 = vec2(0.50,1.0); // top
-    vec2 u_point2 = vec2(0.50,0.50); // midle white
-    vec2 u_point3 = vec2(0.50,0.0); // bottom
+    vec2 u_point1 = vec2(0.50,1.0 - sin(u_time)); // top
+    vec2 u_point2 = vec2(0.50,0.50 - sin(u_time)); // midle white
+    vec2 u_point3 = vec2(0.50,0.0 - sin(u_time)); // bottom
 
     vec3 u_color1 = vec3(253.0 / 256.0, 136.0 / 256.0, 11.0 / 256.0); // orange
     vec3 u_color2 = vec3(1.0, 1.0, 1.0);  // middle white
     vec3 u_color3 = vec3(12.0 / 256.0, 239.0 / 256.0, 66.0 / 256.0); // green
 	
     float u_radius1 = 0.1;
-    float u_radius2 = -0.12;
+    float u_radius2 = -0.1;
     float u_radius3 = 0.1;
 
     highp float d1 = dist(gl_FragCoord.xy / u_resolution, u_point1 );
