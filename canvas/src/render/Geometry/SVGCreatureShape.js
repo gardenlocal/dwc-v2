@@ -33,6 +33,7 @@ export default class SVGCreatureShape extends PIXI.Graphics {
 
         // Create the layers
         for (const [key, value] of Object.entries(layersOfInterest)) {
+            console.log('creating layers: ', key, value)
             this.layers[key] = new SVGCreatureLayer(key, value, this.fillColor)
             this.addChild(this.layers[key])
         }

@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "@pixi/filter-blur": "^6.1.3",
+    "@tweenjs/tween.js": "^18.6.4",
     "axios": "^0.21.4",
     "d-path-parser": "^1.0.0",
     "geometric": "^2.2.8",

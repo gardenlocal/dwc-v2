@@ -25,6 +25,13 @@ exports.DWC_META = {
                     "moss-element-2": 6
                 }
             }
+        },
+        mushroom: {
+            "mushroom-element-1": {
+                name: "mushroom-element-1",
+                anchor: { x: 0, y: 0.5 },
+                connectors: {}
+            }
         }
     },
     creaturesOld: {

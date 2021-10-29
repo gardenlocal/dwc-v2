@@ -2,7 +2,7 @@ import * as PIXI from 'pixi.js'
 import { DWC_META } from '../../../../shared-constants';
 import SVGCreatureShape from '../Geometry/SVGCreatureShape';
 import { randomElementFromArray, randomIntInRange } from '../utils';
-import Particle from './Particle';
+import Particle from './MossParticle';
 import { BlurFilter } from '@pixi/filter-blur';
 import gradientFragment from '../shaders/radialGradient.glsl'
 import vertex from "../shaders/vertex.glsl";
