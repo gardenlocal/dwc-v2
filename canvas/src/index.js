@@ -29,7 +29,7 @@ const app = new Application({
 });
 resizeTo.appendChild(app.view)
 //app.renderer.backgroundColor = 0x061639;
-app.renderer.backgroundColor = 0xf2f2f2;
+app.renderer.backgroundColor = 0xf9f9f9;
 
 const stats = addStats(document, app);
 const ticker = PIXI.Ticker.shared
@@ -57,7 +57,7 @@ const startApp = async () => {
 
   console.log(window.DWCCreatureShapes)
 
-  window.DWCApp.stage.scale.set(window.innerHeight / 1000)
+  // window.DWCApp.stage.scale.set(window.innerHeight / 1000)
 
   if(LOGGEDIN && UserData.role === 'ROLE_ADMIN'){    
     renderAdminCreatures(app);
