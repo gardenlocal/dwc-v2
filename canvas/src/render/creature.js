@@ -34,6 +34,7 @@ export default class Creature extends PIXI.Container {
         this.target = { x: toX, y: toY }
         this.movementDuration = this.animatedProperties.position.duration
         this.movementAlpha = 0        
+        this.creatureTargetRotation = 0
             
         this.destinationMarker = new PIXI.Graphics()        
         this.destinationMarker.beginFill(0xffffff)
@@ -57,6 +58,8 @@ export default class Creature extends PIXI.Container {
         this.addChild(this.creature)
         this.creature.scale.set(appearance.scale)
         this.creature.startAnimatingGrowth(1000)
+
+        this.frame = 0
     }
 
     updateState(newState) {
@@ -83,23 +86,33 @@ export default class Creature extends PIXI.Container {
         this.originPos.y = this.y
         this.movementAlpha = 0
         this.movementDuration = this.animatedProperties.position.duration
+        this.creatureTargetRotation = Math.atan2(this.target.y - this.originPos.y, this.target.x - this.originPos.x)
     }
 
     tick(d) {
         const delta = PIXI.Ticker.shared.elapsedMS
+        this.frame++
 
         // Per-frame update for the creature SVG Shape outlines
         this.creature.tick()
-
         // Movement animation
         if (this.movementAlpha >= 1) {
 
         } else {
             const step = delta / (1000 * this.movementDuration)
             this.movementAlpha += step
-            this.easedMovementAlpha = easeInOutQuart(this.movementAlpha)
-            this.x = lerp(this.originPos.x, this.target.x, this.easedMovementAlpha)
-            this.y = lerp(this.originPos.y, this.target.y, this.easedMovementAlpha)
+
+            if (this.appearance.creatureType == 'moss') {                
+                this.easedMovementAlpha = this.movementAlpha
+            } else {
+                this.easedMovementAlpha = easeInOutQuart(this.movementAlpha)
+            }
+
+            if (this.frame % 30 == 0 || this.appearance.creatureType != 'moss') {
+                this.creature.rotation = 0.001 * this.creatureTargetRotation + 0.999 * this.creature.rotation
+                this.x = lerp(this.originPos.x, this.target.x, this.easedMovementAlpha)
+                this.y = lerp(this.originPos.y, this.target.y, this.easedMovementAlpha)
+            }
         }
         
         this.destinationMarker.x = this.target.x - this.x

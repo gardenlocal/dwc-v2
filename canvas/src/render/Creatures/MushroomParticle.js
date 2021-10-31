@@ -78,5 +78,6 @@ export default class MushroomParticle extends PIXI.Graphics {
     stopAnimatingGrowth() {        
     }
     tick(d) {
+        this.children.forEach(c => c.tick())
     }
 }

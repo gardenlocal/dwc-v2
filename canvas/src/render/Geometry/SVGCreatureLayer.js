@@ -19,6 +19,8 @@ export default class SVGLayer extends PIXI.Graphics {
         this.points = this.resampleByPoints(pointCount)
 
         this.pRandom = []
+        this.randomOffsets = []
+
         for (let i = 0; i < this.points.length; i++) {
             this.pRandom.push({
                 posAlpha: randomInRange(0.3, 0.7),
@@ -26,10 +28,11 @@ export default class SVGLayer extends PIXI.Graphics {
                 r1Factor: randomInRange(0.1, 0.6),
                 r2Factor: randomInRange(0.1, 0.6)
             })
+            this.randomOffsets.push(0)
         }
 
         //this.addChild(this.svgObj)
-        this.draw()        
+        this.draw()                
     }
 
     toGeometricPoly(p) {
@@ -41,16 +44,7 @@ export default class SVGLayer extends PIXI.Graphics {
     }
 
     tick() {
-        this.draw()
-        /*
-        const now = new Date().getTime() / 100
-        for (let i = 0; i < this.points.length; i += 2) {
-            const param = (now + i) / 10
-            this.points[i] += Math.sin(param) * 0.1
-            this.points[i + 1] += Math.cos(param) * 0.1
-        }
-        this.draw()
-        */
+        //this.draw()
     }
 
     calculateMorphOffset(from, fromName, to, toName) {
@@ -191,7 +185,16 @@ export default class SVGLayer extends PIXI.Graphics {
     drawFillAndStroke() {
         // this.beginFill(0xfafafa)
         //this.lineStyle(3, 0x2a2a2a, 1)
-        this.drawPolygon(this.points)        
+        /*
+        this.ptsDraw = []
+        for (let i = 0; i < this.points.length; i++) {
+            this.randomOffsets[i] = (Math.random() * 1 - 2)
+            this.ptsDraw.push(this.points[i] + this.randomOffsets[i])
+        }
+        this.drawPolygon(this.ptsDraw)        
+        */
+
+       this.drawPolygon(this.points)
         // this.endFill()
     }
 

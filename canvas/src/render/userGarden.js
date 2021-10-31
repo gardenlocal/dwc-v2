@@ -143,7 +143,7 @@ function render(app) {
   quad.position.set(WIDTH/2, HEIGHT/2);  
   quad.scale.set(1);
 
-  app.stage.addChild(quad);
+  //app.stage.addChild(quad);
 
   app.ticker.add((delta) => {
     quad.shader.uniforms.u_time += Math.sin(delta/20);

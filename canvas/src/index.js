@@ -62,7 +62,11 @@ const startApp = async () => {
 
   console.log(window.DWCCreatureShapes)
 
-  window.DWCApp.stage.scale.set(window.innerHeight / 1000)
+  window.DWCApp.stage.scale.set(Math.min(window.innerWidth, window.innerHeight) / 1000)
+  if (window.innerWidth < window.innerHeight)
+    window.DWCApp.stage.pivot.set(0, (window.innerWidth - window.innerHeight))
+  else
+    window.DWCApp.stage.pivot.set((window.innerHeight - window.innerWidth), 0)
 
   if(LOGGEDIN && UserData.role === 'ROLE_ADMIN'){    
     renderAdminCreatures(app);

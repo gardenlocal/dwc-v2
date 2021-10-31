@@ -51,6 +51,6 @@ export default class MushroomCluster extends PIXI.Graphics {
     }
 
     tick() {
-        //this.creature.tick()
+        this.creature.children.forEach(c => c.tick())
     }
 }
