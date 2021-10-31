@@ -33,10 +33,14 @@ resizeTo.appendChild(app.view)
 //app.renderer.backgroundColor = 0x061639;
 app.renderer.backgroundColor = 0xf2f2f2;
 
-const stats = addStats(document, app);
+
 const ticker = PIXI.Ticker.shared
 
+/*
+const stats = addStats(document, app);
 ticker.add(stats.update, stats, PIXI.UPDATE_PRIORITY.UTILITY)
+*/
+
 ticker.add(() => {
   TWEEN.update()
 }, this, PIXI.UPDATE_PRIORITY.HIGH)

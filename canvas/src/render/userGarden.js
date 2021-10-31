@@ -168,6 +168,8 @@ function render(app) {
 
   app.stage.addChild(gardenContainer)  
 
+  drawNeighborOverlays()
+
   animate(app);
 }
 
@@ -189,7 +191,27 @@ function drawTile() {
 }
 function drawTiles() {
   const tilesBackground = new UserBackground(currentGarden)
-  window.DWCApp.stage.addChild(tilesBackground)  
+  window.DWCApp.stage.addChild(tilesBackground)
+
+  const tilesBackground2 = new UserBackground(currentGarden)
+  tilesBackground2.position.set(0, -HEIGHT)
+  window.DWCApp.stage.addChild(tilesBackground2)
+
+  const tilesBackground3 = new UserBackground(currentGarden)
+  tilesBackground3.position.set(0, HEIGHT)
+  window.DWCApp.stage.addChild(tilesBackground3)
+}
+
+function drawNeighborOverlays() {
+  const neighborsGrey = new PIXI.Graphics()
+  neighborsGrey.beginFill(0x555555)
+  neighborsGrey.alpha = 0.8
+  neighborsGrey.drawRect(0, HEIGHT, WIDTH, HEIGHT)
+  neighborsGrey.drawRect(0, -HEIGHT, WIDTH, HEIGHT)
+  neighborsGrey.drawRect(-WIDTH, 0, WIDTH, HEIGHT)
+  neighborsGrey.drawRect(WIDTH, 0, WIDTH, HEIGHT)
+  neighborsGrey.endFill()
+  window.DWCApp.stage.addChild(neighborsGrey)
 }
 
 function animate(app) {
