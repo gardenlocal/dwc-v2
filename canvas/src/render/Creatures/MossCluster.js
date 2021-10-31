@@ -8,26 +8,23 @@ import gradientFragment from '../shaders/radialGradient.glsl'
 import vertex from "../shaders/vertex.glsl";
 
 export default class Cluster extends PIXI.Graphics {
-    constructor(creatureType, elementAIndex, elementBIndex) {
+    constructor({ creatureType, svgElementIndex, childrenSequence, scale, rotation, fillColor }) {
         super()
         this.creatureType = creatureType        
+        this.elementType = Object.values(DWC_META.creaturesNew[creatureType])[svgElementIndex].name
 
-        this.elementA = Object.values(DWC_META.creaturesNew[creatureType])[elementAIndex].name
-
-        let c1, c2
-        c1 = this.getElementParams(this.elementA, 2, 6)
-        
-        let skew = 0
-
-        this.creature = new Particle(this.creatureType, this.elementA, c1.noElements, c1.elementsProps)
-        this.creature.skew.x = -skew
+        this.creature = new Particle(this.creatureType, this.elementType, childrenSequence, fillColor)
 
         //this.drawParticle()
         this.addChild(this.creature)
+        this.selfBbox = this.getBounds()
+        this.pivot.set(this.selfBbox.width / 2, this.selfBbox.height / 2)
+        //this.scale.set(scale)
+        //this.rotation = rotation
     }
 
-    startAnimatingGrowth(elementDuration) {
-        this.creature.startAnimatingGrowth(elementDuration)
+    async startAnimatingGrowth(elementDuration, elementDelay) {
+        await this.creature.startAnimatingGrowth(elementDuration, elementDelay)
     }
 
     getNumberOfElements() {
@@ -35,18 +32,21 @@ export default class Cluster extends PIXI.Graphics {
     }
 
     tick() {
+        //this.position.set(this.x + 10, this.y)
         this.creature.tick()
+        //this.drawParticle()
     }
 
     drawParticle() {
+        while (this.children.length > 0)
+            this.removeChild(this.children[0])
+
         let shapeMask
         shapeMask = this.drawElement()
         this.addChild(shapeMask)
         
-        // Gradient
-
-        /*
-        const bbox = shapeMask.getBounds()
+        // Gradient        
+        const bbox = this.selfBbox//shapeMask.getBounds()
           
         const gradientUniforms = {
             u_time: 1.0,
@@ -57,8 +57,6 @@ export default class Cluster extends PIXI.Graphics {
             u_color3: [0.0, 0.0, 0.0, 0.8], // color of second point of radial gradient
             u_resolution: [bbox.width, bbox.height]
         }
-
-
 
         const gradientFilter = new PIXI.Filter(null, gradientFragment, gradientUniforms);
         const gradientSprite = new PIXI.Sprite(PIXI.Texture.WHITE)
@@ -76,18 +74,17 @@ export default class Cluster extends PIXI.Graphics {
         const container = new PIXI.Container()
         container.addChild(gradientSpriteContainer)
 
-        //var textureMask = window.DWCApp.renderer.generateTexture(shapeMask, { resolution: 2, multisample: PIXI.MSAA_QUALITY.MEDIUM });
-        //var spriteMask = new PIXI.Sprite(textureMask)
+        var textureMask = window.DWCApp.renderer.generateTexture(shapeMask, { resolution: 2, multisample: PIXI.MSAA_QUALITY.MEDIUM });
+        var spriteMask = new PIXI.Sprite(textureMask)
         //spriteMask.scale.set(0.95)
         spriteMask.position.set(bbox.x, bbox.y)
 
-        //container.addChild(spriteMask)
-        //container.mask = spriteMask
-        //container.filters = [new BlurFilter(16, 8)]
+        container.addChild(spriteMask)
+        container.mask = spriteMask
+        container.filters = [new BlurFilter(1, 8)]
         
         this.addChild(container)
         //shapeMask.filters = [new BlurFilter(1, 2)]
-        */
     }
 
     drawElement() {
@@ -98,32 +95,5 @@ export default class Cluster extends PIXI.Graphics {
         sp.y = -sp.height / 2
         shapeMask.addChild(sp)
         return shapeMask
-    }
-
-    getElementParams(elementType, min, max) {
-        let noElements = randomIntInRange(min, max)
-        let elementsProps = []
-        let typeKey, nextTypeKey
-        let currElementType = elementType //randomElementFromArray(Object.keys(DWC_META.creaturesNew[creatureType][elementType].connectors))
-
-        nextTypeKey = currElementType
-        for (let i = 0; i < noElements; i++) {
-            typeKey = nextTypeKey
-            nextTypeKey = randomElementFromArray(Object.keys(DWC_META.creaturesNew[this.creatureType][typeKey].connectors))
-
-            if (Math.random() > 0.2) {
-                while (nextTypeKey == typeKey) {
-                    nextTypeKey = randomElementFromArray(Object.keys(DWC_META.creaturesNew[this.creatureType][typeKey].connectors))
-                }
-            }
-
-            elementsProps.push({
-                typeKey: typeKey,
-                nextTypeKey: nextTypeKey,
-                connectorIndex: randomIntInRange(0, DWC_META.creaturesNew[this.creatureType][typeKey].connectors[nextTypeKey])
-            })
-        }
-
-        return { type: currElementType, noElements, elementsProps }
     }
 }

@@ -8,7 +8,7 @@ import { updateUsers, updateCreatures } from "../data/globalData";
 import cnFragment from './shaders/cnFragment.glsl.js'
 import gradientFragment from './shaders/gradient.glsl'
 import vertex from "./shaders/vertex.glsl";
-import { DWC_META } from "../../../shared-constants";
+import { DWC_META, generateMoss, generateMushroom } from "../../../shared-constants";
 import UserBackground from "./Backgrounds/UserBackground";
 import Particle from "./Creatures/MossParticle"
 import MossCluster from "./Creatures/MossCluster"
@@ -37,20 +37,7 @@ async function render(app) {
 
   app.ticker.add((delta) => {
     TWEEN.update()
-    //quad.shader.uniforms.u_time += Math.sin(delta/20);
-    allCreatures.forEach(
-      c => {
-        c.tick()
-        if (c.velocity) {
-          c.rotation += c.velocity.r / 5
-          c.position.x += c.velocity.x
-          c.position.y += c.velocity.y
-          if (c.position.x > 1500 || c.position.y > 1500 || c.position.x < -500 || c.position.y < -500) {
-            gardenContainer.removeChild(c)
-          }  
-        }
-      }
-    )
+    allCreatures.forEach(c => c.tick())
   });
   
 
@@ -65,7 +52,9 @@ async function render(app) {
   gardenContainer.addChild(allCreaturesContainer)
 
   //drawAllMoss(100)
-  drawMushrooms()
+  //drawMushrooms()
+  drawOneMoss()
+  drawOneMushroom()
 
   app.stage.addChild(gardenContainer)
 
@@ -76,96 +65,29 @@ let currX = PADDING
 let currY = PADDING
 let maxY = 0
 
-function drawMushrooms() {
-  drawOneMushroom()
-  setInterval(() => {
-    while (gardenContainer.children[0]) {
-      gardenContainer.removeChild(gardenContainer.children[0])
-    }    
-    drawOneMushroom()
-  }, 8500)
-}
-
 function drawOneMushroom() {
-  const creatureType = randomElementFromArray(['mushroom'])
-  const noCreatures = Object.keys(DWC_META.creaturesNew[creatureType]).length
-  const mushroom = new MushroomCluster(creatureType, randomIntInRange(0, noCreatures), randomInRange(0.3, 1))  
-  const bbox = mushroom.getBounds()
-  mushroom.pivot.set(bbox.width / 2, bbox.height / 2)
-  mushroom.scale.set(randomInRange(1, 4))
-  mushroom.rotation = (-Math.PI / 2)
+  const mushroomProps = generateMushroom()
+  const mushroom = new MushroomCluster(mushroomProps)  
+
   mushroom.position.set(500, 500)
+
   gardenContainer.addChild(mushroom)
   allCreatures.push(mushroom)
 
   mushroom.startAnimatingGrowth(1500)
 }
 
-async function drawAllMoss(n) {
-  for (let i = 0; i < n; i++) {
-    const c = drawOneMoss()
-    c.rotation = Math.random() * Math.PI
-    await new Promise((res, rej) => {
-      c.startAnimatingGrowth(1000)
-      setTimeout(() => {
-        res()
-      }, 500 * c.getNumberOfElements())
-    })
-  }
-}
-
 function drawOneMoss() {
-  const creatureType = randomElementFromArray(['moss'])
-  const noA = Object.keys(DWC_META.creaturesNew[creatureType]).length
-  const cluster = new MossCluster(creatureType, randomIntInRange(0, noA), randomIntInRange(0, noA))
-  gardenContainer.addChild(cluster)
-  //cluster.scale.set(map(Math.random(), 0, 1, 0.25, 1))
-  cluster.position.set(map(Math.random(), 0, 1, 400, 600), map(Math.random(), 0, 1, 400, 600))
-  cluster.velocity = {
-    x: map(Math.random(), 0, 1, -1, 1),
-    y: map(Math.random(), 0, 1, -1, 1),
-    r: map(Math.random(), 0, 1, -0.01, 0.01)
-  }
-  allCreatures.push(cluster)
-  return cluster
-}
+  const mossProps = generateMoss()
+  const moss = new MossCluster(mossProps)
 
-function drawNewCreature() {
-  /*
-  */ 
+  moss.position.set(500, 500)
 
-  //const creatureType = randomElementFromArray(['moss', 'lichen', 'mushroom'])
-  const creatureType = randomElementFromArray(['moss'])
-  const noA = Object.keys(DWC_META.creaturesNew[creatureType]).length
-  const cluster = new MossCluster(creatureType, randomIntInRange(0, noA), randomIntInRange(0, noA))
-  gardenContainer.addChild(cluster)
-  cluster.scale.set(1, 1)
-  const bounds = cluster.getBounds()
-  const s = 50 / bounds.height 
+  gardenContainer.addChild(moss)  
+  allCreatures.push(moss)
 
-  if (currX + bounds.width * s + PADDING > window.GARDEN_WIDTH) {
-    currY += maxY + PADDING
-    currX = PADDING
-    maxY = bounds.height * s
-
-    if (currY + bounds.height * s + PADDING > window.GARDEN_HEIGHT) {
-      currX = PADDING
-      currY = PADDING
-      while (gardenContainer.children[0]) {
-        gardenContainer.removeChild(gardenContainer.children[0])
-      }    
-    }
-  }  
-  cluster.scale.set(s, s)
-  cluster.position.set(currX + bounds.width * s / 2, currY + bounds.height * s / 2)
-  currX += bounds.width * s + PADDING
-  maxY = Math.max(bounds.height * s, maxY)
-
-  allCreatures.push(cluster)
-  return cluster
-  //cluster.x = -bounds.width / 2
-  //cluster.y = -bounds.height / 2  
-  //creature.skew.x = -Math.PI / 8
+  moss.startAnimatingGrowth(1000, 400)
+  return moss
 }
 
 function drawMaskedGradient() {

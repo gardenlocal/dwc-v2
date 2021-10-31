@@ -8,20 +8,20 @@ import gradientFragment from '../shaders/radialGradient.glsl'
 import vertex from "../shaders/vertex.glsl";
 
 export default class MushroomCluster extends PIXI.Graphics {
-    constructor(creatureType, elementAIndex, mirrorScale = 0.4) {
+    constructor({ creatureType, svgElementIndex, mirrorSectionScale, mainSectionChildren, mirrorSectionChildren, scale, rotation, fillColor }) {
         super()
-        this.creatureType = creatureType        
-        this.elementType = Object.values(DWC_META.creaturesNew[creatureType])[elementAIndex].name
+        this.creatureType = creatureType
+        this.elementType = Object.values(DWC_META.creaturesNew[creatureType])[svgElementIndex].name
 
-        let creatureTopChildren = this.getElementParams(this.elementA, 3, 8)
-        let creatureBottomChildren = this.getElementParams(this.elementA, 3, 8)
+        let creatureTopChildren = mainSectionChildren
+        let creatureBottomChildren = mirrorSectionChildren
 
-        this.creatureTop = new MushroomParticle(this.creatureType, this.elementType, creatureTopChildren)
+        this.creatureTop = new MushroomParticle(this.creatureType, this.elementType, creatureTopChildren, fillColor)
         const topBBox = this.creatureTop.getBounds()
 
-        this.creatureBottom = new MushroomParticle(this.creatureType, this.elementType, creatureBottomChildren)
+        this.creatureBottom = new MushroomParticle(this.creatureType, this.elementType, creatureBottomChildren, fillColor)
 
-        this.creatureBottom.scale.set(-mirrorScale, mirrorScale)
+        this.creatureBottom.scale.set(-mirrorSectionScale, mirrorSectionScale)
         const bottomBBox = this.creatureBottom.getBounds()        
         this.creatureBottom.position.set(0, topBBox.height / 2 - bottomBBox.height / 2)        
 
@@ -32,6 +32,13 @@ export default class MushroomCluster extends PIXI.Graphics {
         this.creature.pivot.set(-bbox.width / 2, 0)
 
         this.addChild(this.creature)
+
+        const selfBbox = this.getBounds()
+
+        this.pivot.set(selfBbox.width / 2, selfBbox.height / 2)
+        this.scale.set(scale)
+        this.rotation = rotation
+      
     }
 
     async startAnimatingGrowth(elementDuration) {
@@ -45,24 +52,5 @@ export default class MushroomCluster extends PIXI.Graphics {
 
     tick() {
         //this.creature.tick()
-    }
-
-    getElementParams(elementType, minChildren, maxChildren) {
-        let noElements = randomIntInRange(minChildren, maxChildren)
-        let childrenDimensions = []
-        let possibleSizes = [2, 3, 4, 5, 6, 8]
-
-        let sum = 0
-        for (let i = 0; i < noElements; i++) {
-            let curr = randomElementFromArray(possibleSizes)
-            childrenDimensions.push(curr)
-            sum += curr
-        }
-
-        for (let i = 0; i < noElements; i++) {            
-            childrenDimensions[i] /= sum
-        }
-
-        return childrenDimensions
     }
 }
