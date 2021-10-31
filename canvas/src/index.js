@@ -37,8 +37,8 @@ const ticker = PIXI.Ticker.shared
 ticker.add(stats.update, stats, PIXI.UPDATE_PRIORITY.UTILITY)
 
 window.DWCApp = app
-window.GARDEN_WIDTH = 1000
-window.GARDEN_HEIGHT = 1000
+window.GARDEN_WIDTH = window.innerWidth > 1000 ? 1000 : window.innerHeight;
+window.GARDEN_HEIGHT = window.GARDEN_WIDTH;
 
 const startApp = async () => {
   // TODO: Depending on how many assets we end up having,

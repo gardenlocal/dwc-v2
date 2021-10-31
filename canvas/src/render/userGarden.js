@@ -7,14 +7,13 @@ import Creature from './creature'
 import { updateUsers, updateCreatures } from "../data/globalData";
 import cnFragment from './shaders/cnFragment.glsl.js'
 import gradientFragment from './shaders/gradient.glsl'
-import HorizontalGradientFrag from "./shaders/horizontal.frag";
-import vertex from "./shaders/vertex.glsl";
 import { DWC_META } from "../../../shared-constants";
 import UserBackground from "./Backgrounds/UserBackground";
 import orangeGreen from "../../assets/bg2000ver.jpeg"
 import horizontalGradient from "../../assets/horizontal1000.png";
 import { map } from "./utils.js"
 import GradientBackground from "./Backgrounds/GradientBackground";
+import OverlapBackground from "./Backgrounds/OverlapBackground";
 
 const WIDTH = window.GARDEN_WIDTH;
 const HEIGHT = window.GARDEN_HEIGHT;
@@ -32,8 +31,6 @@ let allCreatures = [];
 let gardenContainer;
 let allCreaturesContainer;
 let tilesContainer = new PIXI.Container();
-let arcShapeMask, gradientUniforms, gardenImg;
-
 
 let isAppRunning = false
 
@@ -120,21 +117,21 @@ function render(app) {
   gardenContainer.addChild(allCreaturesContainer)
 
   for (const [key, value] of Object.entries(onlineCreatures)) {
-    const c = new Creature(value)
-    allCreaturesContainer.addChild(c)
+    // const c = new Creature(value)
+    // allCreaturesContainer.addChild(c)
   }
 
-  drawGradientBackground();
+  drawOverlapBackground();
 
   app.stage.addChild(gardenContainer)  
 
   animate(app);
 }
 
-function drawTiles() {
-  const tilesBackground = new UserBackground(currentGarden)
-  window.DWCApp.stage.addChild(tilesBackground)  
-}
+// function drawTiles() {
+//   const tilesBackground = new UserBackground(currentGarden)
+//   window.DWCApp.stage.addChild(tilesBackground)  
+// }
 
 // graident + mask + shader
 function drawGradientBackground() {
@@ -143,7 +140,19 @@ function drawGradientBackground() {
   window.DWCApp.stage.addChild(tilesContainer);
 }
 
+function drawOverlapBackground() {
+ 
+  // draw shapes on top of colored background
+  const maskedBackground = new OverlapBackground(currentGarden);
+
+  // tilesContainer.children[0].children[0] : ShaderMesh
+  // tilesContainer.children[0].chilrend[1] : white polygon
+  tilesContainer.addChild(maskedBackground);
+  window.DWCApp.stage.addChild(tilesContainer);
+}
+
 var time = 0
+const helper = new PIXI.Graphics();
 
 function animate(app) {
 
@@ -153,13 +162,20 @@ function animate(app) {
       time += delta
 
       allCreaturesContainer.children.forEach(c => {
-        if (c.tick) c.tick(delta)
-        const currentPos = new PIXI.Point(map(c.x, 0, 2000, 0, window.innerHeight), map(c.y, 0, 2000, 0, window.innerHeight))
+        // if (c.tick) c.tick(delta)
+        // const currentPos = new PIXI.Point(map(c.x, 0, 2000, 0, window.innerHeight), map(c.y, 0, 2000, 0, window.innerHeight))
         // garden.containsPoint(currentPos) && console.log(true)
       })
 
+      // helper
+      const tempPos = new PIXI.Point(900, 900)
+      helper.clear();
+      helper.beginFill(0x000000);
+      helper.drawCircle(tempPos.x, tempPos.y, 10)
+      tilesContainer.addChild(helper);
+
       tilesContainer.children.forEach(bg => {
-        if(bg.tick) bg.tick(time);
+        if(bg.tick) bg.tick(tempPos);
       })
       
     })
