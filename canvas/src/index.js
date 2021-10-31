@@ -13,6 +13,7 @@ import { renderCreatureTest } from "./render/creatureTest";
 import { DWC_META } from "../../shared-constants";
 import SVGCreatureShape from "./render/Geometry/SVGCreatureShape";
 import { addStats, Stats } from 'pixi-stats';
+import TWEEN from '@tweenjs/tween.js'
 
 const LOGGEDIN = localStorage.getItem("user") ? true: false;
 
@@ -36,6 +37,9 @@ const stats = addStats(document, app);
 const ticker = PIXI.Ticker.shared
 
 ticker.add(stats.update, stats, PIXI.UPDATE_PRIORITY.UTILITY)
+ticker.add(() => {
+  TWEEN.update()
+}, this, PIXI.UPDATE_PRIORITY.HIGH)
 
 window.DWCApp = app
 window.GARDEN_WIDTH = 1000

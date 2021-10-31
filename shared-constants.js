@@ -1,5 +1,3 @@
-const { randomIntInRange, randomInRange, randomElementFromArray } = require("./canvas/src/render/utils")
-
 const DWC_META = {
     creatures: {
         CREATURE_1: "creature-1",
@@ -228,4 +226,16 @@ exports.generateLichen = () => {
     return {
 
     }
+}
+
+function randomInRange(a, b) {
+    return Math.random() * (b - a) + a
+}
+
+function randomIntInRange(a, b) { 
+    return Math.floor(randomInRange(a, b))
+}  
+
+function randomElementFromArray(arr) {
+    return arr[randomIntInRange(0, arr.length)]
 }
