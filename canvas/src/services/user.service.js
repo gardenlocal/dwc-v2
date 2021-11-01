@@ -1,7 +1,9 @@
 import axios from 'axios';
 import authHeader from './auth-header';
 
-const port = (window.location.hostname.indexOf('iptime.org') == -1 ? '3000' : '1012')
+// const API_URL = 'http://localhost:8080/api/test/';
+// const port = (window.location.hostname == 'localhost' ? '3000' : '1012')
+const port = window.location.hostname.includes('iptime') ? '1012' : '3000'
 const API_URL = `http://${window.location.hostname}:${port}/api/test/`
 
 class UserService {

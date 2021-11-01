@@ -8,9 +8,13 @@ import { updateUsers, updateCreatures } from "../data/globalData";
 import UserData from "../data/userData";
 import cnFragment from './shaders/cnFragment.glsl.js'
 import gradientFragment from './shaders/gradient.glsl'
-import vertex from "./shaders/vertex.glsl";
 import { DWC_META } from "../../../shared-constants";
 import UserBackground from "./Backgrounds/UserBackground";
+import orangeGreen from "../../assets/bg2000ver.jpeg"
+import horizontalGradient from "../../assets/horizontal1000.png";
+import { map } from "./utils.js"
+import GradientBackground from "./Backgrounds/GradientBackground";
+import OverlapBackground from "./Backgrounds/OverlapBackground";
 
 const WIDTH = window.GARDEN_WIDTH || 1000;
 const HEIGHT = window.GARDEN_HEIGHT || 1000;
@@ -18,7 +22,8 @@ const HEIGHT = window.GARDEN_HEIGHT || 1000;
 const userToken = JSON.parse(localStorage.getItem("user"))?.accessToken;
 const userId = JSON.parse(localStorage.getItem("user"))?.id; 
 let socket, socketAuthenticated = false;
-const port = (window.location.hostname.indexOf('iptime.org') == -1 ? '3000' : '1012')
+const port = window.location.hostname.includes('iptime') ? '1012' : '3000'
+// const port = (window.location.hostname === 'localhost' ? '3000' : '1012') // change to local IP address to access via mobile
 let currentGarden;
 let onlineUsers = {};
 let onlineCreatures = {};
@@ -27,10 +32,14 @@ let gardens = [];
 
 let gardenContainer;
 let allCreaturesContainer;
-let tilesContainer;
+
 let allGardenSectionsContainer
+let tilesContainer = new PIXI.Container();
+
 
 let isAppRunning = false
+
+PIXI.settings.SPRITE_MAX_TEXTURES = Math.min(PIXI.settings.SPRITE_MAX_TEXTURES , 16);
 
 export async function renderCreature(app) {
   if(userToken) {
@@ -117,42 +126,6 @@ async function setGardens() {
 function render(app) {
   // init webgl renderer
   // WIDTH/2, HEIGHT/2 is the center of html canvas in webgl context
-  const geometry = new PIXI.Geometry()
-    .addAttribute('aVertexPosition', // the attribute name
-        [-WIDTH/2, -HEIGHT/2, // x, y
-          WIDTH/2, -HEIGHT/2, // x, y
-          WIDTH/2, HEIGHT/2,
-          -WIDTH/2, HEIGHT/2], // x, y
-      2) // the size of the attribute
-    .addAttribute('aUvs', // the attribute name
-        [0, 0, // u, v
-            1, 0, // u, v
-            1, 1,
-            0, 1], // u, v
-      2) // the size of the attribute
-    .addIndex([0, 1, 2, 0, 2, 3]);
-  
-
-  // (cezar): Example of a gradient shader, if we want to implement the designs.
-  const gradientUniforms = {
-    u_time: 1.0,
-    u_point1: [0.0, 0.0], // first center of the radial gradient, coordinates go from (0, 0) to (1, 1)
-    u_radius1: 0.1, // radius of first point of radial gradient
-    u_color1: [0.6, 0.2, 0.3], // color of first point of radial gradient
-    u_point2: [1.0, 1.0], // second center of the radial gradient, coordinates go from (0, 0) to (1, 1)
-    u_radius2: 0.1, // radius of second point of radial gradient
-    u_color2: [0.2, 0.5, 0.8], // color of second point of radial gradient
-    u_resolution: [WIDTH * 1.0, HEIGHT * 1.0]
-  }
-  const gradientShader = PIXI.Shader.from(vertex, gradientFragment, gradientUniforms);
-  const quad = new PIXI.Mesh(geometry, gradientShader);
-
-  // TODO: reponsive to resize window    
-
-  quad.position.set(WIDTH/2, HEIGHT/2);  
-  quad.scale.set(1);
-
-  //app.stage.addChild(quad);
 
   app.ticker.add((delta) => {
     quad.shader.uniforms.u_time += Math.sin(delta/20);
@@ -175,15 +148,18 @@ function render(app) {
   gardenContainer.addChild(allCreaturesContainer)
 
   for (const [key, value] of Object.entries(onlineCreatures)) {
-    const c = new Creature(value)
-    allCreaturesContainer.addChild(c)
+    // const c = new Creature(value)
+    // allCreaturesContainer.addChild(c)
   }
+
 
   allGardenSectionsContainer = new PIXI.Container()
   app.stage.addChild(allGardenSectionsContainer)  
   allGardenSectionsContainer.position.set(-currentGarden.x, -currentGarden.y)  
 
   //drawTiles()
+
+  drawOverlapBackground();
 
   app.stage.addChild(gardenContainer)  
   
@@ -199,20 +175,11 @@ function getCurrentUserCreature() {
   })
 }
 
-// test resize with one tile for one garden
-function drawTile() {
-  tilesContainer = new PIXI.Graphics()
-
-  const img = PIXI.Loader.shared.resources[DWC_META.tiles.TILE_1].texture
-  const sprite = PIXI.Sprite.from(img)
-  
-  sprite.scale.set(1)
-  sprite.position.set(0, 0)
-  sprite.height = window.innerHeight;
-  sprite.width = window.innerWidth;
-  tilesContainer.addChild(sprite)
-
-  window.DWCApp.stage.addChild(tilesContainer)  
+// graident + mask + shader
+function drawGradientBackground() {
+  const gradientGarden = new GradientBackground(currentGarden);
+  tilesContainer.addChild(gradientGarden);
+  window.DWCApp.stage.addChild(tilesContainer);
 }
 
 function drawGarden() {
@@ -241,22 +208,6 @@ function drawGarden() {
   }
 }
 
-
-function drawTiles() {
-  const tilesBackground = new UserBackground(currentGarden)
-  window.DWCApp.stage.addChild(tilesBackground)
-
-  /*
-  const tilesBackground2 = new UserBackground(currentGarden)
-  tilesBackground2.position.set(0, -HEIGHT)
-  window.DWCApp.stage.addChild(tilesBackground2)
-
-  const tilesBackground3 = new UserBackground(currentGarden)
-  tilesBackground3.position.set(0, HEIGHT)
-  window.DWCApp.stage.addChild(tilesBackground3)
-  */
-}
-
 function drawNeighborOverlays() {
   const neighborsGrey = new PIXI.Graphics()
   neighborsGrey.beginFill(0x555555)
@@ -269,17 +220,44 @@ function drawNeighborOverlays() {
   window.DWCApp.stage.addChild(neighborsGrey)
 }
 
+function drawOverlapBackground() {
+ 
+  // draw shapes on top of colored background
+  const maskedBackground = new OverlapBackground(currentGarden);
+
+  // tilesContainer.children[0].children[0] : ShaderMesh
+  // tilesContainer.children[0].chilrend[1] : white polygon
+  tilesContainer.addChild(maskedBackground);
+  window.DWCApp.stage.addChild(tilesContainer);
+}
+
+var time = 0
+const helper = new PIXI.Graphics();
+
 function animate(app) {
+
   // gotta run app.ticker for every object, all at once
     app.ticker.add((delta) => {
+
+      time += delta
+
       allCreaturesContainer.children.forEach(c => {
-        if (c.tick) c.tick(delta)
+        // if (c.tick) c.tick(delta)
+        // const currentPos = new PIXI.Point(map(c.x, 0, 2000, 0, window.innerHeight), map(c.y, 0, 2000, 0, window.innerHeight))
+        // garden.containsPoint(currentPos) && console.log(true)
       })
-      // window.onresize = function() {
-      //   console.log('resize!')
-      //   tilesContainer.children[0].width = window.innerWidth;
-      //   tilesContainer.children[0].height = window.innerHeight;
-      // }
+
+      // helper
+      const tempPos = new PIXI.Point(900, 900)
+      helper.clear();
+      helper.beginFill(0x000000);
+      helper.drawCircle(tempPos.x, tempPos.y, 10)
+      tilesContainer.addChild(helper);
+
+      tilesContainer.children.forEach(bg => {
+        if(bg.tick) bg.tick(tempPos);
+      })
+      
     })
 }
 

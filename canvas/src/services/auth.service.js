@@ -1,7 +1,8 @@
 import axios from "axios";
 
 // const API_URL = "http://localhost:8080/api/auth/";
-const port = (window.location.hostname.indexOf('iptime.org') == -1 ? '3000' : '1012')
+const port = window.location.hostname.includes('iptime') ? '1012' : '3000'
+// 192.168.0.xxx 
 const API_URL = `http://${window.location.hostname}:${port}/api/auth/`
 
 function redirect(pathname) {

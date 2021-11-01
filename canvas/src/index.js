@@ -31,7 +31,7 @@ const app = new Application({
 });
 resizeTo.appendChild(app.view)
 //app.renderer.backgroundColor = 0x061639;
-app.renderer.backgroundColor = 0xf2f2f2;
+app.renderer.backgroundColor = 0xf9f9f9;
 
 
 const ticker = PIXI.Ticker.shared
@@ -46,8 +46,8 @@ ticker.add(() => {
 }, this, PIXI.UPDATE_PRIORITY.HIGH)
 
 window.DWCApp = app
-window.GARDEN_WIDTH = 1000
-window.GARDEN_HEIGHT = 1000
+window.GARDEN_WIDTH = window.innerWidth > 1000 ? 1000 : window.innerHeight;
+window.GARDEN_HEIGHT = window.GARDEN_WIDTH;
 
 const startApp = async () => {
   // TODO: Depending on how many assets we end up having,
