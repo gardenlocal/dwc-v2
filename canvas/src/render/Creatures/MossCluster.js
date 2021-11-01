@@ -8,16 +8,26 @@ import gradientFragment from '../shaders/radialGradient.glsl'
 import vertex from "../shaders/vertex.glsl";
 
 export default class Cluster extends PIXI.Graphics {
-    constructor({ creatureType, svgElementIndex, childrenSequence, scale, rotation, fillColor }) {
+    constructor({ creatureType, svgElementIndex, childrenSequence, scale, rotation, fillColor }, creatureName) {
         super()
         this.creatureType = creatureType        
         this.elementType = Object.values(DWC_META.creaturesNew[creatureType])[svgElementIndex].name
 
-        this.creature = new Particle(this.creatureType, this.elementType, childrenSequence, fillColor)
-
+        this.creature = new Particle(this.creatureType, this.elementType, childrenSequence, fillColor)          
         //this.drawParticle()
         this.addChild(this.creature)
         this.selfBbox = this.getBounds()
+
+        this.creatureBounds = this.creature.getBounds()
+        const textStyle = new PIXI.TextStyle({
+            fontSize: 10,
+            fill: fillColor,
+            stroke: "white",
+        })
+        const message = new PIXI.Text(creatureName, textStyle);
+        message.position.set(this.creatureBounds.x, -15)
+        this.addChild(message)
+
         this.pivot.set(this.selfBbox.width / 2, this.selfBbox.height / 2)
         //this.scale.set(scale)
         //this.rotation = rotation

@@ -8,7 +8,7 @@ import gradientFragment from '../shaders/radialGradient.glsl'
 import vertex from "../shaders/vertex.glsl";
 
 export default class MushroomCluster extends PIXI.Graphics {
-    constructor({ creatureType, svgElementIndex, mirrorSectionScale, mainSectionChildren, mirrorSectionChildren, scale, rotation, fillColor }) {
+    constructor({ creatureType, svgElementIndex, mirrorSectionScale, mainSectionChildren, mirrorSectionChildren, scale, rotation, fillColor }, creatureName) {
         super()
         this.creatureType = creatureType
         this.elementType = Object.values(DWC_META.creaturesNew[creatureType])[svgElementIndex].name
@@ -32,6 +32,16 @@ export default class MushroomCluster extends PIXI.Graphics {
         this.creature.pivot.set(-bbox.width / 2, 0)
 
         this.addChild(this.creature)
+
+        const textStyle = new PIXI.TextStyle({
+            fontSize: 10,
+            fill: fillColor,
+            stroke: "white",
+        })
+        const message = new PIXI.Text(creatureName, textStyle);
+        message.position.set(bbox.x + bbox.width - message.getBounds().width / 2, -15)
+        this.addChild(message)
+
 
         const selfBbox = this.getBounds()
 

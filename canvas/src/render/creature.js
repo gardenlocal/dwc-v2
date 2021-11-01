@@ -46,12 +46,12 @@ export default class Creature extends PIXI.Container {
 
         switch (appearance.creatureType) {
             case 'moss':
-                this.creature = new MossCluster(appearance)
+                this.creature = new MossCluster(appearance, this.creatureName)
                 break
             case 'lichen':
                 break
             case 'mushroom':
-                this.creature = new MushroomCluster(appearance)
+                this.creature = new MushroomCluster(appearance, this.creatureName)
                 break
         }
 
@@ -108,7 +108,7 @@ export default class Creature extends PIXI.Container {
                 this.easedMovementAlpha = easeInOutQuart(this.movementAlpha)
             }
 
-            if (this.frame % 30 == 0 || this.appearance.creatureType != 'moss') {
+            if (this.frame % 120 == 0 || this.appearance.creatureType != 'moss') {
                 this.creature.rotation = 0.001 * this.creatureTargetRotation + 0.999 * this.creature.rotation
                 this.x = lerp(this.originPos.x, this.target.x, this.easedMovementAlpha)
                 this.y = lerp(this.originPos.y, this.target.y, this.easedMovementAlpha)

@@ -183,19 +183,17 @@ export default class SVGLayer extends PIXI.Graphics {
     }
 
     drawFillAndStroke() {
-        // this.beginFill(0xfafafa)
-        //this.lineStyle(3, 0x2a2a2a, 1)
+
         /*
         this.ptsDraw = []
         for (let i = 0; i < this.points.length; i++) {
-            this.randomOffsets[i] = (Math.random() * 1 - 2)
+            this.randomOffsets[i] = (Math.random() * 4 - 8)
             this.ptsDraw.push(this.points[i] + this.randomOffsets[i])
         }
         this.drawPolygon(this.ptsDraw)        
         */
 
-       this.drawPolygon(this.points)
-        // this.endFill()
+       this.drawPolygon(this.points)        
     }
 
     drawDebug() {

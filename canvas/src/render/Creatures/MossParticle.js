@@ -81,6 +81,7 @@ export default class Particle extends PIXI.Graphics {
     stopAnimatingGrowth() {        
     }
     tick(d) {
+        this.children.forEach(c => c.children[0].tick())
         /*
         this.frame++
         if (this.frame % 30 == 0) {
