@@ -1,7 +1,3 @@
-// https://thebookofshaders.com/edit.php#05/impulse.frag
-// Author: Inigo Quiles
-// Title: Impulse
-// https://thebookofshaders.com/05/
 const gradientFragment = `
 
 #ifdef GL_ES

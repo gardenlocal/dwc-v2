@@ -72,4 +72,9 @@ export function lerp(x, y, alpha) {
   return x + (y - x) * alpha
 }
 
+export function sleep(s) {
+  return new Promise((res, rej) => {
+    setTimeout(() => res(), s)
+  })
+}
   

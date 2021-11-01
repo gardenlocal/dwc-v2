@@ -13,8 +13,10 @@ class UserData {
  }
 
  async getAdminData() {
-   if(this.role === "ROLE_ADMIN") {
+   //if(this.role === "ROLE_ADMIN") {
+  if (true) {
     const allGardens = await UserService.getAdminGarden()
+    console.log('all gardens: ', allGardens)
     return allGardens;
    } else {
      console.log("ACCESS DENIED")

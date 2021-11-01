@@ -5,6 +5,7 @@ import * as PIXI from "pixi.js";
 import { io } from 'socket.io-client';
 import Creature from './creature'
 import { updateUsers, updateCreatures } from "../data/globalData";
+import UserData from "../data/userData";
 import cnFragment from './shaders/cnFragment.glsl.js'
 import gradientFragment from './shaders/gradient.glsl'
 import { DWC_META } from "../../../shared-constants";
@@ -15,8 +16,8 @@ import { map } from "./utils.js"
 import GradientBackground from "./Backgrounds/GradientBackground";
 import TransitionBackground from "./Backgrounds/TransitionBackground";
 
-const WIDTH = window.GARDEN_WIDTH;
-const HEIGHT = window.GARDEN_HEIGHT;
+const WIDTH = window.GARDEN_WIDTH || 1000;
+const HEIGHT = window.GARDEN_HEIGHT || 1000;
 
 const userToken = JSON.parse(localStorage.getItem("user"))?.accessToken;
 const userId = JSON.parse(localStorage.getItem("user"))?.id; 
@@ -27,10 +28,14 @@ let currentGarden;
 let onlineUsers = {};
 let onlineCreatures = {};
 let allCreatures = [];
+let gardens = [];
 
 let gardenContainer;
 let allCreaturesContainer;
+
+let allGardenSectionsContainer
 let tilesContainer = new PIXI.Container();
+
 
 let isAppRunning = false
 
@@ -62,14 +67,15 @@ export async function renderCreature(app) {
     }
     // get all online users
     console.log('Users update: ', users)
-    onlineUsers = updateUsers(users)
+    onlineUsers = updateUsers(users)    
     updateOnlineCreatures()
   })
 
-  socket.on('creatures', (creatures) => {
+  socket.on('creatures', async (creatures) => {
     console.log('socket received creatures', creatures)
     allCreatures = creatures
     updateOnlineCreatures(creatures)
+    await setGardens()
 
     if (!isAppRunning) {
       isAppRunning = true
@@ -102,9 +108,33 @@ export async function renderCreature(app) {
   })
 }
 
+async function setGardens() {
+  const allUsers = (await UserData.getAdminData()).data
+  gardens = []  // reset gardens data 
+  for (let i = 0; i < allUsers.length; i++){
+    const u = allUsers[i]
+    let isOnline = false;
+    if (Object.keys(onlineUsers).includes(u.username)) {
+      isOnline = true;
+    }
+    const garden = { 'user': u.username, 'garden': u.gardenSection, 'isOnline': isOnline }
+    gardens.push(garden)
+  }  
+}
+
+
 function render(app) {
   // init webgl renderer
   // WIDTH/2, HEIGHT/2 is the center of html canvas in webgl context
+
+  app.ticker.add((delta) => {
+    const currUserCreatureArr = getCurrentUserCreature()
+    if (currUserCreatureArr.length == 0) return
+
+    const creature = currUserCreatureArr[0]    
+    //app.stage.pivot.set(creature.x - window.innerWidth / 1.5, creature.y - window.innerHeight / 1.2)
+    //app.stage.rotation = -creature.creature.rotation
+  });
 
   // Make a container for the entire app, and offset it by the garden coordinates.
   // Doing this means that we can work with the global coordinates 
@@ -117,27 +147,75 @@ function render(app) {
   gardenContainer.addChild(allCreaturesContainer)
 
   for (const [key, value] of Object.entries(onlineCreatures)) {
-    // const c = new Creature(value)
-    // allCreaturesContainer.addChild(c)
+    const c = new Creature(value)
+    allCreaturesContainer.addChild(c)
   }
 
+
+  allGardenSectionsContainer = new PIXI.Container()
+  app.stage.addChild(allGardenSectionsContainer)
+  allGardenSectionsContainer.position.set(-currentGarden.x, -currentGarden.y)  
+
+  //drawTiles()
+
+  //drawGradientBackground();
   drawOverlapBackground();
+  drawGarden()
+  drawNeighborOverlays()
 
-  app.stage.addChild(gardenContainer)  
-
+  app.stage.addChild(gardenContainer)
   animate(app);
 }
 
-// function drawTiles() {
-//   const tilesBackground = new UserBackground(currentGarden)
-//   window.DWCApp.stage.addChild(tilesBackground)  
-// }
+function getCurrentUserCreature() {  
+  return allCreaturesContainer.children.filter(c => {    
+    return (c.ownerId == userId)
+  })
+}
 
 // graident + mask + shader
 function drawGradientBackground() {
   const gradientGarden = new GradientBackground(currentGarden);
   tilesContainer.addChild(gradientGarden);
   window.DWCApp.stage.addChild(tilesContainer);
+}
+
+function drawGarden() {
+  const app = window.DWCApp;
+
+  console.log('Draw garden: ', gardens)
+
+  // Empty the container, then redraw. 
+  while (allGardenSectionsContainer?.children[0]) { // null check
+    allGardenSectionsContainer.removeChild(allGardenSectionsContainer.children[0])
+  }  
+
+  for (let i = 0; i < gardens.length; i++) {
+
+    const g = gardens[i].garden;
+    const isOnline = gardens[i].isOnline;
+
+    const tilesBackground = new UserBackground(g)
+    tilesBackground.x = g.x
+    tilesBackground.y = g.y
+    tilesBackground.width = g.width
+    tilesBackground.height = g.height
+    tilesBackground.alpha = 1//(isOnline ? 1 : 0.2)
+    allGardenSectionsContainer.addChild(tilesBackground)    
+    //window.DWCApp.stage.addChild(tilesBackground)    
+  }
+}
+
+function drawNeighborOverlays() {
+  const neighborsGrey = new PIXI.Graphics()
+  neighborsGrey.beginFill(0x555555)
+  neighborsGrey.alpha = 0.8
+  neighborsGrey.drawRect(0, HEIGHT, WIDTH, HEIGHT)
+  neighborsGrey.drawRect(0, -HEIGHT, WIDTH, HEIGHT)
+  neighborsGrey.drawRect(-WIDTH, 0, WIDTH, HEIGHT)
+  neighborsGrey.drawRect(WIDTH, 0, WIDTH, HEIGHT)
+  neighborsGrey.endFill()
+  window.DWCApp.stage.addChild(neighborsGrey)
 }
 
 function drawOverlapBackground() {
@@ -162,7 +240,7 @@ function animate(app) {
       time += delta
 
       allCreaturesContainer.children.forEach(c => {
-        // if (c.tick) c.tick(delta)
+        if (c.tick) c.tick(delta)
         // const currentPos = new PIXI.Point(map(c.x, 0, 2000, 0, window.innerHeight), map(c.y, 0, 2000, 0, window.innerHeight))
         // garden.containsPoint(currentPos) && console.log(true)
       })

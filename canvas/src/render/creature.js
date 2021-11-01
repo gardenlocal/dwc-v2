@@ -4,26 +4,24 @@ import { DWC_META } from '../../../shared-constants';
 import PixiSVG from '../svg-lib'
 import SVGShape from './Geometry/SVGCreatureShape';
 import { randomElementFromArray, easeInOutBounce, easeInOutQuart, lerp } from './utils';
+import MossCluster from "./Creatures/MossCluster"
+import MushroomCluster from "./Creatures/MushroomCluster"
 
-export default class Creature extends PIXI.Graphics {
+export default class Creature extends PIXI.Container {
     constructor(state) {
         super()
 
+        console.log('creature state: ', state.owner._id)
         const { appearance, _id, animatedProperties } = state;        
         this.name = _id
-        this.animatedProperties = animatedProperties
-        // this.movement = movement
+        this.ownerId = state.owner._id
+        this.animatedProperties = animatedProperties        
         this.appearance = appearance        
+        this.creatureName = state.owner.username
 
         const { fillColor, radius } = appearance;
         const hex = PIXI.utils.rgb2hex([fillColor.r, fillColor.g, fillColor.b])
     
-        //this.creatureType = appearance.creatureType
-        this.creatureType = this.animatedProperties.shape.from        
-        this.toCreatureType = this.animatedProperties.shape.to
-        this.shapeMorphDuration = this.animatedProperties.shape.duration
-        this.shapeMorphAlpha = 0
-
         let fromX = this.animatedProperties.position.from.x
         let fromY = this.animatedProperties.position.from.y
         let toX = this.animatedProperties.position.to.x
@@ -37,17 +35,8 @@ export default class Creature extends PIXI.Graphics {
         this.originPos = { x: fromX, y: fromY }
         this.target = { x: toX, y: toY }
         this.movementDuration = this.animatedProperties.position.duration
-        this.movementAlpha = 0
-
-        const svgData = PIXI.Loader.shared.resources[this.creatureType].data
-
-        this.svgShape = new SVGShape(svgData)
-        const bounds = this.svgShape.getBounds()
-        this.svgShape.pivot.set(bounds.x + bounds.width * 0.5, bounds.y + bounds.height * 0.5)
-        this.svgShape.position.set(0, 0)
-        const scale = radius / bounds.width * 2
-        this.svgShape.scale.set(scale, scale)
-        this.addChild(this.svgShape)
+        this.movementAlpha = 0        
+        this.creatureTargetRotation = 0
             
         this.destinationMarker = new PIXI.Graphics()        
         this.destinationMarker.beginFill(0xffffff)
@@ -56,6 +45,25 @@ export default class Creature extends PIXI.Graphics {
         this.destinationMarker.x = toX - this.x
         this.destinationMarker.y = toY - this.y
         this.addChild(this.destinationMarker)
+
+        switch (appearance.creatureType) {
+            case 'moss':
+                this.creature = new MossCluster(appearance, this.creatureName)
+                break
+            case 'lichen':
+                break
+            case 'mushroom':
+                this.creature = new MushroomCluster(appearance, this.creatureName)
+                break
+        }
+
+        this.addChild(this.creature)
+        this.creature.scale.set(appearance.scale)
+        this.creature.startAnimatingGrowth(1000)
+        setTimeout(() => {
+            //this.creature.evolve(800)
+        }, 5000)
+        this.frame = 0
     }
 
     updateState(newState) {
@@ -65,10 +73,6 @@ export default class Creature extends PIXI.Graphics {
             switch (key) {
                 case (DWC_META.creaturePropertyTypes.position):
                     this.updateTargetPosition(prop)
-                    break
-
-                case (DWC_META.creaturePropertyTypes.shape):
-                    this.updateTargetShape(prop)
                     break
 
                 default:
@@ -86,43 +90,35 @@ export default class Creature extends PIXI.Graphics {
         this.originPos.y = this.y
         this.movementAlpha = 0
         this.movementDuration = this.animatedProperties.position.duration
-    }
-
-    updateTargetShape(prop) {
-        this.creatureType = prop.from
-        this.toCreatureType = prop.to
-        this.shapeMorphAlpha = 0
-        this.shapeMorphDuration = prop.duration
+        this.creatureTargetRotation = Math.atan2(this.target.y - this.originPos.y, this.target.x - this.originPos.x)
     }
 
     tick(d) {
         const delta = PIXI.Ticker.shared.elapsedMS
+        this.frame++
 
         // Per-frame update for the creature SVG Shape outlines
-        this.svgShape.tick()
-
+        this.creature.tick()
         // Movement animation
         if (this.movementAlpha >= 1) {
 
         } else {
             const step = delta / (1000 * this.movementDuration)
             this.movementAlpha += step
-            this.easedMovementAlpha = easeInOutQuart(this.movementAlpha)
-            this.x = lerp(this.originPos.x, this.target.x, this.easedMovementAlpha)
-            this.y = lerp(this.originPos.y, this.target.y, this.easedMovementAlpha)
+
+            if (this.appearance.creatureType == 'moss') {                
+                this.easedMovementAlpha = easeInOutQuart(this.movementAlpha)//this.movementAlpha
+            } else {
+                this.easedMovementAlpha = easeInOutQuart(this.movementAlpha)
+            }
+
+            if (this.frame % 1 == 0 || this.appearance.creatureType != 'moss') {
+                this.creature.rotation = 0.001 * this.creatureTargetRotation + 0.999 * this.creature.rotation
+                this.x = lerp(this.originPos.x, this.target.x, this.easedMovementAlpha)
+                this.y = lerp(this.originPos.y, this.target.y, this.easedMovementAlpha)
+            }
         }
         
-        // Shape morphing animation
-        if (this.shapeMorphAlpha >= 1) {
-            // TODO (cezar): Shape morphing should only start when current transition has been completed,
-            // otherwise we might see jumps.
-        } else {            
-            const step = delta / (1000 * this.shapeMorphDuration)
-            this.shapeMorphAlpha += step
-            this.svgShape.morph(this.creatureType, this.toCreatureType, easeInOutBounce(this.shapeMorphAlpha))
-            // console.log('delta: ', delta, 'step: ', step, ' alpha: ', this.shapeMorphAlpha)
-        }
-
         this.destinationMarker.x = this.target.x - this.x
         this.destinationMarker.y = this.target.y - this.y
     }

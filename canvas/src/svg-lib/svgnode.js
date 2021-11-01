@@ -33,6 +33,8 @@ export class SVGNode extends PIXI.Graphics {
 		this.options = options;
 		this.dataNode = svg;
 		this.type = svg.nodeName.toLowerCase();
+		this.px = parseFloat(svg.getAttribute("x")) || parseFloat(svg.getAttribute("cx")) || parseFloat(svg.getAttribute("x1")) || 0
+		this.py = parseFloat(svg.getAttribute("y")) || parseFloat(svg.getAttribute("cy")) || parseFloat(svg.getAttribute("y1")) || 0
 	}
 
 	/**
