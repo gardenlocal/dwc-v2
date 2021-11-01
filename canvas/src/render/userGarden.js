@@ -128,7 +128,6 @@ function render(app) {
   // WIDTH/2, HEIGHT/2 is the center of html canvas in webgl context
 
   app.ticker.add((delta) => {
-    quad.shader.uniforms.u_time += Math.sin(delta/20);
     const currUserCreatureArr = getCurrentUserCreature()
     if (currUserCreatureArr.length == 0) return
 
