@@ -7,7 +7,6 @@ import horizontalGradientImg from "../../../assets/horizontal1000.png";
 export default class GradientBackground extends PIXI.Container {
   constructor(garden) {
     super()
-    console.log('garden is: ', garden)
 
     let horizontalTiles = 1
     let tileWidth = window.GARDEN_WIDTH / horizontalTiles

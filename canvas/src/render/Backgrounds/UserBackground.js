@@ -14,8 +14,6 @@ const getSpriteSample = () => {
 export default class UserBackground extends PIXI.Graphics {
     constructor(garden) {
         super()
-
-        console.log('garden is: ', garden)
         
         if (!spriteSample) {
             getSpriteSample()

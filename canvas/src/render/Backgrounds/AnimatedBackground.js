@@ -1,75 +1,117 @@
 import * as PIXI from 'pixi.js';
 import vertex from "../shaders/vertex.glsl";
 import HorizontalGradientFrag from "../shaders/horizontal.frag";
-import { distanceAndAngleBetweenTwoPoints } from "../utils.js";
-
+import { distanceAndAngleBetweenTwoPoints, lerpPoint, randomElementFromArray, sleep } from "../utils.js";
+import TessGraphics from '../Geometry/TessGraphics';
+import TWEEN from '@tweenjs/tween.js';
 
 export default class TransitionBackground extends PIXI.Graphics {
-
-  constructor(currentTile, initAnchorIndex, transitionType, transitionDuration) {
+  constructor(currentTile, currentAnchor) {
     super()
 
-    this.W = window.GARDEN_WIDTH;
-    this.H = this.W;
-  
-    this.currentTile = currentTile; // TRIANGLE, CIRCLE
-    this.anchorIndex = initAnchorIndex;
-    this.transitionType = transitionType; // TO_FULL, TO_EMPTY
-    this.transitionDuration = transitionDuration;
+    this.currentTile = currentTile
+    this.currentAnchor = currentAnchor
+    this.anchors = [0, Math.PI / 2, Math.PI, Math.PI * 3 / 2]
+    this.transitionAlpha = 0.75
 
-    this.currentState = null;  // FULL or EMPTY
-    this.anchorArr = [{x: 0, y:0}, {x: this.W, y: 0}, {x: 0, y: this.H}, {x: this.W, y: this.H}];
-    this.anchorAcrossIndex = null;
-    this.radius = this.W;
+    this.W = window.GARDEN_WIDTH
+    this.H = window.GARDEN_HEIGHT
+    this.time = 0
 
-    // shader background fill the entire square
+    // Set up gradient
     const geometry = new PIXI.Geometry() 
-      .addAttribute('aVertexPosition', // attribute name
-        [0, 0, // x, y
-        this.W , 0,
-        this.W , this.H,
-        0, this.H], 
-      2) // size of the attribute
-      .addAttribute('aUvs',
-          [0,0,
-          1,0,
-          1,1,
-          0,1],
-      2)
-      .addIndex([0, 1, 2, 0, 2, 3]);
-    
+    .addAttribute('aVertexPosition', [0, 0, this.W , 0, this.W , this.H, 0, this.H], 2) 
+    .addAttribute('aUvs', [0,0,1,0,1,1,0,1], 2)
+    .addIndex([0, 1, 2, 0, 2, 3]);
+  
     this.gradientUniforms = {
         u_time: 1.0,
-        u_point1: [0.5, 0.0],
-        u_radius1: 0.1,
-        u_color1: [12.0 / 256.0, 239.0 / 256.0, 66.0 / 256.0],
-        u_point2: [0.5, 1.0],
-        u_radius2: 0.1,
-        u_color2: [253.0 / 256.0, 136.0 / 256.0, 11.0 / 256.0],
+        u_point1: [0.5, 0.0], u_radius1: 0.1, u_color1: [12.0 / 256.0, 239.0 / 256.0, 66.0 / 256.0],
+        u_point2: [0.5, 1.0], u_radius2: 0.1, u_color2: [253.0 / 256.0, 136.0 / 256.0, 11.0 / 256.0],
         u_resolution: [this.W, this.H]
     }
     const shader = PIXI.Shader.from(vertex, HorizontalGradientFrag, this.gradientUniforms);
-    const square = new PIXI.Mesh(geometry, shader);
-    this.addChild(square)
+    this.gradientBackground = new PIXI.Mesh(geometry, shader);
+    this.addChild(this.gradientBackground)
+  
+    
+    // Set up round shape
+    this.setupCircle()
+    //this.drawCircle(this.transitionAlpha)
 
-    this.polygon = new PIXI.Graphics();
-    this.polygon.beginFill(0xffffff)    
-    this.center = { x: this.W / 2.0, y : this.H / 2.0 };
-    this.time = 0;
-    this.triangleMovement = 0;
-    this.radiusMovement = 0;
-    this.addChild(this.polygon);
+    // Set up triangle shape
 
-    // init tile movement
-    // start from center of the tile
-    switch(this.currentTile) {
-      case "TRIANGLE":
-        this.drawTileTriangle(this.W / 2.0);
-        break;
-      case "CIRCLE":
-        this.drawTileCircle();
-        break;
-    }
+    // Set up clipping area
+    this.clippingArea = new PIXI.Graphics()
+    this.clippingArea.beginFill(0xffffff)
+    this.clippingArea.drawRect(0, 0, this.W, this.H)  
+    this.addChild(this.clippingArea)
+    this.mask = this.clippingArea
+  }
+
+  setupCircle() {
+    this.circleTransitionContainer = new PIXI.Container()
+    this.circleTransition = new TessGraphics()
+    
+    this.circleTransitionContainer.addChild(this.circleTransition)    
+  
+    this.circleTransition.pivot.set(this.W / 2, this.H / 2)
+    this.circleTransition.position.set(this.W / 2, this.H / 2)
+    this.circleTransition.rotation = this.anchors[this.currentAnchor]
+
+    this.addChild(this.circleTransitionContainer)
+  }
+
+  drawCircle() {
+    let bezierAlpha = this.transitionAlpha
+    const WIDTH = this.W
+    const HEIGHT = this.H
+    this.circleTransition.clear()
+    this.circleTransition.beginFill(0xffffff)
+    this.circleTransition.moveTo(0, 0)
+    this.circleTransition.lineTo(WIDTH, 0)  
+    this.circleTransition.lineTo(WIDTH, HEIGHT)
+
+    const bezierMaxStretch = 0.35
+  
+    const pA0 = { x: WIDTH * (1 + bezierMaxStretch), y: 0 }
+    const pB0 = { x: WIDTH, y: -HEIGHT * bezierMaxStretch }
+
+    const pA1 = { x: 0, y: HEIGHT * (1 + bezierMaxStretch) }    
+    const pB1 = { x: -WIDTH * bezierMaxStretch, y: HEIGHT }
+  
+    const pA = lerpPoint(pA0, pA1, bezierAlpha)
+    const pB = lerpPoint(pB0, pB1, bezierAlpha)
+  
+    this.circleTransition.bezierCurveTo(pA.x, pA.y, pB.x, pB.y, 0, 0)
+    this.circleTransition.closePath()
+  }
+
+  async animateCircle(toShape, toAnchor, transitionType, duration) {
+    const intermediateTransitionAlpha = randomElementFromArray([0, 1])
+    const nextTransitionAlpha = randomElementFromArray([0.75])
+
+    const d1 = Math.abs((intermediateTransitionAlpha - this.transitionAlpha) * duration / 2)
+
+    const tween = new TWEEN.Tween(this)
+    .to({ transitionAlpha: intermediateTransitionAlpha }, d1)
+    .easing(TWEEN.Easing.Linear.None)
+    .start()
+
+    console.log('tween is: ', tween)
+
+    await sleep(d1)
+    
+    this.circleTransition.rotation = this.anchors[toAnchor]
+
+    const d2 = Math.abs((nextTransitionAlpha - this.transitionAlpha) * duration / 2)
+
+    const tween2 = new TWEEN.Tween(this)
+    .to({ transitionAlpha: nextTransitionAlpha }, d2)
+    .easing(TWEEN.Easing.Linear.None)
+    .start()
+
+    await sleep(d2)
   }
 
   drawTileTriangle(init) {
@@ -196,100 +238,6 @@ export default class TransitionBackground extends PIXI.Graphics {
     }
   }
 
-  // change, reset
-  update(currState) {
-
-    if (currState === "FULL") {  // currently tile is fully colored. 
-
-      this.transitionType = "TO_EMPTY"; // going to empty 
-      this.radius = 0;
-      console.log("FULL TO EMPTY")
-
-      // to empty: center starts from the anchor
-      const randomIndex = Math.floor(Math.random() * this.anchorArr.length);
-      this.anchorIndex = randomIndex;
-
-      this.center.x = this.anchorArr[randomIndex].x;
-      this.center.y = this.anchorArr[randomIndex].y;
-      this.anchorAcrossIndex = null;
-
-    } else if (currState === "EMPTY") {   // currently tile is empty (white)
-
-      // BUG: this gets executed when it shouldn't
-      console.log("EMPTY TO FULL")
-      this.transitionType = "TO_FULL"; // going to full
-      const randomIndex = Math.floor(Math.random() * this.anchorArr.length);
-      this.anchorIndex = randomIndex;
-
-      this.radius = this.W * 1.5;
-
-      // to full: center starts from across the anchor
-      this.anchorAcrossIndex = 3 - randomIndex;
-      this.center.x = this.anchorArr[this.anchorAcrossIndex].x;
-      this.center.y = this.anchorArr[this.anchorAcrossIndex].y;
-
-    }
-
-    // reset
-    this.time = 0;
-    this.radiusMovement = 0;
-    this.triangleMovement = 0;    
-    this.setNewTile();
-
-    // console.log(this.anchorIndex, this.anchorArr[this.anchorIndex], this.center)
-
-  }
-
-  setNewTile() {
-    const arr = ["TRIANGLE", "TRIANGLE"];  // test triangles
-    const random = Math.floor(Math.random() * arr.length);
-    this.currentTile = arr[random];
-
-  }
-
-  checkState() {
-    if(this.currentTile === "CIRCLE"){
-      
-      if(this.radius > this.W * 2.0) {
-        this.currentState = "EMPTY"
-      } else if(this.radius < 0) {
-        this.currentState = "FULL"
-      } else {
-        this.currentState = null
-      }
-
-    } else if (this.currentTile === "TRIANGLE") { // TRIANGLE
-
-      // check diagonal length from anchor to moving center
-      const dist = distanceAndAngleBetweenTwoPoints(
-        this.anchorArr[this.anchorIndex].x, this.anchorArr[this.anchorIndex].y,
-        this.center.x, this.center.y
-      ).distance
-      
-      // const diffX = this.center.x - this.anchorArr[this.anchorIndex].x
-      // const diffY = this.center.y - this.anchorArr[this.anchorIndex].y 
-      // console.log(diffY, diffX)
-
-      if(dist >= this.W*1.5) {
-        // BUG: random repeat when it shouldn't
-        this.currentState = "EMPTY"
-
-      }  else if (!!this.anchorAcrossIndex && dist < 1) { // check if anchor and center are getting closer
-        console.log(this.anchorAcrossIndex)
-        console.log(this.anchorIndex)
-        console.log(dist)
-        this.currentState = "FULL"
-
-      } else {
-        this.currentState = null
-      }
-    }
-    if(this.currentState) {
-
-      this.update(this.currentState);
-    }
-  }
-
   tick(coord) {
     let delta = PIXI.Ticker.shared.elapsedMS
     this.time += delta/1000;
@@ -300,6 +248,8 @@ export default class TransitionBackground extends PIXI.Graphics {
     // Shader background
     this.gradientUniforms.u_time = Math.cos(this.time) * 0.7;
 
+    this.drawCircle()
+    /*
     // White polygon
     this.polygon.clear();
     this.polygon.beginFill(0xffffff);
@@ -317,6 +267,7 @@ export default class TransitionBackground extends PIXI.Graphics {
         this.drawTileCircle();
         break;
     }
+    */
 
     // console.log(this.polygon.containsPoint(coord));
   }

@@ -72,6 +72,13 @@ export function lerp(x, y, alpha) {
   return x + (y - x) * alpha
 }
 
+export function lerpPoint(p1, p2, alpha) {
+  return {
+    x: lerp(p1.x, p2.x, alpha),
+    y: lerp(p1.y, p2.y, alpha)
+  }
+}
+
 export function sleep(s) {
   return new Promise((res, rej) => {
     setTimeout(() => res(), s)
