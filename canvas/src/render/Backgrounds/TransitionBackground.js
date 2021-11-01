@@ -4,7 +4,7 @@ import HorizontalGradientFrag from "../shaders/horizontal.frag";
 import { distanceAndAngleBetweenTwoPoints } from "../utils.js";
 
 
-export default class OverlapBackground extends PIXI.Graphics {
+export default class TransitionBackground extends PIXI.Graphics {
 
   constructor(currentTile, initAnchorIndex, transitionType, transitionDuration) {
     super()

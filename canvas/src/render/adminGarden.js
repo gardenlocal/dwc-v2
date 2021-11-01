@@ -15,7 +15,7 @@ import vertex from "./shaders/vertex.glsl";
 import impulseFragment from "./shaders/impulse.frag";
 import quadBezierFragment from "./shaders/quadBezier.frag";
 import UserBackground from "./Backgrounds/UserBackground";
-import OverlapBackground from "./Backgrounds/OverlapBackground";
+import TransitionBackground from "./Backgrounds/TransitionBackground";
 
 const textStyle = new PIXI.TextStyle({
   fontSize: 200,
@@ -210,7 +210,7 @@ function drawGarden() {
     const g = gardens[i].garden;
     const isOnline = gardens[i].isOnline;
 
-    const tilesBackground = new OverlapBackground("tile1", "tile3", "alt1", 10.0)
+    const tilesBackground = new TransitionBackground("CIRCLE", 2, "TO_EMPTY", 1.0)
     tilesBackground.x = g.x
     tilesBackground.y = g.y
     tilesBackground.width = g.width

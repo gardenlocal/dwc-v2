@@ -13,7 +13,7 @@ import orangeGreen from "../../assets/bg2000ver.jpeg"
 import horizontalGradient from "../../assets/horizontal1000.png";
 import { map } from "./utils.js"
 import GradientBackground from "./Backgrounds/GradientBackground";
-import OverlapBackground from "./Backgrounds/OverlapBackground";
+import TransitionBackground from "./Backgrounds/TransitionBackground";
 
 const WIDTH = window.GARDEN_WIDTH;
 const HEIGHT = window.GARDEN_HEIGHT;
@@ -143,7 +143,7 @@ function drawGradientBackground() {
 function drawOverlapBackground() {
  
   // draw shapes on top of colored background
-  const maskedBackground = new OverlapBackground("TRIANGLE", 1, "TO_FULL", 1.5)
+  const maskedBackground = new TransitionBackground("TRIANGLE", 1, "TO_FULL", 1.5)
 
   // tilesContainer.children[0].children[0] : ShaderMesh
   // tilesContainer.children[0].chilrend[1] : white polygon
