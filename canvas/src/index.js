@@ -9,9 +9,11 @@ import UserData from "./data/userData";
 import { renderAdminCreatures } from "./render/adminGarden.js";
 import { renderCreature } from "./render/userGarden";
 import { loadAll } from './render/assetLoader';
+import { renderCreatureTest } from "./render/creatureTest";
 import { DWC_META } from "../../shared-constants";
 import SVGCreatureShape from "./render/Geometry/SVGCreatureShape";
 import { addStats, Stats } from 'pixi-stats';
+import TWEEN from '@tweenjs/tween.js'
 
 const LOGGEDIN = localStorage.getItem("user") ? true: false;
 
@@ -31,13 +33,20 @@ resizeTo.appendChild(app.view)
 //app.renderer.backgroundColor = 0x061639;
 app.renderer.backgroundColor = 0xf9f9f9;
 
-const stats = addStats(document, app);
+
 const ticker = PIXI.Ticker.shared
 
+/*
+const stats = addStats(document, app);
 ticker.add(stats.update, stats, PIXI.UPDATE_PRIORITY.UTILITY)
+*/
+
+ticker.add(() => {
+  TWEEN.update()
+}, this, PIXI.UPDATE_PRIORITY.HIGH)
 
 window.DWCApp = app
-window.GARDEN_WIDTH = window.innerWidth > 1000 ? 1000 : window.innerHeight;
+window.GARDEN_WIDTH = 1000
 window.GARDEN_HEIGHT = window.GARDEN_WIDTH;
 
 const startApp = async () => {
@@ -55,14 +64,20 @@ const startApp = async () => {
     return acc
   }, {})  
 
-  console.log(window.DWCCreatureShapes)
+  console.log('Window dimensions: ', window.innerHeight, window.innerWidth)
+  
+  const scale = Math.min(window.innerWidth, window.innerHeight) / 1000
+  window.DWCApp.stage.scale.set(scale)
 
-  // window.DWCApp.stage.scale.set(window.innerHeight / 1000)
+  if (window.innerWidth < window.innerHeight)
+    window.DWCApp.stage.pivot.set(0, (-window.innerHeight / scale + window.GARDEN_HEIGHT) / 2)
+  else
+    window.DWCApp.stage.pivot.set((-window.innerWidth / scale + window.GARDEN_WIDTH) / 2, 0)  
 
   if(LOGGEDIN && UserData.role === 'ROLE_ADMIN'){    
     renderAdminCreatures(app);
   } else if (LOGGEDIN && UserData.user.username == "cezar2") {
-    renderCreature(app)
+    renderCreatureTest(app)
   } else if (LOGGEDIN) {
     renderCreature(app)
   }

@@ -4,7 +4,7 @@ const utils = require("../utils")
 const { getUserInfo, getAllCreaturesInfo } = require('../controllers/db.controller')
 const Creature = require("../models/Creature")
 const database = require("../db")
-const { DWC_META } = require("../../shared-constants")
+const { DWC_META, generateMoss, generateLichen, generateMushroom } = require("../../shared-constants")
 const AnimatedProperty = require('../models/AnimatedProperty')
 
 let allCreatures = {}
@@ -15,13 +15,25 @@ exports.createCreature = async (garden, user) => {
   const g = garden
   const movementTransitionDuration = utils.randomInRange(10, 20)
 
+  const creatureType = utils.randomElementFromArray(Object.keys(DWC_META.creaturesNew))
+  let creatureProps
+  switch (creatureType) {
+    case 'moss':
+      creatureProps = generateMoss()
+      break
+    case 'lichen':
+      creatureProps = generateLichen()
+      break
+    case 'mushroom':
+      creatureProps = generateMushroom()
+      break
+  }
+
+  console.log('New creature: ', creatureProps)
+
   let creature = new Creature({
     appearance: {
-      creatureType: utils.randomElementFromArray(Object.values(DWC_META.creatures)),
-      radius: utils.randomInRange(125, 250),
-      fillColor: { r: utils.randomIntInRange(0, 255), g: utils.randomIntInRange(0, 255), b: utils.randomIntInRange(0, 255), a: 255 },
-      strokeColor: { r: utils.randomIntInRange(0, 255), g: utils.randomIntInRange(0, 255), b: utils.randomIntInRange(0, 255), a: 255 },
-      strokeWidth: (utils.randomInRange(0, 10) < 5) ? 0 : utils.randomIntInRange(1, 20)
+      ...creatureProps      
     },
     movement: {
       fromX: utils.randomInRange(garden.x, garden.x + garden.width),
@@ -36,13 +48,6 @@ exports.createCreature = async (garden, user) => {
         DWC_META.creaturePropertyTypes.position,
         { x: utils.randomInRange(g.x, g.x + g.width), y: utils.randomInRange(g.y, g.y + g.height) },
         { x: utils.randomInRange(g.x, g.x + g.width), y: utils.randomInRange(g.y, g.y + g.height) },
-        utils.randomInRange(10, 20),
-        true
-      ),
-      shape: new AnimatedProperty(
-        DWC_META.creaturePropertyTypes.shape,
-        utils.randomElementFromArray(Object.values(DWC_META.creatures)),
-        utils.randomElementFromArray(Object.values(DWC_META.creatures)),
         utils.randomInRange(10, 20),
         true
       )

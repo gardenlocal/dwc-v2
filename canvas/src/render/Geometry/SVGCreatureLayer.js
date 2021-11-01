@@ -5,19 +5,22 @@ import { distanceAndAngleBetweenTwoPoints, randomInRange } from '../utils'
 const morphOffsetCache = {}
 
 export default class SVGLayer extends PIXI.Graphics {
-    constructor(name, svgObj, pointCount = 200) {
+    constructor(name, svgObj, fillColor, pointCount = 60) {
         super()
         this.name = name
         this.svgObj = svgObj
+        this.fillColor = fillColor
         
 
         //this.points = this.svgObj._geometry.points
         // In order to implement holes, we probably need to do some odd/even stuff here, based on all the elements of graphicsData
         // For now, we can deal with simple shapes.
-        this.points = this.svgObj.geometry.graphicsData[0].points        
+        this.points = this.svgObj.geometry.graphicsData[0].points            
         this.points = this.resampleByPoints(pointCount)
 
         this.pRandom = []
+        this.randomOffsets = []
+
         for (let i = 0; i < this.points.length; i++) {
             this.pRandom.push({
                 posAlpha: randomInRange(0.3, 0.7),
@@ -25,9 +28,11 @@ export default class SVGLayer extends PIXI.Graphics {
                 r1Factor: randomInRange(0.1, 0.6),
                 r2Factor: randomInRange(0.1, 0.6)
             })
+            this.randomOffsets.push(0)
         }
 
-        this.draw()        
+        //this.addChild(this.svgObj)
+        this.draw()                
     }
 
     toGeometricPoly(p) {
@@ -39,15 +44,7 @@ export default class SVGLayer extends PIXI.Graphics {
     }
 
     tick() {
-        /*
-        const now = new Date().getTime() / 100
-        for (let i = 0; i < this.points.length; i += 2) {
-            const param = (now + i) / 10
-            this.points[i] += Math.sin(param) * 0.1
-            this.points[i + 1] += Math.cos(param) * 0.1
-        }
-        this.draw()
-        */
+        //this.draw()
     }
 
     calculateMorphOffset(from, fromName, to, toName) {
@@ -145,9 +142,13 @@ export default class SVGLayer extends PIXI.Graphics {
                 }
                 totalDist = dst
 
-                interpAlphas.forEach(a => {
-                    let newPoint = geometric.lineInterpolate([pC, pN])(a)
-                    newPoints.push(newPoint[0], newPoint[1])
+                interpAlphas.forEach((a, index) => {
+                    if (index == interpAlphas.length - 1) {
+                        newPoints.push(pN[0], pN[1])
+                    } else {
+                        let newPoint = geometric.lineInterpolate([pC, pN])(a)
+                        newPoints.push(newPoint[0], newPoint[1])    
+                    }
                 })
             } else {
                 totalDist += dst
@@ -168,8 +169,10 @@ export default class SVGLayer extends PIXI.Graphics {
 
     draw() {
         this.clear()
-        // this.setStyle(this.svgObj.__style, this.svgObj.__matrix)
+        //this.setStyle(this.svgObj.__style, this.svgObj.__matrix)
+        this.beginFill(this.fillColor)
         this.drawFillAndStroke()
+        this.endFill()
 
         // Outline drawing experiments
         // this.drawStar()
@@ -180,10 +183,17 @@ export default class SVGLayer extends PIXI.Graphics {
     }
 
     drawFillAndStroke() {
-        // this.beginFill(0xfafafa)
-        this.lineStyle(3, 0x2a2a2a, 1)
-        this.drawPolygon(this.points)        
-        // this.endFill()
+
+        /*
+        this.ptsDraw = []
+        for (let i = 0; i < this.points.length; i++) {
+            this.randomOffsets[i] = (Math.random() * 4 - 8)
+            this.ptsDraw.push(this.points[i] + this.randomOffsets[i])
+        }
+        this.drawPolygon(this.ptsDraw)        
+        */
+
+       this.drawPolygon(this.points)        
     }
 
     drawDebug() {

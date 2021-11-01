@@ -1,3 +1,5 @@
 exports.LayerNames = {
-    "mainShape": "main-shape"
+    "mainShape": "main-shape",
+    "connectors": "connectors",
+    "origin": "origin"
 }

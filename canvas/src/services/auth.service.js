@@ -44,7 +44,7 @@ class AuthService {
     })
     .then(() => {
       // redirect to home if register success
-      redirect();
+      this.login(username, password);
     })
     .catch((error) => {
       const err = error.response.data.message;
