@@ -54,7 +54,7 @@ async function render(app) {
   //drawAllMoss(100)
   //drawMushrooms()
   drawOneMoss()
-  drawOneMushroom()
+  //drawOneMushroom()
 
   app.stage.addChild(gardenContainer)
 
@@ -77,7 +77,7 @@ function drawOneMushroom() {
   mushroom.startAnimatingGrowth(1500)
 }
 
-function drawOneMoss() {
+async function drawOneMoss() {
   const mossProps = generateMoss()
   const moss = new MossCluster(mossProps)
 
@@ -86,7 +86,8 @@ function drawOneMoss() {
   gardenContainer.addChild(moss)  
   allCreatures.push(moss)
 
-  moss.startAnimatingGrowth(1000, 400)
+  await moss.startAnimatingGrowth(1000, 400)
+  await moss.evolve(600)
   return moss
 }
 

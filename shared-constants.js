@@ -159,7 +159,7 @@ exports.generateMoss = () => {
     const svgElementIndex = randomIntInRange(0, noElementsForCreature)
     const firstElementType = Object.values(DWC_META.creaturesNew[creatureType])[svgElementIndex].name
 
-    const childrenSequence = getMossChildrenSequence(creatureType, firstElementType, 3, 8)
+    const childrenSequence = getMossChildrenSequence(creatureType, firstElementType, 13, 28)
     const fillColor = (Math.random() < 0.5) ? 0x0cef42 : 0xfd880b
 
     const scale = randomInRange(1, 3)
@@ -179,29 +179,34 @@ const getMossChildrenSequence = (creatureType, elementType, minChildren, maxChil
     let noElements = randomIntInRange(minChildren, maxChildren)
     let elementsProps = []
     let typeKey, nextTypeKey
-    let currElementType = elementType
 
-    nextTypeKey = currElementType
+    nextTypeKey = elementType
     for (let i = 0; i < noElements; i++) {
         typeKey = nextTypeKey
-        nextTypeKey = randomElementFromArray(Object.keys(DWC_META.creaturesNew[creatureType][typeKey].connectors))
 
-        if (Math.random() > 0.2) {
-            while (nextTypeKey == typeKey) {
-                nextTypeKey = randomElementFromArray(Object.keys(DWC_META.creaturesNew[creatureType][typeKey].connectors))
-            }
-        }
+        const nextConnector = getMossNextChildConnector(creatureType, typeKey)
+        elementsProps.push(nextConnector)
 
-        elementsProps.push({
-            typeKey: typeKey,
-            nextTypeKey: nextTypeKey,
-            connectorIndex: randomIntInRange(0, DWC_META.creaturesNew[creatureType][typeKey].connectors[nextTypeKey])
-        })
+        nextTypeKey = nextConnector.nextTypeKey
     }
 
     return elementsProps
 }
 
+const getMossNextChildConnector = (creatureType, elementType) => {
+    let nextTypeKey = randomElementFromArray(Object.keys(DWC_META.creaturesNew[creatureType][elementType].connectors))
+    if (Math.random() > 0.2) {
+        while (nextTypeKey == elementType) {
+            nextTypeKey = randomElementFromArray(Object.keys(DWC_META.creaturesNew[creatureType][elementType].connectors))
+        }
+    }
+    return {
+        typeKey: elementType,
+        nextTypeKey: nextTypeKey,
+        connectorIndex: randomIntInRange(0, DWC_META.creaturesNew[creatureType][elementType].connectors[nextTypeKey])
+    }
+}
+exports.getMossNextChildConnector = getMossNextChildConnector
 
 const getMushroomChildren = (minChildren, maxChildren) => {
     let noElements = randomIntInRange(minChildren, maxChildren)    

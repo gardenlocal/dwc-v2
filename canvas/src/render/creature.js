@@ -11,8 +11,10 @@ export default class Creature extends PIXI.Container {
     constructor(state) {
         super()
 
+        console.log('creature state: ', state.owner._id)
         const { appearance, _id, animatedProperties } = state;        
         this.name = _id
+        this.ownerId = state.owner._id
         this.animatedProperties = animatedProperties        
         this.appearance = appearance        
         this.creatureName = state.owner.username
@@ -58,7 +60,9 @@ export default class Creature extends PIXI.Container {
         this.addChild(this.creature)
         this.creature.scale.set(appearance.scale)
         this.creature.startAnimatingGrowth(1000)
-
+        setTimeout(() => {
+            //this.creature.evolve(800)
+        }, 5000)
         this.frame = 0
     }
 
@@ -108,7 +112,7 @@ export default class Creature extends PIXI.Container {
                 this.easedMovementAlpha = easeInOutQuart(this.movementAlpha)
             }
 
-            if (this.frame % 120 == 0 || this.appearance.creatureType != 'moss') {
+            if (this.frame % 1 == 0 || this.appearance.creatureType != 'moss') {
                 this.creature.rotation = 0.001 * this.creatureTargetRotation + 0.999 * this.creature.rotation
                 this.x = lerp(this.originPos.x, this.target.x, this.easedMovementAlpha)
                 this.y = lerp(this.originPos.y, this.target.y, this.easedMovementAlpha)

@@ -4,6 +4,7 @@ import USER from './src/html/user.js';
 import CANVAS from './src/html/canvas.js';
 import AuthService from './src/services/auth.service';
 import UserData from './src/data/userData';
+import { sleep } from './src/render/utils.js';
 
 export const LOGGEDIN = localStorage.getItem("user") ? true: false;
 
@@ -41,7 +42,7 @@ window.redirectSignupBtn = () => {
 }
 
 // signup
-window.submitSignup = (event) => {
+window.submitSignup = async (event) => {
  event.preventDefault();
 
  const username = event.target['username'].value;
@@ -49,6 +50,13 @@ window.submitSignup = (event) => {
  const password = event.target['password'].value;
 
  AuthService.register(username, email, password);
+ /*
+  for (let i = 11; i < 30; i++) {
+    AuthService.register(`cezar${i}`, `c${i}@cezar.io`, `123456`)
+    await sleep(1000)
+    console.log('done ', i)
+  }
+  */
 }
 
 // logo button - redirect

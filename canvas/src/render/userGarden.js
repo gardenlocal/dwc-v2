@@ -5,6 +5,7 @@ import * as PIXI from "pixi.js";
 import { io } from 'socket.io-client';
 import Creature from './creature'
 import { updateUsers, updateCreatures } from "../data/globalData";
+import UserData from "../data/userData";
 import cnFragment from './shaders/cnFragment.glsl.js'
 import gradientFragment from './shaders/gradient.glsl'
 import vertex from "./shaders/vertex.glsl";
@@ -22,11 +23,12 @@ let currentGarden;
 let onlineUsers = {};
 let onlineCreatures = {};
 let allCreatures = [];
+let gardens = [];
 
 let gardenContainer;
 let allCreaturesContainer;
 let tilesContainer;
-
+let allGardenSectionsContainer
 
 let isAppRunning = false
 
@@ -56,14 +58,15 @@ export async function renderCreature(app) {
     }
     // get all online users
     console.log('Users update: ', users)
-    onlineUsers = updateUsers(users)
+    onlineUsers = updateUsers(users)    
     updateOnlineCreatures()
   })
 
-  socket.on('creatures', (creatures) => {
+  socket.on('creatures', async (creatures) => {
     console.log('socket received creatures', creatures)
     allCreatures = creatures
     updateOnlineCreatures(creatures)
+    await setGardens()
 
     if (!isAppRunning) {
       isAppRunning = true
@@ -96,6 +99,21 @@ export async function renderCreature(app) {
   })
 }
 
+async function setGardens() {
+  const allUsers = (await UserData.getAdminData()).data
+  gardens = []  // reset gardens data 
+  for (let i = 0; i < allUsers.length; i++){
+    const u = allUsers[i]
+    let isOnline = false;
+    if (Object.keys(onlineUsers).includes(u.username)) {
+      isOnline = true;
+    }
+    const garden = { 'user': u.username, 'garden': u.gardenSection, 'isOnline': isOnline }
+    gardens.push(garden)
+  }  
+}
+
+
 function render(app) {
   // init webgl renderer
   // WIDTH/2, HEIGHT/2 is the center of html canvas in webgl context
@@ -114,15 +132,6 @@ function render(app) {
       2) // the size of the attribute
     .addIndex([0, 1, 2, 0, 2, 3]);
   
-  /*  
-  // Example of voronoi cells
-  const uniforms = {
-    // uSampler2: PIXI.Texture.from('examples/assets/bg_scene_rotate.jpg'),
-    u_time: 1,
-  };
-  const cnShader = PIXI.Shader.from(vertex, cnFragment, uniforms);
-  const quad = new PIXI.Mesh(geometry, cnShader);
-  */
 
   // (cezar): Example of a gradient shader, if we want to implement the designs.
   const gradientUniforms = {
@@ -147,6 +156,12 @@ function render(app) {
 
   app.ticker.add((delta) => {
     quad.shader.uniforms.u_time += Math.sin(delta/20);
+    const currUserCreatureArr = getCurrentUserCreature()
+    if (currUserCreatureArr.length == 0) return
+
+    const creature = currUserCreatureArr[0]    
+    //app.stage.pivot.set(creature.x - window.innerWidth / 1.5, creature.y - window.innerHeight / 1.2)
+    //app.stage.rotation = -creature.creature.rotation
   });
 
   // Make a container for the entire app, and offset it by the garden coordinates.
@@ -164,13 +179,24 @@ function render(app) {
     allCreaturesContainer.addChild(c)
   }
 
-  drawTiles()
+  allGardenSectionsContainer = new PIXI.Container()
+  app.stage.addChild(allGardenSectionsContainer)  
+  allGardenSectionsContainer.position.set(-currentGarden.x, -currentGarden.y)  
+
+  //drawTiles()
 
   app.stage.addChild(gardenContainer)  
-
-  drawNeighborOverlays()
+  
+  drawGarden()
+  drawNeighborOverlays()  
 
   animate(app);
+}
+
+function getCurrentUserCreature() {  
+  return allCreaturesContainer.children.filter(c => {    
+    return (c.ownerId == userId)
+  })
 }
 
 // test resize with one tile for one garden
@@ -187,12 +213,40 @@ function drawTile() {
   tilesContainer.addChild(sprite)
 
   window.DWCApp.stage.addChild(tilesContainer)  
-
 }
+
+function drawGarden() {
+  const app = window.DWCApp;
+
+  console.log('Draw garden: ', gardens)
+
+  // Empty the container, then redraw. 
+  while (allGardenSectionsContainer?.children[0]) { // null check
+    allGardenSectionsContainer.removeChild(allGardenSectionsContainer.children[0])
+  }  
+
+  for (let i = 0; i < gardens.length; i++) {
+
+    const g = gardens[i].garden;
+    const isOnline = gardens[i].isOnline;
+
+    const tilesBackground = new UserBackground(g)
+    tilesBackground.x = g.x
+    tilesBackground.y = g.y
+    tilesBackground.width = g.width
+    tilesBackground.height = g.height
+    tilesBackground.alpha = 1//(isOnline ? 1 : 0.2)
+    allGardenSectionsContainer.addChild(tilesBackground)    
+    //window.DWCApp.stage.addChild(tilesBackground)    
+  }
+}
+
+
 function drawTiles() {
   const tilesBackground = new UserBackground(currentGarden)
   window.DWCApp.stage.addChild(tilesBackground)
 
+  /*
   const tilesBackground2 = new UserBackground(currentGarden)
   tilesBackground2.position.set(0, -HEIGHT)
   window.DWCApp.stage.addChild(tilesBackground2)
@@ -200,6 +254,7 @@ function drawTiles() {
   const tilesBackground3 = new UserBackground(currentGarden)
   tilesBackground3.position.set(0, HEIGHT)
   window.DWCApp.stage.addChild(tilesBackground3)
+  */
 }
 
 function drawNeighborOverlays() {

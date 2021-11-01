@@ -24,17 +24,32 @@ export default class Cluster extends PIXI.Graphics {
             fill: fillColor,
             stroke: "white",
         })
-        const message = new PIXI.Text(creatureName, textStyle);
-        message.position.set(this.creatureBounds.x, -15)
-        this.addChild(message)
 
         this.pivot.set(this.selfBbox.width / 2, this.selfBbox.height / 2)
+
+        this.message = new PIXI.Text(creatureName, textStyle);
+        this.message.position.set(this.creatureBounds.x, 0 - 15)
+        this.addChild(this.message)
+
         //this.scale.set(scale)
         //this.rotation = rotation
     }
 
     async startAnimatingGrowth(elementDuration, elementDelay) {
         await this.creature.startAnimatingGrowth(elementDuration, elementDelay)
+    }
+
+    async evolve(duration) {
+        await this.creature.evolve(duration)
+        if (!this.stopEvolutionFlag) {
+            this.evolve(duration)
+        } else {
+            this.stopEvolutionFlag = false
+        }
+    }
+
+    stopEvolution() {
+        this.stopEvolutionFlag = true
     }
 
     getNumberOfElements() {
@@ -44,7 +59,9 @@ export default class Cluster extends PIXI.Graphics {
     tick() {
         //this.position.set(this.x + 10, this.y)
         this.creature.tick()
-        //this.drawParticle()
+        this.creatureBounds = this.creature.getBounds()
+        this.creature.position.set(0, 0)
+        //this.message.position.set(this.creatureBounds.x, -15)
     }
 
     drawParticle() {
