@@ -46,7 +46,7 @@ ticker.add(() => {
 }, this, PIXI.UPDATE_PRIORITY.HIGH)
 
 window.DWCApp = app
-window.GARDEN_WIDTH = window.innerWidth > 1000 ? 1000 : window.innerHeight;
+window.GARDEN_WIDTH = 1000
 window.GARDEN_HEIGHT = window.GARDEN_WIDTH;
 
 const startApp = async () => {
@@ -64,13 +64,15 @@ const startApp = async () => {
     return acc
   }, {})  
 
-  console.log(window.DWCCreatureShapes)
+  console.log('Window dimensions: ', window.innerHeight, window.innerWidth)
+  
+  const scale = Math.min(window.innerWidth, window.innerHeight) / 1000
+  window.DWCApp.stage.scale.set(scale)
 
-  window.DWCApp.stage.scale.set(Math.min(window.innerWidth, window.innerHeight) / 1000)
   if (window.innerWidth < window.innerHeight)
-    window.DWCApp.stage.pivot.set(0, (window.innerWidth - window.innerHeight))
+    window.DWCApp.stage.pivot.set(0, (-window.innerHeight / scale + window.GARDEN_HEIGHT) / 2)
   else
-    window.DWCApp.stage.pivot.set((window.innerHeight - window.innerWidth), 0)
+    window.DWCApp.stage.pivot.set((-window.innerWidth / scale + window.GARDEN_WIDTH) / 2, 0)  
 
   if(LOGGEDIN && UserData.role === 'ROLE_ADMIN'){    
     renderAdminCreatures(app);

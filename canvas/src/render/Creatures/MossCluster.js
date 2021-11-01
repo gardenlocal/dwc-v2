@@ -20,7 +20,7 @@ export default class Cluster extends PIXI.Graphics {
 
         this.creatureBounds = this.creature.getBounds()
         const textStyle = new PIXI.TextStyle({
-            fontSize: 10,
+            fontSize: 40,
             fill: fillColor,
             stroke: "white",
         })
@@ -29,6 +29,7 @@ export default class Cluster extends PIXI.Graphics {
 
         this.message = new PIXI.Text(creatureName, textStyle);
         this.message.position.set(this.creatureBounds.x, 0 - 15)
+        this.message.scale.set(0.25)
         this.addChild(this.message)
 
         //this.scale.set(scale)

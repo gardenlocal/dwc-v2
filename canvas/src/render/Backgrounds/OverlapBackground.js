@@ -8,7 +8,7 @@ export default class OverlapBackground extends PIXI.Graphics {
     super()
 
     console.log('garden is: ', garden)
-    this.W = window.innerWidth > 1000 ? 1000: window.innerWidth;
+    this.W = window.GARDEN_WIDTH
     this.H = this.W;
   
     // shader background fill the entire square

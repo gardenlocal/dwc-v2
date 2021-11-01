@@ -107,7 +107,7 @@ export default class Creature extends PIXI.Container {
             this.movementAlpha += step
 
             if (this.appearance.creatureType == 'moss') {                
-                this.easedMovementAlpha = this.movementAlpha
+                this.easedMovementAlpha = easeInOutQuart(this.movementAlpha)//this.movementAlpha
             } else {
                 this.easedMovementAlpha = easeInOutQuart(this.movementAlpha)
             }

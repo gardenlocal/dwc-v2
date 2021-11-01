@@ -34,12 +34,13 @@ export default class MushroomCluster extends PIXI.Graphics {
         this.addChild(this.creature)
 
         const textStyle = new PIXI.TextStyle({
-            fontSize: 10,
+            fontSize: 40,
             fill: fillColor,
             stroke: "white",
         })
         const message = new PIXI.Text(creatureName, textStyle);
         message.position.set(bbox.x + bbox.width - message.getBounds().width / 2, -15)
+        message.scale.set(0.25)
         this.addChild(message)
 
 

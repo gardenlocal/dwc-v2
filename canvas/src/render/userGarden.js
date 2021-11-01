@@ -147,24 +147,23 @@ function render(app) {
   gardenContainer.addChild(allCreaturesContainer)
 
   for (const [key, value] of Object.entries(onlineCreatures)) {
-    // const c = new Creature(value)
-    // allCreaturesContainer.addChild(c)
+    const c = new Creature(value)
+    allCreaturesContainer.addChild(c)
   }
 
 
   allGardenSectionsContainer = new PIXI.Container()
-  app.stage.addChild(allGardenSectionsContainer)  
+  app.stage.addChild(allGardenSectionsContainer)
   allGardenSectionsContainer.position.set(-currentGarden.x, -currentGarden.y)  
 
   //drawTiles()
 
-  drawOverlapBackground();
-
-  app.stage.addChild(gardenContainer)  
-  
+  //drawGradientBackground();
+  //drawOverlapBackground();
   drawGarden()
-  drawNeighborOverlays()  
+  drawNeighborOverlays()
 
+  app.stage.addChild(gardenContainer)
   animate(app);
 }
 
@@ -241,7 +240,7 @@ function animate(app) {
       time += delta
 
       allCreaturesContainer.children.forEach(c => {
-        // if (c.tick) c.tick(delta)
+        if (c.tick) c.tick(delta)
         // const currentPos = new PIXI.Point(map(c.x, 0, 2000, 0, window.innerHeight), map(c.y, 0, 2000, 0, window.innerHeight))
         // garden.containsPoint(currentPos) && console.log(true)
       })
