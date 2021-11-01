@@ -159,7 +159,7 @@ function render(app) {
   //drawTiles()
 
   //drawGradientBackground();
-  //drawOverlapBackground();
+  drawOverlapBackground();
   drawGarden()
   drawNeighborOverlays()
 
