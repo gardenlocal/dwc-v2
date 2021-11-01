@@ -15,6 +15,7 @@ import vertex from "./shaders/vertex.glsl";
 import impulseFragment from "./shaders/impulse.frag";
 import quadBezierFragment from "./shaders/quadBezier.frag";
 import UserBackground from "./Backgrounds/UserBackground";
+import OverlapBackground from "./Backgrounds/OverlapBackground";
 
 const textStyle = new PIXI.TextStyle({
   fontSize: 200,
@@ -209,59 +210,21 @@ function drawGarden() {
     const g = gardens[i].garden;
     const isOnline = gardens[i].isOnline;
 
-    // sprite version
-    // const square = new PIXI.Sprite(PIXI.Loader.shared.resources[grassImg].texture);
-    // square.name = gardens[i].user
-    // square.x = g.x;
-    // square.y = g.y;
-    // square.width = g.width;
-    // square.height = g.width;
-
-    // !isOnline && (square.alpha = 0.3)
-    // allGardenSectionsContainer.addChild(square)
-
-    // webgl shader
-    
-    /*
-    const geometry = new PIXI.Geometry()
-    .addAttribute('aVertexPosition', // the attribute name
-        [0, 0, // x, y
-          g.width, 0, // x, y
-          g.width, g.height,
-          0, g.height], // x, y
-      2) // the size of the attribute
-    .addAttribute('aUvs', // the attribute name
-        [0, 0, // u, v
-            1, 0, // u, v
-            1, 1,
-            0, 1], // u, v
-      2) // the size of the attribute
-    .addIndex([0, 1, 2, 0, 2, 3]);
-    const uniforms = {
-      u_time: 1.0,
-    };
-    const frag = isOnline ? quadBezierFragment : impulseFragment;
-    const shader = PIXI.Shader.from(vertex, frag, uniforms);
-    const quad = new PIXI.Mesh(geometry, shader);
-    
-    quad.name = gardens[i].user
-    quad.position.set(g.x, g.y);  
-    quad.scale.set(1);
-    allGardenSectionsContainer.addChild(quad);
-    */
-
-    const tilesBackground = new UserBackground(g)
+    const tilesBackground = new OverlapBackground("tile1", "tile3", "alt1", 10.0)
     tilesBackground.x = g.x
     tilesBackground.y = g.y
     tilesBackground.width = g.width
     tilesBackground.height = g.height
+    console.log(tilesBackground.children[0])
+
+    const graphics = new PIXI.Graphics();
+    graphics.beginFill(0x000000);
+    graphics.drawRect(50, 250, 100, 100);
+    graphics.endFill();
+
     tilesBackground.alpha = (isOnline ? 1 : 0.2)
     allGardenSectionsContainer.addChild(tilesBackground)    
     
-    app.ticker.add((delta) => {
-      // quad.shader.uniforms.u_time += Math.sin(delta/20);
-    });
-
     const message = new PIXI.Text(gardens[i].user, textStyle);
     message.position.set(g.x + 50, g.y);
     allGardenSectionsContainer.addChild(message);
@@ -273,6 +236,10 @@ function animate(app) {
   app.ticker.add((delta) => {
     allCreaturesContainer.children.forEach(c => {
       if (c.tick) c.tick(delta)
+    })
+    
+    allGardenSectionsContainer.children.forEach(bg => {
+      if(bg.tick) bg.tick();
     })
   })
 }

@@ -143,7 +143,7 @@ function drawGradientBackground() {
 function drawOverlapBackground() {
  
   // draw shapes on top of colored background
-  const maskedBackground = new OverlapBackground(currentGarden);
+  const maskedBackground = new OverlapBackground("TRIANGLE", 1, "TO_FULL", 1.5)
 
   // tilesContainer.children[0].children[0] : ShaderMesh
   // tilesContainer.children[0].chilrend[1] : white polygon
