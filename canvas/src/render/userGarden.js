@@ -12,9 +12,11 @@ import { DWC_META } from "../../../shared-constants";
 import UserBackground from "./Backgrounds/UserBackground";
 import orangeGreen from "../../assets/bg2000ver.jpeg"
 import horizontalGradient from "../../assets/horizontal1000.png";
-import { map } from "./utils.js"
+import { lerpPoint, map, randomElementFromArray, randomInRange } from "./utils.js"
 import GradientBackground from "./Backgrounds/GradientBackground";
-import OverlapBackground from "./Backgrounds/OverlapBackground";
+import TransitionBackground from "./Backgrounds/TransitionBackground";
+import AnimatedBackground, { SHAPES, TRANSITION_TYPES } from "./Backgrounds/AnimatedBackground"
+import TessGraphics from "./Geometry/TessGraphics";
 
 const WIDTH = window.GARDEN_WIDTH || 1000;
 const HEIGHT = window.GARDEN_HEIGHT || 1000;
@@ -218,15 +220,80 @@ function drawNeighborOverlays() {
   window.DWCApp.stage.addChild(neighborsGrey)
 }
 
-function drawOverlapBackground() {
+async function drawOverlapBackground() {
  
   // draw shapes on top of colored background
-  const maskedBackground = new OverlapBackground(currentGarden);
+  const maskedBackground = new TransitionBackground("CIRCLE", 1, "TO_FULL", 1.5)
 
   // tilesContainer.children[0].children[0] : ShaderMesh
   // tilesContainer.children[0].chilrend[1] : white polygon
-  tilesContainer.addChild(maskedBackground);
+  //tilesContainer.addChild(maskedBackground);  
+
+  //window.DWCApp.stage.scale.set(0.5, 0.5)
+  //window.DWCApp.stage.pivot.set(-500, -500)
+  //drawBeziers()
+
+  const animatedBackground = new AnimatedBackground(SHAPES.CIRCLE, 0)
+  tilesContainer.addChild(animatedBackground);  
+
   window.DWCApp.stage.addChild(tilesContainer);
+
+  for (let i = 0; i < 20; i++) {
+    await animatedBackground.animate(
+      randomElementFromArray(Object.values(SHAPES)), 
+      randomElementFromArray([0, 1, 2, 3]), 
+      randomElementFromArray(Object.values(TRANSITION_TYPES)), 
+      randomInRange(25000, 75000))
+  }
+}
+
+let bezierAlpha = 0
+let bezierAlphaSgn = 1
+
+function drawBeziers() {
+  const bezierContainer = new PIXI.Container()
+  const containerMask = new PIXI.Graphics()
+  const bezierBg = new TessGraphics()
+
+  containerMask.beginFill(0xffffff)
+  containerMask.drawRect(0, 0, WIDTH, HEIGHT)  
+
+  bezierContainer.addChild(bezierBg)
+  bezierContainer.addChild(containerMask)
+  bezierContainer.mask = containerMask
+
+  bezierBg.pivot.set(WIDTH / 2, HEIGHT / 2)
+  bezierBg.position.set(WIDTH / 2, HEIGHT / 2)
+  bezierBg.rotation = randomElementFromArray([0, Math.PI / 2, Math.PI, Math.PI * 3 / 2])
+
+  tilesContainer.addChild(bezierContainer)
+
+  window.DWCApp.ticker.add((delta) => {
+    bezierAlpha += 0.001 * bezierAlphaSgn
+    bezierBg.clear()
+    bezierBg.beginFill(0xffffff)
+    bezierBg.moveTo(0, 0)
+    bezierBg.lineTo(WIDTH, 0)  
+    bezierBg.lineTo(WIDTH, HEIGHT)  
+    const bezierMaxStretch = 0.35
+  
+    const pA0 = { x: WIDTH * (1 + bezierMaxStretch), y: 0 }
+    const pB0 = { x: WIDTH, y: -HEIGHT * bezierMaxStretch }
+
+    const pA1 = { x: 0, y: HEIGHT * (1 + bezierMaxStretch) }    
+    const pB1 = { x: -WIDTH * bezierMaxStretch, y: HEIGHT }
+  
+    const pA = lerpPoint(pA0, pA1, bezierAlpha)
+    const pB = lerpPoint(pB0, pB1, bezierAlpha)
+  
+    bezierBg.bezierCurveTo(pA.x, pA.y, pB.x, pB.y, 0, 0)
+    bezierBg.closePath()
+
+    if (bezierAlpha > 1 || bezierAlpha < 0) {
+      bezierAlphaSgn *= -1
+      bezierBg.rotation = randomElementFromArray([0, Math.PI / 2, Math.PI, Math.PI * 3 / 2])
+    }
+  })
 }
 
 var time = 0
@@ -249,7 +316,7 @@ function animate(app) {
       const tempPos = new PIXI.Point(900, 900)
       helper.clear();
       helper.beginFill(0x000000);
-      helper.drawCircle(tempPos.x, tempPos.y, 10)
+      //helper.drawCircle(tempPos.x, tempPos.y, 10)
       tilesContainer.addChild(helper);
 
       tilesContainer.children.forEach(bg => {

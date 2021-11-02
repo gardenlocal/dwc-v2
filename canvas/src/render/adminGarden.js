@@ -4,7 +4,7 @@
 import * as PIXI from "pixi.js";
 import { Graphics, Sprite, TextStyle } from "pixi.js";
 import { io } from 'socket.io-client';
-import { distanceAndAngleBetweenTwoPoints, Vector, map, constrain } from "./utils";
+import { distanceAndAngleBetweenTwoPoints, Vector, map, constrain, randomElementFromArray, randomInRange } from "./utils";
 import Creature from './creature'
 import UserData from "../data/userData";
 import grassImg from '../../assets/green1.jpg';
@@ -15,9 +15,11 @@ import vertex from "./shaders/vertex.glsl";
 import impulseFragment from "./shaders/impulse.frag";
 import quadBezierFragment from "./shaders/quadBezier.frag";
 import UserBackground from "./Backgrounds/UserBackground";
+import TransitionBackground from "./Backgrounds/TransitionBackground";
+import AnimatedBackground, { SHAPES, TRANSITION_TYPES } from './Backgrounds/AnimatedBackground'
 
 const textStyle = new PIXI.TextStyle({
-  fontSize: 200,
+  fontSize: 100,
   fill: "white",
   stroke: "white",
 })
@@ -158,10 +160,6 @@ async function render(app) {
   
   setGardens() // initialize gardens for current users
 
-  PIXI.Loader.shared
-  .add(grassImg)
-  .load(drawGarden)
-
   // Create the creatures that move around garden
   gardenContainer.addChild(allCreaturesContainer)
   
@@ -209,63 +207,39 @@ function drawGarden() {
     const g = gardens[i].garden;
     const isOnline = gardens[i].isOnline;
 
-    // sprite version
-    // const square = new PIXI.Sprite(PIXI.Loader.shared.resources[grassImg].texture);
-    // square.name = gardens[i].user
-    // square.x = g.x;
-    // square.y = g.y;
-    // square.width = g.width;
-    // square.height = g.width;
-
-    // !isOnline && (square.alpha = 0.3)
-    // allGardenSectionsContainer.addChild(square)
-
-    // webgl shader
-    
-    /*
-    const geometry = new PIXI.Geometry()
-    .addAttribute('aVertexPosition', // the attribute name
-        [0, 0, // x, y
-          g.width, 0, // x, y
-          g.width, g.height,
-          0, g.height], // x, y
-      2) // the size of the attribute
-    .addAttribute('aUvs', // the attribute name
-        [0, 0, // u, v
-            1, 0, // u, v
-            1, 1,
-            0, 1], // u, v
-      2) // the size of the attribute
-    .addIndex([0, 1, 2, 0, 2, 3]);
-    const uniforms = {
-      u_time: 1.0,
-    };
-    const frag = isOnline ? quadBezierFragment : impulseFragment;
-    const shader = PIXI.Shader.from(vertex, frag, uniforms);
-    const quad = new PIXI.Mesh(geometry, shader);
-    
-    quad.name = gardens[i].user
-    quad.position.set(g.x, g.y);  
-    quad.scale.set(1);
-    allGardenSectionsContainer.addChild(quad);
-    */
-
-    const tilesBackground = new UserBackground(g)
+    //const tilesBackground = new TransitionBackground("CIRCLE", 2, "TO_EMPTY", 1.0)
+    const tilesBackground = new AnimatedBackground(
+      randomElementFromArray(Object.values(SHAPES)), 
+      randomElementFromArray([0, 1, 2, 3])
+    )
     tilesBackground.x = g.x
     tilesBackground.y = g.y
     tilesBackground.width = g.width
     tilesBackground.height = g.height
-    tilesBackground.alpha = (isOnline ? 1 : 0.2)
+
+    //tilesBackground.alpha = (isOnline ? 1 : 0.2)
     allGardenSectionsContainer.addChild(tilesBackground)    
     
-    app.ticker.add((delta) => {
-      // quad.shader.uniforms.u_time += Math.sin(delta/20);
-    });
-
     const message = new PIXI.Text(gardens[i].user, textStyle);
     message.position.set(g.x + 50, g.y);
     allGardenSectionsContainer.addChild(message);
+
+    animateGarden(tilesBackground)
   }
+    
+}
+
+async function animateGarden(g) {
+  if (!g.animate) return
+
+  await g.animate(      
+    randomElementFromArray(Object.values(SHAPES)), 
+    randomElementFromArray([0, 1, 2, 3]), 
+    randomElementFromArray(Object.values(TRANSITION_TYPES)), 
+    randomInRange(15000, 35000)
+  )
+  
+  animateGarden(g)
 }
 
 function animate(app) {
@@ -273,6 +247,10 @@ function animate(app) {
   app.ticker.add((delta) => {
     allCreaturesContainer.children.forEach(c => {
       if (c.tick) c.tick(delta)
+    })
+    
+    allGardenSectionsContainer.children.forEach(bg => {
+      if(bg.tick) bg.tick();
     })
   })
 }
