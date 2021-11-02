@@ -4,7 +4,7 @@
 import * as PIXI from "pixi.js";
 import { Graphics, Sprite, TextStyle } from "pixi.js";
 import { io } from 'socket.io-client';
-import { distanceAndAngleBetweenTwoPoints, Vector, map, constrain } from "./utils";
+import { distanceAndAngleBetweenTwoPoints, Vector, map, constrain, randomElementFromArray, randomInRange } from "./utils";
 import Creature from './creature'
 import UserData from "../data/userData";
 import grassImg from '../../assets/green1.jpg';
@@ -16,9 +16,10 @@ import impulseFragment from "./shaders/impulse.frag";
 import quadBezierFragment from "./shaders/quadBezier.frag";
 import UserBackground from "./Backgrounds/UserBackground";
 import TransitionBackground from "./Backgrounds/TransitionBackground";
+import AnimatedBackground, { SHAPES, TRANSITION_TYPES } from './Backgrounds/AnimatedBackground'
 
 const textStyle = new PIXI.TextStyle({
-  fontSize: 200,
+  fontSize: 100,
   fill: "white",
   stroke: "white",
 })
@@ -159,10 +160,6 @@ async function render(app) {
   
   setGardens() // initialize gardens for current users
 
-  PIXI.Loader.shared
-  .add(grassImg)
-  .load(drawGarden)
-
   // Create the creatures that move around garden
   gardenContainer.addChild(allCreaturesContainer)
   
@@ -210,25 +207,39 @@ function drawGarden() {
     const g = gardens[i].garden;
     const isOnline = gardens[i].isOnline;
 
-    const tilesBackground = new TransitionBackground("CIRCLE", 2, "TO_EMPTY", 1.0)
+    //const tilesBackground = new TransitionBackground("CIRCLE", 2, "TO_EMPTY", 1.0)
+    const tilesBackground = new AnimatedBackground(
+      randomElementFromArray(Object.values(SHAPES)), 
+      randomElementFromArray([0, 1, 2, 3])
+    )
     tilesBackground.x = g.x
     tilesBackground.y = g.y
     tilesBackground.width = g.width
     tilesBackground.height = g.height
-    console.log(tilesBackground.children[0])
 
-    const graphics = new PIXI.Graphics();
-    graphics.beginFill(0x000000);
-    graphics.drawRect(50, 250, 100, 100);
-    graphics.endFill();
-
-    tilesBackground.alpha = (isOnline ? 1 : 0.2)
+    //tilesBackground.alpha = (isOnline ? 1 : 0.2)
     allGardenSectionsContainer.addChild(tilesBackground)    
     
     const message = new PIXI.Text(gardens[i].user, textStyle);
     message.position.set(g.x + 50, g.y);
     allGardenSectionsContainer.addChild(message);
+
+    animateGarden(tilesBackground)
   }
+    
+}
+
+async function animateGarden(g) {
+  if (!g.animate) return
+
+  await g.animate(      
+    randomElementFromArray(Object.values(SHAPES)), 
+    randomElementFromArray([0, 1, 2, 3]), 
+    randomElementFromArray(Object.values(TRANSITION_TYPES)), 
+    randomInRange(15000, 35000)
+  )
+  
+  animateGarden(g)
 }
 
 function animate(app) {

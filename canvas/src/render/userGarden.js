@@ -12,10 +12,10 @@ import { DWC_META } from "../../../shared-constants";
 import UserBackground from "./Backgrounds/UserBackground";
 import orangeGreen from "../../assets/bg2000ver.jpeg"
 import horizontalGradient from "../../assets/horizontal1000.png";
-import { lerpPoint, map, randomElementFromArray } from "./utils.js"
+import { lerpPoint, map, randomElementFromArray, randomInRange } from "./utils.js"
 import GradientBackground from "./Backgrounds/GradientBackground";
 import TransitionBackground from "./Backgrounds/TransitionBackground";
-import AnimatedBackground from "./Backgrounds/AnimatedBackground"
+import AnimatedBackground, { SHAPES, TRANSITION_TYPES } from "./Backgrounds/AnimatedBackground"
 import TessGraphics from "./Geometry/TessGraphics";
 
 const WIDTH = window.GARDEN_WIDTH || 1000;
@@ -233,13 +233,17 @@ async function drawOverlapBackground() {
   //window.DWCApp.stage.pivot.set(-500, -500)
   //drawBeziers()
 
-  const animatedBackground = new AnimatedBackground('CIRCLE', 0)
+  const animatedBackground = new AnimatedBackground(SHAPES.CIRCLE, 0)
   tilesContainer.addChild(animatedBackground);  
 
   window.DWCApp.stage.addChild(tilesContainer);
 
   for (let i = 0; i < 20; i++) {
-    await animatedBackground.animateCircle('CIRCLE', randomElementFromArray([0, 1, 2, 3]), 'eh', 12000)
+    await animatedBackground.animate(
+      randomElementFromArray(Object.values(SHAPES)), 
+      randomElementFromArray([0, 1, 2, 3]), 
+      randomElementFromArray(Object.values(TRANSITION_TYPES)), 
+      randomInRange(25000, 75000))
   }
 }
 
