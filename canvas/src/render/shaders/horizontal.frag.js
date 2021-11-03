@@ -32,7 +32,7 @@ void main() {
     vec3 u_color3 = vec3(12.0 / 256.0, 239.0 / 256.0, 66.0 / 256.0); // green
 	
     float u_radius1 = 0.1;
-    float u_radius2 = -0.1;
+    float u_radius2 = 0.1;
     float u_radius3 = 0.1;
 
     highp float d1 = dist(gl_FragCoord.xy / u_resolution, u_point1 );
