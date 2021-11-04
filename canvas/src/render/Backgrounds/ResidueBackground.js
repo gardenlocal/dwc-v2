@@ -15,6 +15,11 @@ export const TRANSITION_TYPES = {
   FULL: 'FULL'
 }
 
+export const ORDER = {
+  PRIOR: 'PRIOR', 
+  LATTER: 'LATTER'
+}
+
 export default class ResidueBackground extends PIXI.Graphics {
   constructor(currentShape, currentAnchor) {
     super()
@@ -29,7 +34,6 @@ export default class ResidueBackground extends PIXI.Graphics {
     this.H = window.GARDEN_HEIGHT
     this.time = Math.random() * 10
     this.shaderSpeed = Math.random() * 10 + 1
-    console.log(this.shaderSpeed)
 
     // for tess2
     this.clippingArea = new PIXI.Graphics()
@@ -89,7 +93,7 @@ export default class ResidueBackground extends PIXI.Graphics {
   
     this.triangleTransition.pivot.set(this.W / 2, this.H / 2)
     this.triangleTransition.position.set(this.W / 2, this.H / 2)
-    this.triangleTransition.rotation = this.anchors[this.currentAnchor]
+    this.triangleTransition.rotation = this.anchors[this.currentAnchor] + Math.PI/2
 
     this.addChild(this.triangleTransitionContainer)
   }
@@ -105,7 +109,7 @@ export default class ResidueBackground extends PIXI.Graphics {
     let bezierAlpha = this.transitionAlpha
     const WIDTH = this.W
     const HEIGHT = this.H
-    // this.circleTransition.clear()
+    this.circleTransition.clear()
     this.circleTransition.beginFill(0xffffff)
     this.circleTransition.moveTo(0, 0)
     this.circleTransition.lineTo(WIDTH, 0)  
@@ -155,7 +159,7 @@ export default class ResidueBackground extends PIXI.Graphics {
 
     let triangleAlpha = this.transitionAlpha
 
-    // this.triangleTransition.clear()
+    this.triangleTransition.clear()
     this.triangleTransition.beginFill(0xf9f9f9)
     const midCoord = lerpPoint({ x: 0, y: 0 }, { x: this.W, y: this.H }, triangleAlpha)
     this.triangleTransition.drawPolygon([
@@ -169,33 +173,57 @@ export default class ResidueBackground extends PIXI.Graphics {
     this.mask = this.triangleTransition;
   }
 
-  async animate(toShape, duration) {
+  async animate(order) {
 
-    const nextTransitionAlpha = randomInRange(0.1, 0.4)  // toShape == SHAPES.CIRCLE ? randomElementFromArray([0.75]) : randomElementFromArray([0.5])
-   
-    const d2 = Math.abs((nextTransitionAlpha) * duration / 2)
+    this.currentShape = randomElementFromArray(Object.values(SHAPES))
 
+    const newAnchorIndex = randomElementFromArray([0, 1, 2, 3]); 
+    this.circleTransition.rotation = this.anchors[newAnchorIndex]
+    this.triangleTransition.rotation = this.anchors[newAnchorIndex] // + Math.PI/2
+    
+    const duration = 30000
+
+    const intermediateTransitionAlpha = randomInRange(0.3, 1.0)  // appear 
+    const nextTransitionAlpha = 0  // disappear
+
+    const d1 = Math.abs((intermediateTransitionAlpha) * duration / 2)
+
+    if(order === ORDER.LATTER) {
+      console.log("WAIT BEFORE start: ", d1)
+      await sleep(d1*1.5)
+    }
+
+    const tween = new TWEEN.Tween(this)
+    .to({ transitionAlpha: intermediateTransitionAlpha }, d1)
+    .easing(TWEEN.Easing.Linear.None)
+    .start()
+
+    tween.onComplete( () => console.log("d1 done"))
+
+    await sleep(d1)
+    
+    const d2 = Math.abs((intermediateTransitionAlpha) * duration / 2)
     const tween2 = new TWEEN.Tween(this)
     .to({ transitionAlpha: nextTransitionAlpha }, d2)
-    //.easing(TWEEN.Easing.Quartic.InOut)
     .easing(TWEEN.Easing.Linear.None)
     .start()
 
     tween2.onComplete( () => console.log("d2 done"))
 
     await sleep(d2)
-     
-    // this.currentShape = toShape
-    // this.circleTransition.rotation = this.anchors[toAnchor]
-    // this.triangleTransition.rotation = this.anchors[toAnchor]
-    
-    // console.log(toShape, toAnchor, duration)
+
+    if(order === ORDER.PRIOR) {
+      console.log("WAIT BEFORE next start: ", d2)
+      await sleep(d2*1.5)
+    }
+
+    // repeat
+    this.animate(order)
   }
 
   tick(coord) {
     let delta = PIXI.Ticker.shared.elapsedMS
-    this.time += delta/1000;
-    const step = delta / (1000 * this.transitionDuration)
+    this.time += delta/1000 ;
 
     // Shader background
     this.gradientUniforms.u_time = Math.cos(this.time / this.shaderSpeed) *  0.7;
