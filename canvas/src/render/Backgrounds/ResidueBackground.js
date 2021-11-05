@@ -15,11 +15,6 @@ export const TRANSITION_TYPES = {
   FULL: 'FULL'
 }
 
-export const ORDER = {
-  PRIOR: 'PRIOR', 
-  LATTER: 'LATTER'
-}
-
 export default class ResidueBackground extends PIXI.Graphics {
   constructor(currentShape, currentAnchor) {
     super()
@@ -173,7 +168,7 @@ export default class ResidueBackground extends PIXI.Graphics {
     this.mask = this.triangleTransition;
   }
 
-  async animate(order) {
+  async animate() {
 
     this.currentShape = randomElementFromArray(Object.values(SHAPES))
 
@@ -187,11 +182,6 @@ export default class ResidueBackground extends PIXI.Graphics {
     const nextTransitionAlpha = 0  // disappear
 
     const d1 = Math.abs((intermediateTransitionAlpha) * duration / 2)
-
-    if(order === ORDER.LATTER) {
-      console.log("WAIT BEFORE start: ", d1)
-      await sleep(d1*1.5)
-    }
 
     const tween = new TWEEN.Tween(this)
     .to({ transitionAlpha: intermediateTransitionAlpha }, d1)
@@ -211,14 +201,6 @@ export default class ResidueBackground extends PIXI.Graphics {
     tween2.onComplete( () => console.log("d2 done"))
 
     await sleep(d2)
-
-    if(order === ORDER.PRIOR) {
-      console.log("WAIT BEFORE next start: ", d2)
-      await sleep(d2*1.5)
-    }
-
-    // repeat
-    this.animate(order)
   }
 
   tick(coord) {
