@@ -16,12 +16,13 @@ import impulseFragment from "./shaders/impulse.frag";
 import quadBezierFragment from "./shaders/quadBezier.frag";
 import UserBackground from "./Backgrounds/UserBackground";
 import TransitionBackground from "./Backgrounds/TransitionBackground";
-import AnimatedBackground, { SHAPES, TRANSITION_TYPES } from './Backgrounds/AnimatedBackground'
+// import AnimatedBackground, { SHAPES, TRANSITION_TYPES } from './Backgrounds/AnimatedBackground'
+import ResidueBackground, { SHAPES } from "./Backgrounds/ResidueBackground";
 
 const textStyle = new PIXI.TextStyle({
   fontSize: 100,
-  fill: "white",
-  stroke: "white",
+  fill: "black",
+  stroke: "black",
 })
 
 const WIDTH = window.GARDEN_WIDTH;
@@ -42,6 +43,8 @@ let gardenContainer;
 let allGardenSectionsContainer;
 let allCreaturesContainer = new PIXI.Container();
 let globalScale = 0.1;
+let backgroundArr = [], bgDurationArr = [], bgTargetArr = []
+let backgroundLoopFinished = false;
 
 let isAppRunning = false
 
@@ -194,6 +197,18 @@ async function setGardens() {
   drawGarden()  
 }
 
+function drawResidueTiles() {
+  const len = 4;
+  const tilesContainer = new PIXI.Container();
+
+  for(let i = 0; i < len; i++) {
+    const bg = new ResidueBackground(randomElementFromArray(Object.values(SHAPES)), randomElementFromArray([0, 1, 2, 3]))
+    tilesContainer.addChild(bg);
+  }
+
+  return tilesContainer
+}
+
 function drawGarden() {
   const app = window.DWCApp;
 
@@ -207,11 +222,7 @@ function drawGarden() {
     const g = gardens[i].garden;
     const isOnline = gardens[i].isOnline;
 
-    //const tilesBackground = new TransitionBackground("CIRCLE", 2, "TO_EMPTY", 1.0)
-    const tilesBackground = new AnimatedBackground(
-      randomElementFromArray(Object.values(SHAPES)), 
-      randomElementFromArray([0, 1, 2, 3])
-    )
+    const tilesBackground = drawResidueTiles()
     tilesBackground.x = g.x
     tilesBackground.y = g.y
     tilesBackground.width = g.width
@@ -226,20 +237,32 @@ function drawGarden() {
 
     animateGarden(tilesBackground)
   }
-    
 }
 
 async function animateGarden(g) {
-  if (!g.animate) return
 
-  await g.animate(      
-    randomElementFromArray(Object.values(SHAPES)), 
-    randomElementFromArray([0, 1, 2, 3]), 
-    randomElementFromArray(Object.values(TRANSITION_TYPES)), 
-    randomInRange(15000, 35000)
-  )
-  
-  animateGarden(g)
+  let bgDurationArr = [], bgTargetArr = []
+
+  for(let i = 0; i < g.children.length; i++){
+    const tile = g.children[i]
+
+    if (!tile.animate) return
+
+    const duration = randomInRange(25000, 75000)    
+    const target = randomInRange(0.3, 1.0)
+    bgDurationArr.push(duration)
+    bgTargetArr.push(target)
+
+    await tile.animate(target, duration)
+  }
+
+  for(let i = 0; i < g.children.length; i++){
+    const tile = g.children[i]
+
+    await tile.disappear(bgTargetArr[i], bgDurationArr[i]) // appear at 0, disappear after bg2+bg3+bg4_duration
+  }
+
+  await animateGarden(g)
 }
 
 function animate(app) {
@@ -249,8 +272,16 @@ function animate(app) {
       if (c.tick) c.tick(delta)
     })
     
-    allGardenSectionsContainer.children.forEach(bg => {
-      if(bg.tick) bg.tick();
+    allGardenSectionsContainer.children.forEach(garden => {
+      // each user's garden Container, exclude Text
+      if(garden.children.length) {
+
+        garden.children.forEach(tile => {
+
+          // each tile
+          if(tile.tick) tile.tick();
+        })
+      }
     })
   })
 }
