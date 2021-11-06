@@ -10,13 +10,12 @@ import cnFragment from './shaders/cnFragment.glsl.js'
 import gradientFragment from './shaders/gradient.glsl'
 import { DWC_META } from "../../../shared-constants";
 import UserBackground from "./Backgrounds/UserBackground";
-import orangeGreen from "../../assets/bg2000ver.jpeg"
-import horizontalGradient from "../../assets/horizontal1000.png";
 import { lerpPoint, map, randomElementFromArray, randomInRange } from "./utils.js"
 import GradientBackground from "./Backgrounds/GradientBackground";
-import TransitionBackground from "./Backgrounds/TransitionBackground";
-import AnimatedBackground, { SHAPES, TRANSITION_TYPES } from "./Backgrounds/AnimatedBackground"
-import TessGraphics from "./Geometry/TessGraphics";
+// import TransitionBackground from "./Backgrounds/TransitionBackground";
+// import AnimatedBackground, { SHAPES, TRANSITION_TYPES } from "./Backgrounds/AnimatedBackground"
+// import TessGraphics from "./Geometry/TessGraphics";
+import ResidueBackground, { SHAPES } from "./Backgrounds/ResidueBackground";
 
 const WIDTH = window.GARDEN_WIDTH || 1000;
 const HEIGHT = window.GARDEN_HEIGHT || 1000;
@@ -38,6 +37,9 @@ let allCreaturesContainer;
 let allGardenSectionsContainer
 let tilesContainer = new PIXI.Container();
 
+let bg1, bg2, bg3, bg4;
+let backgroundArr = [], bgDurationArr = [], bgTargetArr = []
+let backgroundLoopFinished = false;
 
 let isAppRunning = false
 
@@ -158,10 +160,7 @@ function render(app) {
   app.stage.addChild(allGardenSectionsContainer)
   allGardenSectionsContainer.position.set(-currentGarden.x, -currentGarden.y)  
 
-  //drawTiles()
-
-  //drawGradientBackground();
-  drawOverlapBackground();
+  drawResidueBackground();
   drawGarden()
   drawNeighborOverlays()
 
@@ -177,7 +176,7 @@ function getCurrentUserCreature() {
 
 // graident + mask + shader
 function drawGradientBackground() {
-  const gradientGarden = new GradientBackground(currentGarden);
+  const gradientGarden = new GradientBackground(currentGarden, 0.5);
   tilesContainer.addChild(gradientGarden);
   window.DWCApp.stage.addChild(tilesContainer);
 }
@@ -203,7 +202,7 @@ function drawGarden() {
     tilesBackground.width = g.width
     tilesBackground.height = g.height
     tilesBackground.alpha = 1//(isOnline ? 1 : 0.2)
-    allGardenSectionsContainer.addChild(tilesBackground)    
+    // allGardenSectionsContainer.addChild(tilesBackground)    
     //window.DWCApp.stage.addChild(tilesBackground)    
   }
 }
@@ -220,80 +219,71 @@ function drawNeighborOverlays() {
   window.DWCApp.stage.addChild(neighborsGrey)
 }
 
-async function drawOverlapBackground() {
+function drawResidueBackground() {
  
-  // draw shapes on top of colored background
-  const maskedBackground = new TransitionBackground("CIRCLE", 1, "TO_FULL", 1.5)
+  const len = 4;
+  for(let i = 0; i < len; i++) {
+    const bg = new ResidueBackground(randomElementFromArray(Object.values(SHAPES)), randomElementFromArray([0, 1, 2, 3]))
+    backgroundArr.push(bg)
+    tilesContainer.addChild(bg);
 
-  // tilesContainer.children[0].children[0] : ShaderMesh
-  // tilesContainer.children[0].chilrend[1] : white polygon
-  //tilesContainer.addChild(maskedBackground);  
+  }
+  // bg1 = new ResidueBackground(randomElementFromArray(Object.values(SHAPES)), randomElementFromArray([0, 1, 2, 3]))
+  // bg2 = new ResidueBackground(randomElementFromArray(Object.values(SHAPES)), randomElementFromArray([0, 1, 2, 3]))
+  // bg3 = new ResidueBackground(randomElementFromArray(Object.values(SHAPES)), randomElementFromArray([0, 1, 2, 3]))
+  // bg4 = new ResidueBackground(randomElementFromArray(Object.values(SHAPES)), randomElementFromArray([0, 1, 2, 3]))
 
-  //window.DWCApp.stage.scale.set(0.5, 0.5)
-  //window.DWCApp.stage.pivot.set(-500, -500)
-  //drawBeziers()
-
-  const animatedBackground = new AnimatedBackground(SHAPES.CIRCLE, 0)
-  tilesContainer.addChild(animatedBackground);  
+  // tilesContainer.addChild(bg1);
+  // tilesContainer.addChild(bg2);  
+  // tilesContainer.addChild(bg3); 
+  // tilesContainer.addChild(bg4); 
 
   window.DWCApp.stage.addChild(tilesContainer);
 
-  for (let i = 0; i < 20; i++) {
-    await animatedBackground.animate(
-      randomElementFromArray(Object.values(SHAPES)), 
-      randomElementFromArray([0, 1, 2, 3]), 
-      randomElementFromArray(Object.values(TRANSITION_TYPES)), 
-      randomInRange(25000, 75000))
-  }
+  if(backgroundArr.length === len) animateBackgroundLoop()
 }
 
-let bezierAlpha = 0
-let bezierAlphaSgn = 1
+async function animateBackgroundLoop() {
+    console.log("start loop")
+    backgroundLoopFinished = false;
 
-function drawBeziers() {
-  const bezierContainer = new PIXI.Container()
-  const containerMask = new PIXI.Graphics()
-  const bezierBg = new TessGraphics()
-
-  containerMask.beginFill(0xffffff)
-  containerMask.drawRect(0, 0, WIDTH, HEIGHT)  
-
-  bezierContainer.addChild(bezierBg)
-  bezierContainer.addChild(containerMask)
-  bezierContainer.mask = containerMask
-
-  bezierBg.pivot.set(WIDTH / 2, HEIGHT / 2)
-  bezierBg.position.set(WIDTH / 2, HEIGHT / 2)
-  bezierBg.rotation = randomElementFromArray([0, Math.PI / 2, Math.PI, Math.PI * 3 / 2])
-
-  tilesContainer.addChild(bezierContainer)
-
-  window.DWCApp.ticker.add((delta) => {
-    bezierAlpha += 0.001 * bezierAlphaSgn
-    bezierBg.clear()
-    bezierBg.beginFill(0xffffff)
-    bezierBg.moveTo(0, 0)
-    bezierBg.lineTo(WIDTH, 0)  
-    bezierBg.lineTo(WIDTH, HEIGHT)  
-    const bezierMaxStretch = 0.35
-  
-    const pA0 = { x: WIDTH * (1 + bezierMaxStretch), y: 0 }
-    const pB0 = { x: WIDTH, y: -HEIGHT * bezierMaxStretch }
-
-    const pA1 = { x: 0, y: HEIGHT * (1 + bezierMaxStretch) }    
-    const pB1 = { x: -WIDTH * bezierMaxStretch, y: HEIGHT }
-  
-    const pA = lerpPoint(pA0, pA1, bezierAlpha)
-    const pB = lerpPoint(pB0, pB1, bezierAlpha)
-  
-    bezierBg.bezierCurveTo(pA.x, pA.y, pB.x, pB.y, 0, 0)
-    bezierBg.closePath()
-
-    if (bezierAlpha > 1 || bezierAlpha < 0) {
-      bezierAlphaSgn *= -1
-      bezierBg.rotation = randomElementFromArray([0, Math.PI / 2, Math.PI, Math.PI * 3 / 2])
+    for(let i = 0; i < backgroundArr.length; i++) {
+      const duration = randomInRange(25000, 75000)    
+      const target = randomInRange(0.3, 1.0)
+      bgDurationArr.push(duration)
+      bgTargetArr.push(target)
     }
-  })
+
+    for(let i = 0; i < backgroundArr.length; i++) {
+      await backgroundArr[i].animate(bgTargetArr[i], bgDurationArr[i]) // appear at 0, disappear after bg2+bg3+bg4_duration
+    }
+
+    for(let i = 0; i < backgroundArr.length; i++) {
+      await backgroundArr[i].disappear(bgTargetArr[i], bgDurationArr[i]) // appear at 0, disappear after bg2+bg3+bg4_duration
+    }
+
+    backgroundLoopFinished = true;
+    console.log("end loop")
+
+    // const t1 = randomInRange(25000, 75000)
+    // const t2 = randomInRange(25000, 75000)
+    // const t3 = randomInRange(25000, 75000)
+    // const t4 = randomInRange(25000, 75000)
+
+    // const target1 = randomInRange(0.3, 1.0)
+    // const target2 = randomInRange(0.3, 1.0)
+    // const target3 = randomInRange(0.3, 1.0)
+    // const target4 = randomInRange(0.3, 1.0)
+
+    // await bg1.animate(target1, t1) // appear at 0, disappear after bg2+bg3+bg4_duration
+    // await bg2.animate(target2, t2) // appear after bg1, disappear after bg3+bg4+bg1
+    // await bg3.animate(target3, t3) // appear after bg2 
+    // await bg4.animate(target4, t4)
+
+    // await bg1.disappear(target1, t1) // appear at 0, disappear after bg2+bg3+bg4_duration
+    // await bg2.disappear(target2, t2) // appear after bg1, disappear after bg3+bg4+bg1
+    // await bg3.disappear(target3, t3) // appear after bg2 
+    // await bg4.disappear(target4, t4)
 }
 
 var time = 0
@@ -322,7 +312,10 @@ function animate(app) {
       tilesContainer.children.forEach(bg => {
         if(bg.tick) bg.tick(tempPos);
       })
-      
+
+      if(backgroundLoopFinished) {
+        animateBackgroundLoop()
+      }
     })
 }
 
