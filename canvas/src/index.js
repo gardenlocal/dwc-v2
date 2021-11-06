@@ -36,10 +36,8 @@ app.renderer.backgroundColor = 0xf9f9f9;
 
 const ticker = PIXI.Ticker.shared
 
-/*
 const stats = addStats(document, app);
 ticker.add(stats.update, stats, PIXI.UPDATE_PRIORITY.UTILITY)
-*/
 
 ticker.add(() => {
   TWEEN.update()
