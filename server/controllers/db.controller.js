@@ -20,8 +20,6 @@ exports.getAllUsersInfo = async () => {
 }
 
 exports.getUserInfo = async (uid) => {
-  if (userCache[uid]) return userCache[uid]
-
   let userData = null, gardenSection = null
   try {
     userData = await database.findOne({ uid: uid })

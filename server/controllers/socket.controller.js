@@ -32,6 +32,7 @@ exports.userConnected = async (socket) => {
   const garden = await gardenController.createGardenSection()
   if (garden) {
     user.gardenSection = garden._id
+    user = await database.update({ _id: user._id }, user)
   } else {
     console.error('Failed to create garden section for user')
   }
