@@ -140,3 +140,7 @@ exports.createGardenSection = async () => {
   console.log('Created garden: ', garden)
   return garden
 }
+
+exports.clearGardenSection = async (uid) => {
+  console.warn('TODO: IMPLEMENT clearGardenSection for ', uid)
+}

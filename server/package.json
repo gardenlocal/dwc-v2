@@ -18,7 +18,8 @@
     "jsonwebtoken": "^8.5.1",
     "lodash.shuffle": "^4.2.0",
     "nedb-promises": "^5.0.0",
-    "socket.io": "^4.2.0"
+    "socket.io": "^4.2.0",
+    "uid": "^2.0.0"
   },
   "optionalDependencies": {
     "bufferutil": "^4.0.3",

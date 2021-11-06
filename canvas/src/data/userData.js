@@ -4,15 +4,18 @@ import "regenerator-runtime/runtime"
 class UserData {
 
  constructor(){
+   /*
    this.user = JSON.parse(localStorage.getItem("user"));
    this.role = this.user?.role[0];
    this.username = this.user?.username;
    this.garden = JSON.stringify(this.user?.gardenSection);
    this.token = this.user?.accessToken;
    this.email = this.user?.email;
+   */
  }
 
  async getAdminData() {
+   /*
    //if(this.role === "ROLE_ADMIN") {
   if (true) {
     const allGardens = await UserService.getAdminGarden()
@@ -22,6 +25,7 @@ class UserData {
      console.log("ACCESS DENIED")
      return false;
    }
+   */
  }
 
  getPublicData() {

@@ -5,7 +5,6 @@
 
 import * as PIXI from "pixi.js";
 import { Graphics, TextStyle } from "pixi.js";
-import UserData from "./data/userData";
 import { renderAdminCreatures } from "./render/adminGarden.js";
 import { renderCreature } from "./render/userGarden";
 import { loadAll } from './render/assetLoader';
@@ -14,6 +13,88 @@ import { DWC_META } from "../../shared-constants";
 import SVGCreatureShape from "./render/Geometry/SVGCreatureShape";
 import { addStats, Stats } from 'pixi-stats';
 import TWEEN from '@tweenjs/tween.js'
+
+export default class PixiAppWrapper {
+  constructor(options) {
+    this.isAdmin = (options && options.isAdmin)
+
+    this.setupPixiApp()
+    this.setupStats()
+    this.setupTween()
+
+    this.start()
+  }
+
+  setupPixiApp() {
+    this.GARDEN_WIDTH = this.GARDEN_HEIGHT = window.GARDEN_WIDTH = window.GARDEN_HEIGHT = 1000
+
+    this.pixiContainer = document.querySelector("#root")    
+    this.pixiApp = new PIXI.Application({
+      antialias: true,
+      resolution: 1,
+      resizeTo: this.pixiContainer
+    })
+
+    window.DWCApp = this.pixiApp
+
+    this.pixiContainer.appendChild(this.pixiApp.view)
+    this.pixiApp.renderer.backgroundColor = 0xf9f9f9;
+
+    this.ticker = PIXI.Ticker.shared
+  }
+
+  setupStats() {
+    this.stats = addStats(document, this.pixiApp);
+    this.ticker.add(this.stats.update, this.stats, PIXI.UPDATE_PRIORITY.UTILITY)
+  }
+
+  setupTween() {
+    this.ticker.add(TWEEN.update, this, PIXI.UPDATE_PRIORITY.HIGH)
+  }
+
+  async start() {
+    this.resizeAppToWindow()
+    await this.loadAssets()
+
+    this.render()
+  }
+
+  async loadAssets() {
+    await loadAll((t) => {
+      console.log('Loading progress: ', t.progress)
+    })
+
+    // Have all available creatures globally available, in order to be able to morph between them.
+    window.DWCCreatureShapes = Object.keys(DWC_META.creatures).reduce((acc, k) => {
+      const svgData = PIXI.Loader.shared.resources[DWC_META.creatures[k]].data
+      acc[DWC_META.creatures[k]] = new SVGCreatureShape(svgData)
+      return acc
+    }, {})  
+  }
+
+  resizeAppToWindow() {
+    const scale = Math.min(window.innerWidth, window.innerHeight) / 1000
+    window.DWCApp.stage.scale.set(scale)
+  
+    if (window.innerWidth < window.innerHeight)
+      window.DWCApp.stage.pivot.set(0, (-window.innerHeight / scale + window.GARDEN_HEIGHT) / 2)
+    else
+      window.DWCApp.stage.pivot.set((-window.innerWidth / scale + window.GARDEN_WIDTH) / 2, 0)    
+  }
+
+  render() {
+    if (this.isAdmin) {
+      //renderAdminCreatures(this.pixiApp)
+    } else {
+      //renderCreature(this.pixiApp)
+    }
+
+    this.pixiApp.resize()
+  }
+}
+
+/*
+
 
 const LOGGEDIN = localStorage.getItem("user") ? true: false;
 
@@ -85,3 +166,5 @@ const startApp = async () => {
 }
 
 startApp()
+
+*/
