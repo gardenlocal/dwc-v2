@@ -121,13 +121,6 @@ export default class ResidueBackground extends PIXI.Graphics {
     const pA = lerpPoint(pA0, pA1, bezierAlpha)
     const pB = lerpPoint(pB0, pB1, bezierAlpha)
     
-    // const quadraticStretch = 1.5;
-    // const radius = bezierAlpha * WIDTH * (quadraticStretch);
-    // const cpx1 = WIDTH - radius;
-    // const cpy1 = radius;
-    // console.log(cpx1, cpy1)
-    // this.circleTransition.quadraticCurveTo(cpx1, cpy1, 0, 0)
-
     this.circleTransition.bezierCurveTo(pA.x, pA.y, pB.x, pB.y, 0, 0)
     this.circleTransition.closePath();
 
@@ -168,7 +161,7 @@ export default class ResidueBackground extends PIXI.Graphics {
     this.mask = this.triangleTransition;
   }
 
-  async animate() {
+  async animate(target, duration) {
 
     this.currentShape = randomElementFromArray(Object.values(SHAPES))
 
@@ -176,29 +169,32 @@ export default class ResidueBackground extends PIXI.Graphics {
     this.circleTransition.rotation = this.anchors[newAnchorIndex]
     this.triangleTransition.rotation = this.anchors[newAnchorIndex] // + Math.PI/2
     
-    const duration = 30000
+    const transitionDuration = duration
 
-    const intermediateTransitionAlpha = randomInRange(0.3, 1.0)  // appear 
-    const nextTransitionAlpha = 0  // disappear
+    const intermediateTransitionAlpha = target  // appear up to target
 
-    const d1 = Math.abs((intermediateTransitionAlpha) * duration / 2)
+    const d1 = Math.abs((intermediateTransitionAlpha) * transitionDuration / 2)
 
     const tween = new TWEEN.Tween(this)
     .to({ transitionAlpha: intermediateTransitionAlpha }, d1)
     .easing(TWEEN.Easing.Linear.None)
     .start()
 
-    tween.onComplete( () => console.log("d1 done"))
+    tween.onComplete( () => console.log("appear done") )
 
     await sleep(d1)
-    
+  }
+
+  async disappear(target, duration) {
+    const intermediateTransitionAlpha = target  // disappear from target
     const d2 = Math.abs((intermediateTransitionAlpha) * duration / 2)
+
     const tween2 = new TWEEN.Tween(this)
-    .to({ transitionAlpha: nextTransitionAlpha }, d2)
+    .to({ transitionAlpha: 0 }, d2)
     .easing(TWEEN.Easing.Linear.None)
     .start()
 
-    tween2.onComplete( () => console.log("d2 done"))
+    tween2.onComplete( () => console.log("disappear done") )
 
     await sleep(d2)
   }
