@@ -137,7 +137,7 @@ exports.createGardenSection = async () => {
     return null
   }
 
-  console.log('Created garden: ', garden)
+  //console.log('Created garden: ', garden)
   return garden
 }
 

@@ -22,28 +22,32 @@ exports.userConnected = async (socket) => {
   socket.on('disconnect', onDisconnect(socket))
 
   // Get or create user for the given uid
+  console.log('Fetching user from DB: ', uid)
   let user = await getUserInfo(uid)
   if (!user) {
     user = new User({ uid });
-    user = await database.insert(user)  
+    await database.insert(user)  
   }
 
   // Create a new garden section for the current user
   const garden = await gardenController.createGardenSection()
+  console.log('Creating garden for user: ', uid)
   if (garden) {
     user.gardenSection = garden._id
-    user = await database.update({ _id: user._id }, user)
+    await database.update({ _id: user._id }, user)
   } else {
     console.error('Failed to create garden section for user')
   }
 
   // Create a new creature for the user if one doesn't exist,
   // or move it in their garden if it does exist
-  let creature = creatureController.getCreatureForUser(user.uid)
+  let creature = await creatureController.getCreatureForUser(user.uid)
+  console.log('Creature for user: ', creature)
   if (creature) {
     creatureController.moveCreatureToGarden(creature, garden)
   } else {
     creature = await creatureController.createCreature(garden, user)
+    console.log('created creature for user')
     user.creature = creature._id
     await database.update({ _id: user._id }, user)
   }

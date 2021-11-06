@@ -63,7 +63,7 @@ exports.createCreature = async (garden, user) => {
 }
 
 exports.getCreatureForUser = async (uid) => {
-  const creature = await database.find({ owner: uid })
+  const creature = await database.findOne({ type: TYPES.creature, owner: uid })
   return creature
 }
 
@@ -200,5 +200,6 @@ exports.getAllCreaturesInfo = async () => {
     console.error("Failed to retrieve all creatures")
     return null
   }
+
   return creatures
 }

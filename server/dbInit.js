@@ -10,6 +10,7 @@ const { uid } = require('uid')
 
 module.exports = async () => {
   // Initialize with admin user if it doesn't exist already
+  return
   const adminUser = await database.findOne({ usertype: 'admin'})
   if (!adminUser) {    
     let user = await database.insert(new User({ uid: uid(), usertype: 'admin' }))
