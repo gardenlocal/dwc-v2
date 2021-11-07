@@ -83,12 +83,10 @@ exports.startAnimatingCreatures = async () => {
     return acc
   }, {})
 
-  /*
   animationTimeout = setInterval(async () => {
     const onlineUsers = Object.keys(socketMap)
     let updated = await creatureController.updateCreatures(onlineUsers)
     if (Object.keys(updated).length > 0) io.emit('creaturesUpdate', updated)
   }, 1000)
-  */
 
 }

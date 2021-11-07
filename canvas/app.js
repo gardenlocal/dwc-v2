@@ -59,14 +59,11 @@ class App {
   }
 
   onUsersUpdate = (users) => {
-    console.log('on users update: ', users)
-
     // get single user's garden data
     const currUser = users.find((u => (u.uid == this.user.id)))
     this.selfGarden = currUser ? currUser.gardenSection : null
 
     // get all online users
-    console.log('Users update: ', users)
     this.onlineUsers = users.reduce((acc, el) => {
       acc[el.uid] = el
       return acc
@@ -79,7 +76,6 @@ class App {
   }
 
   onCreatures = (creatures) => {
-    console.log('on creatures: ', creatures)
     this.updateOnlineCreatures(creatures)
 
     this.initData.creatures = true
@@ -88,8 +84,6 @@ class App {
 
   updateOnlineCreatures = (creatures) => {
     let onlineCreatures = creatures || Object.values(this.onlineCreatures)
-
-    console.log('received: ', creatures)
 
     this.onlineCreatures = onlineCreatures.reduce((acc, el) => {
       if (!!this.onlineUsers[el.owner.uid]) {
@@ -103,9 +97,9 @@ class App {
   }
 
   onCreaturesUpdate = (creaturesToUpdate) => {
-    /*
-    // console.log('Creatures Update: ', creaturesToUpdate)
+    console.log('Creatures Update: ', creaturesToUpdate)
 
+    /*
     if (!allCreaturesContainer) return
 
     for (const [key, value] of Object.entries(onlineCreatures)) {

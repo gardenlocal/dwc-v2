@@ -2,7 +2,7 @@ const shuffle = require("lodash.shuffle")
 const constants = require("../constants")
 const utils = require("../utils")
 const TYPES = require('../datatypes')
-const { getUserInfo, getAllCreaturesInfo } = require('../controllers/db.controller')
+const { getUserInfo } = require('../controllers/db.controller')
 const Creature = require("../models/Creature")
 const database = require("../db")
 const { DWC_META, generateMoss, generateLichen, generateMushroom } = require("../../shared-constants")
@@ -90,13 +90,33 @@ exports.moveCreatureToGarden = async (creature, garden) => {
   await database.update({ _id: creature._id }, creature)
 }
 
+exports.getAllCreaturesInfo = async () => {
+  let creatures = null
+  try {    
+    creatures = await database.find({ type: TYPES.creature })
+    if (!creatures) return []
+
+    for (let i = 0; i < creatures.length; i++) {
+      creatures[i].owner = await getUserInfo(creatures[i].owner)
+    }
+  } catch (e) {
+    console.error("Failed to retrieve all creatures")
+    return null
+  }
+
+  return creatures
+}
+
 exports.updateCreatures = async (onlineUsers) => {
+
+  console.log('update creatures: ', onlineUsers)
+
   const updated = {}
   if (onlineUsers.length == 0) return updated
 
   const now = new Date().getTime()
 
-  allCreatures = (await getAllCreaturesInfo()).reduce((acc, el) => {
+  allCreatures = (await exports.getAllCreaturesInfo()).reduce((acc, el) => {
     acc[el._id] = el
     return acc
   }, {})
@@ -185,21 +205,4 @@ exports.updateCreatures = async (onlineUsers) => {
     }
   }
   */  
-}
-
-exports.getAllCreaturesInfo = async () => {
-  let creatures = null
-  try {    
-    creatures = await database.find({ type: TYPES.creature })
-    if (!creatures) return []
-
-    for (let i = 0; i < creatures.length; i++) {
-      creatures[i].owner = await getUserInfo(creatures[i].owner)
-    }
-  } catch (e) {
-    console.error("Failed to retrieve all creatures")
-    return null
-  }
-
-  return creatures
 }
