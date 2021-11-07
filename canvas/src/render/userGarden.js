@@ -161,7 +161,6 @@ function render(app) {
   allGardenSectionsContainer.position.set(-currentGarden.x, -currentGarden.y)  
 
   drawResidueBackground();
-  drawGarden()
   drawNeighborOverlays()
 
   app.stage.addChild(gardenContainer)
@@ -181,32 +180,6 @@ function drawGradientBackground() {
   window.DWCApp.stage.addChild(tilesContainer);
 }
 
-function drawGarden() {
-  const app = window.DWCApp;
-
-  console.log('Draw garden: ', gardens)
-
-  // Empty the container, then redraw. 
-  while (allGardenSectionsContainer?.children[0]) { // null check
-    allGardenSectionsContainer.removeChild(allGardenSectionsContainer.children[0])
-  }  
-
-  for (let i = 0; i < gardens.length; i++) {
-
-    const g = gardens[i].garden;
-    const isOnline = gardens[i].isOnline;
-
-    const tilesBackground = new UserBackground(g)
-    tilesBackground.x = g.x
-    tilesBackground.y = g.y
-    tilesBackground.width = g.width
-    tilesBackground.height = g.height
-    tilesBackground.alpha = 1//(isOnline ? 1 : 0.2)
-    // allGardenSectionsContainer.addChild(tilesBackground)    
-    //window.DWCApp.stage.addChild(tilesBackground)    
-  }
-}
-
 function drawNeighborOverlays() {
   const neighborsGrey = new PIXI.Graphics()
   neighborsGrey.beginFill(0x555555)
@@ -220,23 +193,12 @@ function drawNeighborOverlays() {
 }
 
 function drawResidueBackground() {
- 
   const len = 4;
   for(let i = 0; i < len; i++) {
     const bg = new ResidueBackground(randomElementFromArray(Object.values(SHAPES)), randomElementFromArray([0, 1, 2, 3]))
     backgroundArr.push(bg)
     tilesContainer.addChild(bg);
-
   }
-  // bg1 = new ResidueBackground(randomElementFromArray(Object.values(SHAPES)), randomElementFromArray([0, 1, 2, 3]))
-  // bg2 = new ResidueBackground(randomElementFromArray(Object.values(SHAPES)), randomElementFromArray([0, 1, 2, 3]))
-  // bg3 = new ResidueBackground(randomElementFromArray(Object.values(SHAPES)), randomElementFromArray([0, 1, 2, 3]))
-  // bg4 = new ResidueBackground(randomElementFromArray(Object.values(SHAPES)), randomElementFromArray([0, 1, 2, 3]))
-
-  // tilesContainer.addChild(bg1);
-  // tilesContainer.addChild(bg2);  
-  // tilesContainer.addChild(bg3); 
-  // tilesContainer.addChild(bg4); 
 
   window.DWCApp.stage.addChild(tilesContainer);
 
@@ -264,26 +226,6 @@ async function animateBackgroundLoop() {
 
     backgroundLoopFinished = true;
     console.log("end loop")
-
-    // const t1 = randomInRange(25000, 75000)
-    // const t2 = randomInRange(25000, 75000)
-    // const t3 = randomInRange(25000, 75000)
-    // const t4 = randomInRange(25000, 75000)
-
-    // const target1 = randomInRange(0.3, 1.0)
-    // const target2 = randomInRange(0.3, 1.0)
-    // const target3 = randomInRange(0.3, 1.0)
-    // const target4 = randomInRange(0.3, 1.0)
-
-    // await bg1.animate(target1, t1) // appear at 0, disappear after bg2+bg3+bg4_duration
-    // await bg2.animate(target2, t2) // appear after bg1, disappear after bg3+bg4+bg1
-    // await bg3.animate(target3, t3) // appear after bg2 
-    // await bg4.animate(target4, t4)
-
-    // await bg1.disappear(target1, t1) // appear at 0, disappear after bg2+bg3+bg4_duration
-    // await bg2.disappear(target2, t2) // appear after bg1, disappear after bg3+bg4+bg1
-    // await bg3.disappear(target3, t3) // appear after bg2 
-    // await bg4.disappear(target4, t4)
 }
 
 var time = 0

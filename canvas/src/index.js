@@ -21,8 +21,10 @@ export default class PixiAppWrapper {
     this.setupPixiApp()
     this.setupStats()
     this.setupTween()
+    this.resizeAppToWindow()
 
-    this.start()
+    this.setupLoadingScreen()
+    //this.start()
   }
 
   setupPixiApp() {
@@ -41,6 +43,9 @@ export default class PixiAppWrapper {
     this.pixiApp.renderer.backgroundColor = 0xf9f9f9;
 
     this.ticker = PIXI.Ticker.shared
+
+    this.appContainer = new PIXI.Container()
+    this.pixiApp.stage.addChild(this.appContainer)
   }
 
   setupStats() {
@@ -52,11 +57,19 @@ export default class PixiAppWrapper {
     this.ticker.add(TWEEN.update, this, PIXI.UPDATE_PRIORITY.HIGH)
   }
 
-  async start() {
-    this.resizeAppToWindow()
-    await this.loadAssets()
+  setupLoadingScreen() {
+    this.isLoading = true
+    this.loadingScreen = new PIXI.Container()
+    this.loadingText = new PIXI.Text("Loading...", new PIXI.TextStyle({
+      fontSize: 20,
+      fill: "black",
+    }))
+    this.loadingScreen.addChild(this.loadingText)
+    const bbox = this.loadingScreen.getBounds()
+    this.loadingScreen.pivot.set(bbox.width, bbox.height)
+    this.loadingScreen.position.set(this.GARDEN_WIDTH / 2, this.GARDEN_HEIGHT / 2)
 
-    this.render()
+    this.pixiApp.stage.addChild(this.loadingScreen)
   }
 
   async loadAssets() {
@@ -69,7 +82,7 @@ export default class PixiAppWrapper {
       const svgData = PIXI.Loader.shared.resources[DWC_META.creatures[k]].data
       acc[DWC_META.creatures[k]] = new SVGCreatureShape(svgData)
       return acc
-    }, {})  
+    }, {})
   }
 
   resizeAppToWindow() {
@@ -90,6 +103,10 @@ export default class PixiAppWrapper {
     }
 
     this.pixiApp.resize()
+
+    this.isLoading = false
+    this.loadingScreen.alpha = 0
+
   }
 }
 

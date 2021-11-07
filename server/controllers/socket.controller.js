@@ -42,7 +42,6 @@ exports.userConnected = async (socket) => {
   // Create a new creature for the user if one doesn't exist,
   // or move it in their garden if it does exist
   let creature = await creatureController.getCreatureForUser(user.uid)
-  console.log('Creature for user: ', creature)
   if (creature) {
     creatureController.moveCreatureToGarden(creature, garden)
   } else {
@@ -62,6 +61,9 @@ const onDisconnect = (socket) => async (reason) => {
   
   delete socketIdToUserId[socket.id]
   delete socketMap[uid]
+
+  io.emit('usersUpdate', await getOnlineUsers())
+  io.emit('creatures', await getAllCreatures())
 
   await gardenController.clearGardenSection(uid)
 }

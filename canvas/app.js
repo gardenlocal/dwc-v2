@@ -12,11 +12,14 @@ class App {
   constructor() {
   }
 
-  setup() {
+  async setup() {
     this.user = this.createOrFetchUser()
     this.pathname = window.location.pathname
     this.serverPort = window.location.hostname.includes('iptime') ? '1012' : '3000'
     this.serverUrl = `http://${window.location.hostname}`
+
+    this.pixiApp = new PixiApp({ isAdmin: this.pathname == '/admin' })
+    await this.pixiApp.loadAssets()
 
     this.socket = io(`${this.serverUrl}:${this.serverPort}`, {
       query: {
@@ -28,9 +31,23 @@ class App {
     this.socket.on('connect_error', this.onSocketConnectError)
     this.socket.on('usersUpdate', this.onUsersUpdate)
     this.socket.on('creatures', this.onCreatures)
-    this.socket.on('creaturesUpdate', this.onCreaturesUpdate)
+    this.socket.on('creaturesUpdate', this.onCreaturesUpdate)    
 
-    this.pixiApp = new PixiApp({ isAdmin: this.pathname == '/admin' })     
+    this.selfGarden = null
+    this.onlineCreatures = {}
+    this.onlineUsers = {}
+    this.initData = {
+      creatures: false,
+      users: false,
+      firstRender: false
+    }
+  }
+
+  renderAppIfReady() {
+    if (this.initData.creatures && this.initData.users && !this.initData.firstRender) {
+      this.pixiApp.render()
+      this.initData.firstRender = true
+    }
   }
 
   onSocketConnect = () => {
@@ -43,33 +60,46 @@ class App {
 
   onUsersUpdate = (users) => {
     console.log('on users update: ', users)
-    /*
+
     // get single user's garden data
-    for(let i = 0; i < users.length; i++) {
-      if(users[i] && (users[i]._id === userId)) {
-        currentGarden = users[i].gardenSection
-      }
-    }
+    const currUser = users.find((u => (u.uid == this.user.id)))
+    this.selfGarden = currUser ? currUser.gardenSection : null
+
     // get all online users
     console.log('Users update: ', users)
-    onlineUsers = updateUsers(users)    
-    updateOnlineCreatures()
-    */
+    this.onlineUsers = users.reduce((acc, el) => {
+      acc[el.uid] = el
+      return acc
+    }, {})
+
+    this.updateOnlineCreatures()
+
+    this.initData.users = true
+    this.renderAppIfReady()
   }
 
   onCreatures = (creatures) => {
     console.log('on creatures: ', creatures)
-    /*
-    console.log('socket received creatures', creatures)
-    allCreatures = creatures
-    updateOnlineCreatures(creatures)
-    await setGardens()
+    this.updateOnlineCreatures(creatures)
 
-    if (!isAppRunning) {
-      isAppRunning = true
-      render(app)
-    }
-    */
+    this.initData.creatures = true
+    this.renderAppIfReady()
+  }
+
+  updateOnlineCreatures = (creatures) => {
+    let onlineCreatures = creatures || Object.values(this.onlineCreatures)
+
+    console.log('received: ', creatures)
+
+    this.onlineCreatures = onlineCreatures.reduce((acc, el) => {
+      if (!!this.onlineUsers[el.owner.uid]) {
+        acc[el._id] = el
+      }
+      return acc
+    }, {})
+
+    console.log('Update: ', this.onlineUsers, this.onlineCreatures)
+    return onlineCreatures  
   }
 
   onCreaturesUpdate = (creaturesToUpdate) => {
