@@ -240,7 +240,7 @@ async function animateBackgroundLoop() {
       const currentTile = backgroundDataArr[i];
       const currentLoop = currentTile[currentLoopIdx];
 
-      await backgroundArr[i].animate(currentLoop.target, currentLoop.duration, currentLoop.shape, currentLoop.anchor) // appear at 0, disappear after bg2+bg3+bg4_duration
+      await backgroundArr[i].appear(currentLoop.target, currentLoop.duration, currentLoop.shape, currentLoop.anchor) // appear at 0, disappear after bg2+bg3+bg4_duration
     }
 
     for(let i = 0; i < backgroundArr.length; i++) {

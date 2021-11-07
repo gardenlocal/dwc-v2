@@ -257,12 +257,12 @@ async function animateGarden(g, currentLoopIdx) {
   for(let i = 0; i < g.children.length; i++){
     const tile = g.children[i]
 
-    if (!tile.animate) return
+    if (!tile.appear) return
 
     const currentTile = backgroundDataArr[i];
     const currentLoop = currentTile[currentLoopIdx];
 
-    await tile.animate(currentLoop.target, currentLoop.duration, currentLoop.shape, currentLoop.anchor)
+    await tile.appear(currentLoop.target, currentLoop.duration, currentLoop.shape, currentLoop.anchor)
   }
 
   for(let i = 0; i < g.children.length; i++){

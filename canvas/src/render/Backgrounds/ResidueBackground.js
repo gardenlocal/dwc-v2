@@ -63,6 +63,8 @@ export default class ResidueBackground extends PIXI.Graphics {
     // Set up triangle shape
     this.setupTriangle()
 
+    this.isAnimating = false
+    this.firstRenderCount = 0
     // helper guide
     // this.helper = new PIXI.Graphics();
   }
@@ -100,6 +102,9 @@ export default class ResidueBackground extends PIXI.Graphics {
     }
 
     this.circleTransitionContainer.alpha = 1
+
+    if (!this.isAnimating && this.firstRenderCount >= 2) return
+    this.firstRenderCount++
 
     let bezierAlpha = this.transitionAlpha
     const WIDTH = this.W
@@ -145,6 +150,9 @@ export default class ResidueBackground extends PIXI.Graphics {
 
     this.triangleTransitionContainer.alpha = 1
 
+    if (!this.isAnimating && this.firstRenderCount >= 2) return
+    this.firstRenderCount++
+
     let triangleAlpha = this.transitionAlpha
 
     this.triangleTransition.clear()
@@ -161,7 +169,8 @@ export default class ResidueBackground extends PIXI.Graphics {
     this.mask = this.triangleTransition;
   }
 
-  async animate(target, duration, shape, anchor) {
+  async appear(target, duration, shape, anchor) {
+    this.isAnimating = true
 
     this.currentShape = shape // randomElementFromArray(Object.values(SHAPES))
 
@@ -183,9 +192,12 @@ export default class ResidueBackground extends PIXI.Graphics {
     // tween.onComplete( () => console.log("appear done") )
 
     await sleep(d1)
+
+    this.isAnimating = false
   }
 
   async disappear(target, duration) {
+    this.isAnimating = true
     const intermediateTransitionAlpha = target  // disappear from target
     const d2 = Math.abs((intermediateTransitionAlpha) * duration / 2)
 
@@ -197,6 +209,7 @@ export default class ResidueBackground extends PIXI.Graphics {
     // tween2.onComplete( () => console.log("disappear done") )
 
     await sleep(d2)
+    this.isAnimating = false
   }
 
   tick(coord) {
@@ -207,8 +220,6 @@ export default class ResidueBackground extends PIXI.Graphics {
     this.gradientUniforms.u_time = Math.cos(this.time / this.shaderSpeed) *  0.7;
 
     this.drawCircle()
-    this.drawTriangle()
-
+    this.drawTriangle()  
   }
-
 }
