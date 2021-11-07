@@ -6,11 +6,15 @@ const userCache = {}
 exports.getAllUsersInfo = async () => {
   let users = null
   try {
-    users = await database.find({ type: TYPES.user }, { _id: 1, username: 1, creature: 1, gardenSection: 1 })
+    users = await database.find({ type: TYPES.user }, { _id: 1, username: 1, creature: 1, gardenSection: 1, gardenAnimation: 1 })
     if (!users) return []
 
     for (let i = 0; i < users.length; i++) {
       users[i].gardenSection = await database.findOne({ _id: users[i].gardenSection })
+    }
+    for (let i = 0; i < users.length; i++) {
+      console.log(users[i])
+      users[i].gardenAnimation = await database.findOne({ _id: users[i].gardenAnimation })
     }
   } catch (e) {
     console.error("Error in fetching all users", e)    

@@ -33,7 +33,8 @@ let allCreaturesContainer;
 let allGardenSectionsContainer
 let tilesContainer = new PIXI.Container();
 
-let backgroundArr = []
+let bg1, bg2, bg3, bg4;
+let backgroundArr = [], bgDurationArr = [], bgTargetArr = []
 const backgroundDataArr = [TILE1, TILE2, TILE3, TILE4]
 let backgroundLoopFinished = false;
 let currentLoopIdx = 0;
@@ -115,10 +116,11 @@ async function setGardens() {
     if (Object.keys(onlineUsers).includes(u.username)) {
       isOnline = true;
     }
-    const garden = { 'user': u.username, 'garden': u.gardenSection, 'isOnline': isOnline }
+    const garden = { 'user': u.username, 'garden': u.gardenSection, 'isOnline': isOnline, 'gardenAnimation': u.garden }
     gardens.push(garden)
 
     if(u._id === userId) {
+      console.log("myGarden: ", u)
       myData = u
       
     }
@@ -211,7 +213,7 @@ function drawNeighborOverlays() {
 
 function drawResidueBackground() {
 
-  const len = backgroundDataArr.length;
+  const len = 4;
   for(let i = 0; i < len; i++) {
     const currentTile = backgroundDataArr[i]
     const initLoop = currentTile[0]
@@ -229,11 +231,9 @@ function drawResidueBackground() {
 
 async function animateBackgroundLoop() {
     console.log("start loop");
-
     backgroundLoopFinished = false;
     const tileLoopLen = backgroundDataArr[0].length; // 3 loops for each tile
     currentLoopIdx = currentLoopIdx % tileLoopLen;
-    
     console.log("currentLoopIdx: ", currentLoopIdx);
 
     for(let i = 0; i < backgroundArr.length; i++) {

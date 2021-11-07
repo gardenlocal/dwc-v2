@@ -30,6 +30,13 @@ module.exports = async () => {
       user.gardenSection = garden._id
     }
 
+    const gardenAnimation = await gardenController.createGardenAnimation()
+
+    if (gardenAnimation) {
+      console.log(gardenAnimation._id)
+      user.gardenAnimation = gardenAnimation._id
+    }
+
     const creature = await creatureController.createCreature(garden, user)
     user.creature = creature._id    
 

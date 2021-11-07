@@ -2,5 +2,6 @@ module.exports = {
   role: 'role',
   user: 'user',
   gardenSection: 'gardenSection',
-  creature: 'creature'
+  creature: 'creature',
+  gardenAnimaton: 'gardenAnimation'
 }

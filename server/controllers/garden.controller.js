@@ -5,6 +5,20 @@ const TYPES = require('../datatypes')
 const GardenSection = require('../models/GardenSection')
 const { randomElementFromArray } = require('../utils')
 const { DWC_META } = require("../../shared-constants")
+const GardenAnimation = require('../models/GardenAnimation')
+
+exports.createGardenAnimation = async() => {
+  let gardenAnim = await new GardenAnimation()
+
+  try {
+    gardenAnim = await database.insert(gardenAnim)
+    
+  } catch (e) {
+    console.error("Exception in trying to save gardenAnimation: ", e)
+    return null
+  }
+  return gardenAnim
+}
 
 exports.createGardenSection = async () => {
   let gardenSection

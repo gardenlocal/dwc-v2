@@ -9,6 +9,7 @@ module.exports = class User {
     this.gardenSection = null
     this.creature = null
     this.isOnline = null
+    this.gardenAnimation = null
 
     Object.keys(props).forEach(key => {
       if (!key in this) {

@@ -4,6 +4,7 @@ const creatureController = require('./creature.controller')
 const database = require('../db')
 const User = require('../models/User')
 const GardenSection = require('../models/GardenSection')
+const GardenAnimation = require('../models/GardenAnimation')
 const constants = require('../constants')
 const TYPES = require('../datatypes')
 
@@ -28,6 +29,13 @@ exports.signup = async (req, res) => {
     } else {
       res.status(500).send({ message: "Failed to create garden for user" });
     }
+
+    const gardenAnimation = await gardenController.createGardenAnimation()
+    if (gardenAnimation) {
+      savedUser.gardenAnimation = gardenAnimation._id
+    } else {
+      res.status(500).send({ message: "Failed to create gardenAnimation for user" });
+    }
   
     const creature = await creatureController.createCreature(garden, savedUser)
     savedUser.creature = creature._id
@@ -43,7 +51,7 @@ exports.signup = async (req, res) => {
 };
 
 exports.signin = async (req, res) => {
-let user, authorities, gardenSection, token
+let user, authorities, gardenSection, token, gardenAnimation
   try {
     user = await database.findOne({ type: TYPES.user, username: req.body.username })
     if (!user) { return res.status(404).send({ message: "User Not found." }); }
@@ -56,7 +64,8 @@ let user, authorities, gardenSection, token
     let role = await database.findOne({ _id: user.role })
 
     authorities = [`ROLE_${role.name.toUpperCase()}`]
-    gardenSection = await database.findOne({ _id: user.gardenSection })    
+    gardenSection = await database.findOne({ _id: user.gardenSection })
+    gardenAnimation = await database.findOne({_id: user.gardenAnimation})
   } catch (e) {
     console.error('Caught exception in sign in: ', e)
     res.status(500).send({ message: e })
@@ -69,6 +78,7 @@ let user, authorities, gardenSection, token
     email: user.email,
     role: authorities,
     gardenSection: gardenSection,
-    accessToken: token
+    accessToken: token,
+    gardenAnimation: gardenAnimation
   });
 };
