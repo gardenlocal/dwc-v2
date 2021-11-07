@@ -109,8 +109,6 @@ exports.getAllCreaturesInfo = async () => {
 
 exports.updateCreatures = async (onlineUsers) => {
 
-  console.log('update creatures: ', onlineUsers)
-
   const updated = {}
   if (onlineUsers.length == 0) return updated
 
@@ -150,7 +148,7 @@ exports.updateCreatures = async (onlineUsers) => {
             to = { x: utils.randomInRange(g.x, g.x + g.width), y: utils.randomInRange(g.y, g.y + g.height) }
 
             // Duration for now is at random, between 10 and 20
-            duration = utils.randomInRange(10, 20)
+            duration = utils.randomIntInRange(10, 20)
 
             break
 
@@ -159,7 +157,7 @@ exports.updateCreatures = async (onlineUsers) => {
             to = utils.randomElementFromArray(Object.values(DWC_META.creatures))
 
             // Duration for now is at random, between 10 and 20
-            duration = utils.randomInRange(10, 20)
+            duration = utils.randomIntInRange(10, 20)
 
             break
 
