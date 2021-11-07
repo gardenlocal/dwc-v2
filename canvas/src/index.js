@@ -6,13 +6,15 @@
 import * as PIXI from "pixi.js";
 import { Graphics, TextStyle } from "pixi.js";
 import { renderAdminCreatures } from "./render/adminGarden.js";
-import { renderCreature } from "./render/userGarden";
+import UserGarden, { renderCreature } from "./render/userGarden";
 import { loadAll } from './render/assetLoader';
 import { renderCreatureTest } from "./render/creatureTest";
 import { DWC_META } from "../../shared-constants";
 import SVGCreatureShape from "./render/Geometry/SVGCreatureShape";
 import { addStats, Stats } from 'pixi-stats';
 import TWEEN from '@tweenjs/tween.js'
+
+PIXI.settings.SPRITE_MAX_TEXTURES = Math.min(PIXI.settings.SPRITE_MAX_TEXTURES , 16);
 
 export default class PixiAppWrapper {
   constructor(options) {
@@ -46,6 +48,9 @@ export default class PixiAppWrapper {
 
     this.appContainer = new PIXI.Container()
     this.pixiApp.stage.addChild(this.appContainer)
+    this.pixiApp.ticker.add(() => {
+      this.tick()
+    })
   }
 
   setupStats() {
@@ -54,7 +59,7 @@ export default class PixiAppWrapper {
   }
 
   setupTween() {
-    this.ticker.add(TWEEN.update, this, PIXI.UPDATE_PRIORITY.HIGH)
+    this.ticker.add(TWEEN.update, TWEEN, PIXI.UPDATE_PRIORITY.HIGH)
   }
 
   setupLoadingScreen() {
@@ -99,6 +104,8 @@ export default class PixiAppWrapper {
     if (this.isAdmin) {
       //renderAdminCreatures(this.pixiApp)
     } else {
+      this.garden = new UserGarden(window.APP.onlineUsers, window.APP.onlineCreatures, window.APP.selfGarden)
+      this.pixiApp.stage.addChild(this.garden)
       //renderCreature(this.pixiApp)
     }
 
@@ -106,7 +113,12 @@ export default class PixiAppWrapper {
 
     this.isLoading = false
     this.loadingScreen.alpha = 0
+  }
 
+  tick() {
+    if (this.garden) {
+      this.garden.tick()
+    }
   }
 }
 

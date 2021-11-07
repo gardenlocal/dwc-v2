@@ -12,6 +12,102 @@ import { lerpPoint, map, randomElementFromArray, randomInRange } from "./utils.j
 import ResidueBackground from "./Backgrounds/ResidueBackground";
 import { SHAPES, TILE1, TILE2, TILE3, TILE4 } from "./Backgrounds/ResidueData.js";
 
+const BG_DATA = [TILE1, TILE2, TILE3, TILE4]
+
+export default class UserGarden extends PIXI.Container {
+  constructor(users, creatures, selfGarden) {
+    super()
+    this.users = users
+    this.creatures = creatures
+    this.userGarden = selfGarden
+
+    this.bgAnimationParams = {
+      currentTile: 0
+    }
+
+    //this.x = -selfGarden.x
+    //this.y = -selfGarden.y
+
+    this.drawBackgrounds()
+    this.drawCreatures()
+  }
+
+  drawBackgrounds() {
+    this.tilesContainer = new PIXI.Container()
+    this.addChild(this.tilesContainer);
+
+    for (let i = 0; i < BG_DATA.length; i++) {
+      const currentTile = BG_DATA[i]
+      const initLoop = currentTile[0]
+  
+      const bg = new ResidueBackground(initLoop.shape, initLoop.anchor)
+      //backgroundArr.push(bg)
+      this.tilesContainer.addChild(bg);
+    }  
+    
+    this.animateBackgrounds()
+  }
+
+  async animateBackgrounds() {
+    console.log("start loop");
+
+    for(let i = 0; i < this.tilesContainer.children.length; i++) {
+      const currentTile = BG_DATA[i];
+      const currentLoop = currentTile[this.bgAnimationParams.currentTile];
+
+      console.log('laba', currentLoop)
+
+      await this.tilesContainer.children[i].appear(currentLoop.target, currentLoop.duration, currentLoop.shape, currentLoop.anchor) // appear at 0, disappear after bg2+bg3+bg4_duration
+    }
+
+    for(let i = 0; i < this.tilesContainer.children.length; i++) {
+      const currentTile = BG_DATA[i]
+      const currentLoop = currentTile[this.bgAnimationParams.currentTile]
+
+      await this.tilesContainer.children[i].disappear(currentLoop.target, currentLoop.duration) // appear at 0, disappear after bg2+bg3+bg4_duration
+    }
+
+    console.log("end loop")
+    this.bgAnimationParams.currentTile = (this.bgAnimationParams.currentTile + 1) % BG_DATA[0].length
+
+    this.animateBackgrounds()
+  }
+
+  drawCreatures() {
+    this.allCreaturesContainer = new PIXI.Container()
+    this.addChild(this.allCreaturesContainer)
+
+    for (const [key, value] of Object.entries(this.creatures)) {
+      const c = new Creature(value)
+      this.allCreaturesContainer.addChild(c)
+    }  
+  }
+
+  updateCreatureData(newCreatureData) {
+
+  }
+
+  tick() {
+    // gotta run app.ticker for every object, aat once
+
+    this.allCreaturesContainer.children.forEach(c => {
+      if (c.tick) c.tick()
+    })
+
+    this.tilesContainer.children.forEach(bg => {
+      if(bg.tick) bg.tick()
+    })
+
+  }
+
+}
+
+
+/*
+
+
+
+
 const WIDTH = window.GARDEN_WIDTH || 1000;
 const HEIGHT = window.GARDEN_HEIGHT || 1000;
 
@@ -43,35 +139,7 @@ let isAppRunning = false
 PIXI.settings.SPRITE_MAX_TEXTURES = Math.min(PIXI.settings.SPRITE_MAX_TEXTURES , 16);
 
 export async function renderCreature(app) {
-  if(userToken) {
-   socket = await io(`http://${window.location.hostname}:${port}`, {
-     auth: { token: `Bearer ${userToken}` }
-   })
-  }
-
-  socket.on('connect', () => {
-    console.log('socket connect')
-    socketAuthenticated = true;
-  })
   
-  socket.on('connect_error', (error) => {
-    console.log('socket connect error', error)
-  })
-  
-  // set and reset online users
-  socket.on('usersUpdate', (users) => {
-    // get single user's garden data
-    for(let i = 0; i < users.length; i++) {
-      if(users[i] && (users[i]._id === userId)) {
-        currentGarden = users[i].gardenSection
-      }
-    }
-    // get all online users
-    console.log('Users update: ', users)
-    onlineUsers = updateUsers(users)    
-    updateOnlineCreatures()
-  })
-
   socket.on('creatures', async (creatures) => {
     console.log('socket received creatures', creatures)
     allCreatures = creatures
@@ -172,37 +240,6 @@ function getCurrentUserCreature() {
   })
 }
 
-// graident + mask + shader
-function drawGradientBackground() {
-  const gradientGarden = new GradientBackground(currentGarden, 0.5);
-  tilesContainer.addChild(gradientGarden);
-  window.DWCApp.stage.addChild(tilesContainer);
-}
-
-function drawGarden() {
-  const app = window.DWCApp;
-
-  // Empty the container, then redraw. 
-  while (allGardenSectionsContainer?.children[0]) { // null check
-    allGardenSectionsContainer.removeChild(allGardenSectionsContainer.children[0])
-  }  
-
-  for (let i = 0; i < gardens.length; i++) {
-
-    const g = gardens[i].garden;
-    const isOnline = gardens[i].isOnline;
-
-    const tilesBackground = new UserBackground(g)
-    tilesBackground.x = g.x
-    tilesBackground.y = g.y
-    tilesBackground.width = g.width
-    tilesBackground.height = g.height
-    tilesBackground.alpha = 1//(isOnline ? 1 : 0.2)
-    // allGardenSectionsContainer.addChild(tilesBackground)    
-    //window.DWCApp.stage.addChild(tilesBackground)    
-  }
-}
-
 function drawNeighborOverlays() {
   const neighborsGrey = new PIXI.Graphics()
   neighborsGrey.beginFill(0x555555)
@@ -293,3 +330,4 @@ function animate(app) {
     })
 }
 
+*/

@@ -179,7 +179,6 @@ export default class ResidueBackground extends PIXI.Graphics {
     this.triangleTransition.rotation = this.anchors[anchor] // + Math.PI/2
     
     const transitionDuration = duration
-
     const intermediateTransitionAlpha = target  // appear up to target
 
     const d1 = Math.abs((intermediateTransitionAlpha) * transitionDuration / 2)
