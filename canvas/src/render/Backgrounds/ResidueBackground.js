@@ -169,14 +169,14 @@ export default class ResidueBackground extends PIXI.Graphics {
     this.mask = this.triangleTransition;
   }
 
-  async animate(target, duration) {
+  async appear(target, duration, shape, anchor) {
     this.isAnimating = true
 
-    this.currentShape = randomElementFromArray(Object.values(SHAPES))
+    this.currentShape = shape // randomElementFromArray(Object.values(SHAPES))
 
-    const newAnchorIndex = randomElementFromArray([0, 1, 2, 3]); 
-    this.circleTransition.rotation = this.anchors[newAnchorIndex]
-    this.triangleTransition.rotation = this.anchors[newAnchorIndex] // + Math.PI/2
+    // const newAnchorIndex = randomElementFromArray([0, 1, 2, 3]); 
+    this.circleTransition.rotation = this.anchors[anchor]
+    this.triangleTransition.rotation = this.anchors[anchor] // + Math.PI/2
     
     const transitionDuration = duration
 
@@ -189,7 +189,7 @@ export default class ResidueBackground extends PIXI.Graphics {
     .easing(TWEEN.Easing.Linear.None)
     .start()
 
-    tween.onComplete( () => console.log("appear done") )
+    // tween.onComplete( () => console.log("appear done") )
 
     await sleep(d1)
 
@@ -206,7 +206,7 @@ export default class ResidueBackground extends PIXI.Graphics {
     .easing(TWEEN.Easing.Linear.None)
     .start()
 
-    tween2.onComplete( () => console.log("disappear done") )
+    // tween2.onComplete( () => console.log("disappear done") )
 
     await sleep(d2)
     this.isAnimating = false

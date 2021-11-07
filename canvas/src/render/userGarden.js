@@ -6,16 +6,11 @@ import { io } from 'socket.io-client';
 import Creature from './creature'
 import { updateUsers, updateCreatures } from "../data/globalData";
 import UserData from "../data/userData";
-import cnFragment from './shaders/cnFragment.glsl.js'
-import gradientFragment from './shaders/gradient.glsl'
 import { DWC_META } from "../../../shared-constants";
 import UserBackground from "./Backgrounds/UserBackground";
 import { lerpPoint, map, randomElementFromArray, randomInRange } from "./utils.js"
-import GradientBackground from "./Backgrounds/GradientBackground";
-// import TransitionBackground from "./Backgrounds/TransitionBackground";
-// import AnimatedBackground, { SHAPES, TRANSITION_TYPES } from "./Backgrounds/AnimatedBackground"
-// import TessGraphics from "./Geometry/TessGraphics";
-import ResidueBackground, { SHAPES } from "./Backgrounds/ResidueBackground";
+import ResidueBackground from "./Backgrounds/ResidueBackground";
+import { SHAPES, TILE1, TILE2, TILE3, TILE4 } from "./Backgrounds/ResidueData.js";
 
 const WIDTH = window.GARDEN_WIDTH || 1000;
 const HEIGHT = window.GARDEN_HEIGHT || 1000;
@@ -30,6 +25,7 @@ let onlineUsers = {};
 let onlineCreatures = {};
 let allCreatures = [];
 let gardens = [];
+let myData;
 
 let gardenContainer;
 let allCreaturesContainer;
@@ -37,9 +33,10 @@ let allCreaturesContainer;
 let allGardenSectionsContainer
 let tilesContainer = new PIXI.Container();
 
-let bg1, bg2, bg3, bg4;
-let backgroundArr = [], bgDurationArr = [], bgTargetArr = []
+let backgroundArr = []
+const backgroundDataArr = [TILE1, TILE2, TILE3, TILE4]
 let backgroundLoopFinished = false;
+let currentLoopIdx = 0;
 
 let isAppRunning = false
 
@@ -87,8 +84,6 @@ export async function renderCreature(app) {
     }
   })
   
-  // updateOnlineCreatures()
-
   function updateOnlineCreatures(arr) {
     const creatures = arr || allCreatures
     const newCreatures = updateCreatures(creatures, onlineUsers)
@@ -96,7 +91,6 @@ export async function renderCreature(app) {
   }
 
   socket.on('creaturesUpdate', (creaturesToUpdate) => {
-    // console.log('Creatures Update: ', creaturesToUpdate)
 
     if (!allCreaturesContainer) return
 
@@ -123,7 +117,12 @@ async function setGardens() {
     }
     const garden = { 'user': u.username, 'garden': u.gardenSection, 'isOnline': isOnline }
     gardens.push(garden)
-  }  
+
+    if(u._id === userId) {
+      myData = u
+      
+    }
+  }
 }
 
 
@@ -180,6 +179,30 @@ function drawGradientBackground() {
   window.DWCApp.stage.addChild(tilesContainer);
 }
 
+function drawGarden() {
+  const app = window.DWCApp;
+
+  // Empty the container, then redraw. 
+  while (allGardenSectionsContainer?.children[0]) { // null check
+    allGardenSectionsContainer.removeChild(allGardenSectionsContainer.children[0])
+  }  
+
+  for (let i = 0; i < gardens.length; i++) {
+
+    const g = gardens[i].garden;
+    const isOnline = gardens[i].isOnline;
+
+    const tilesBackground = new UserBackground(g)
+    tilesBackground.x = g.x
+    tilesBackground.y = g.y
+    tilesBackground.width = g.width
+    tilesBackground.height = g.height
+    tilesBackground.alpha = 1//(isOnline ? 1 : 0.2)
+    // allGardenSectionsContainer.addChild(tilesBackground)    
+    //window.DWCApp.stage.addChild(tilesBackground)    
+  }
+}
+
 function drawNeighborOverlays() {
   const neighborsGrey = new PIXI.Graphics()
   neighborsGrey.beginFill(0x555555)
@@ -193,9 +216,12 @@ function drawNeighborOverlays() {
 }
 
 function drawResidueBackground() {
-  const len = 4;
+  const len = backgroundDataArr.length;
   for(let i = 0; i < len; i++) {
-    const bg = new ResidueBackground(randomElementFromArray(Object.values(SHAPES)), randomElementFromArray([0, 1, 2, 3]))
+    const currentTile = backgroundDataArr[i]
+    const initLoop = currentTile[0]
+
+    const bg = new ResidueBackground(initLoop.shape, initLoop.anchor)
     backgroundArr.push(bg)
     tilesContainer.addChild(bg);
   }
@@ -206,26 +232,32 @@ function drawResidueBackground() {
 }
 
 async function animateBackgroundLoop() {
-    console.log("start loop")
+    console.log("start loop");
+
     backgroundLoopFinished = false;
+    const tileLoopLen = backgroundDataArr[0].length; // 3 loops for each tile
+    currentLoopIdx = currentLoopIdx % tileLoopLen;
+    
+    console.log("currentLoopIdx: ", currentLoopIdx);
 
     for(let i = 0; i < backgroundArr.length; i++) {
-      const duration = randomInRange(25000, 75000)    
-      const target = randomInRange(0.3, 1.0)
-      bgDurationArr.push(duration)
-      bgTargetArr.push(target)
+      const currentTile = backgroundDataArr[i];
+      const currentLoop = currentTile[currentLoopIdx];
+
+      await backgroundArr[i].appear(currentLoop.target, currentLoop.duration, currentLoop.shape, currentLoop.anchor) // appear at 0, disappear after bg2+bg3+bg4_duration
     }
 
     for(let i = 0; i < backgroundArr.length; i++) {
-      await backgroundArr[i].animate(bgTargetArr[i], bgDurationArr[i]) // appear at 0, disappear after bg2+bg3+bg4_duration
-    }
+      const currentTile = backgroundDataArr[i]
+      const currentLoop = currentTile[currentLoopIdx]
 
-    for(let i = 0; i < backgroundArr.length; i++) {
-      await backgroundArr[i].disappear(bgTargetArr[i], bgDurationArr[i]) // appear at 0, disappear after bg2+bg3+bg4_duration
+      await backgroundArr[i].disappear(currentLoop.target, currentLoop.duration) // appear at 0, disappear after bg2+bg3+bg4_duration
     }
 
     backgroundLoopFinished = true;
     console.log("end loop")
+
+    currentLoopIdx++;
 }
 
 var time = 0
@@ -233,7 +265,7 @@ const helper = new PIXI.Graphics();
 
 function animate(app) {
 
-  // gotta run app.ticker for every object, all at once
+  // gotta run app.ticker for every object, aat once
     app.ticker.add((delta) => {
 
       time += delta
