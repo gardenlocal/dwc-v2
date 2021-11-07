@@ -17,7 +17,8 @@ import quadBezierFragment from "./shaders/quadBezier.frag";
 import UserBackground from "./Backgrounds/UserBackground";
 import TransitionBackground from "./Backgrounds/TransitionBackground";
 // import AnimatedBackground, { SHAPES, TRANSITION_TYPES } from './Backgrounds/AnimatedBackground'
-import ResidueBackground, { SHAPES } from "./Backgrounds/ResidueBackground";
+import ResidueBackground from "./Backgrounds/ResidueBackground";
+import { SHAPES, TILE1, TILE2, TILE3, TILE4 } from "./Backgrounds/ResidueData.js";
 
 const textStyle = new PIXI.TextStyle({
   fontSize: 100,
@@ -43,8 +44,7 @@ let gardenContainer;
 let allGardenSectionsContainer;
 let allCreaturesContainer = new PIXI.Container();
 let globalScale = 0.1;
-let backgroundArr = [], bgDurationArr = [], bgTargetArr = []
-let backgroundLoopFinished = false;
+const backgroundDataArr = [TILE1, TILE2, TILE3, TILE4]
 
 let isAppRunning = false
 
@@ -192,6 +192,10 @@ async function setGardens() {
     }
     const garden = { 'user': u.username, 'garden': u.gardenSection, 'isOnline': isOnline }
     gardens.push(garden)
+
+    if(u._id === userId) {
+      console.log("myGarden: ", u)
+    }
   }
 
   drawGarden()  
@@ -202,7 +206,11 @@ function drawResidueTiles() {
   const tilesContainer = new PIXI.Container();
 
   for(let i = 0; i < len; i++) {
-    const bg = new ResidueBackground(randomElementFromArray(Object.values(SHAPES)), randomElementFromArray([0, 1, 2, 3]))
+    // each tile's first loop
+    const currentTile = backgroundDataArr[i]
+    const initLoop = currentTile[0]
+
+    const bg = new ResidueBackground(initLoop.shape, initLoop.anchor)
     tilesContainer.addChild(bg);
   }
 
@@ -220,7 +228,8 @@ function drawGarden() {
   for (let i = 0; i < gardens.length; i++) {
 
     const g = gardens[i].garden;
-    const isOnline = gardens[i].isOnline;
+    console.log("each garden data: ", gardens[i])
+    // const isOnline = gardens[i].isOnline;
 
     const tilesBackground = drawResidueTiles()
     tilesBackground.x = g.x
@@ -235,34 +244,38 @@ function drawGarden() {
     message.position.set(g.x + 50, g.y);
     allGardenSectionsContainer.addChild(message);
 
-    animateGarden(tilesBackground)
+    animateGarden(tilesBackground, 0)
   }
 }
 
-async function animateGarden(g) {
-
-  let bgDurationArr = [], bgTargetArr = []
+async function animateGarden(g, currentLoopIdx) {
+  // each user's garden - appear and disappear animation in order
+  const tileLoopLen = backgroundDataArr[0].length; // 3 loops for each tile
+  currentLoopIdx = currentLoopIdx % tileLoopLen;
+  console.log("current loop index: ", currentLoopIdx)
 
   for(let i = 0; i < g.children.length; i++){
     const tile = g.children[i]
 
     if (!tile.animate) return
 
-    const duration = randomInRange(25000, 75000)    
-    const target = randomInRange(0.3, 1.0)
-    bgDurationArr.push(duration)
-    bgTargetArr.push(target)
+    const currentTile = backgroundDataArr[i];
+    const currentLoop = currentTile[currentLoopIdx];
 
-    await tile.animate(target, duration)
+    await tile.animate(currentLoop.target, currentLoop.duration, currentLoop.shape, currentLoop.anchor)
   }
 
   for(let i = 0; i < g.children.length; i++){
     const tile = g.children[i]
 
-    await tile.disappear(bgTargetArr[i], bgDurationArr[i]) // appear at 0, disappear after bg2+bg3+bg4_duration
+    const currentTile = backgroundDataArr[i];
+    const currentLoop = currentTile[currentLoopIdx];
+
+    await tile.disappear(currentLoop.target, currentLoop.duration) // appear at 0, disappear after bg2+bg3+bg4_duration
   }
 
-  await animateGarden(g)
+  currentLoopIdx++;  // increment after each loop
+  await animateGarden(g, currentLoopIdx)
 }
 
 function animate(app) {
