@@ -2,6 +2,64 @@
 // https://stackoverflow.com/questions/40472364/moving-object-from-a-to-b-smoothly-across-canvas
 
 import * as PIXI from "pixi.js";
+import UserGarden from "./userGarden";
+
+export default class AdminGarden extends PIXI.Container {
+  constructor(users, creatures, selfGarden) {
+    super()
+    this.users = users
+    this.creatures = creatures
+    this.userGarden = selfGarden
+
+    console.log('new admin garden: ', this.users)
+
+    this.drawBackgrounds()
+  }
+
+  drawBackgrounds() {
+    Object.values(this.users).forEach(u => {
+      const garden = new UserGarden(this.users, this.creatures, u)
+      garden.x = u.gardenSection.x
+      garden.y = u.gardenSection.y
+      this.addChild(garden)
+    })
+  }
+
+  updateOnlineUsers(onlineUsers) {
+    // First, remove creatures that aren't online anymore
+    let tilesToRemove = []
+    let existingUsers = {}
+    for (let c of this.children) {
+      if (!onlineUsers[c.uid]) tilesToRemove.push(c)
+      existingUsers[c.uid] = c
+    }
+    for (let c of tilesToRemove) {
+      this.removeChild(c)
+    }
+    
+    // Second, add creatures that don't exist
+    for (let k of Object.keys(onlineUsers)) {
+      if (!existingUsers[k]) {
+        const garden = new UserGarden(this.users, this.creatures, onlineUsers[k])
+        garden.x = onlineUsers[k].gardenSection.x
+        garden.y = onlineUsers[k].gardenSection.y
+        this.addChild(garden)  
+      }
+    }    
+  }
+
+  tick() {
+    this.children.forEach(bg => {
+      if(bg.tick) bg.tick()
+    })
+  }
+}
+
+/*
+// https://jsfiddle.net/jwcarroll/2r69j1ok/3/
+// https://stackoverflow.com/questions/40472364/moving-object-from-a-to-b-smoothly-across-canvas
+
+import * as PIXI from "pixi.js";
 import { Graphics, Sprite, TextStyle } from "pixi.js";
 import { io } from 'socket.io-client';
 import { distanceAndAngleBetweenTwoPoints, Vector, map, constrain, randomElementFromArray, randomInRange } from "./utils";
@@ -298,3 +356,4 @@ function animate(app) {
     })
   })
 }
+*/

@@ -142,5 +142,37 @@ exports.createGardenSection = async () => {
 }
 
 exports.clearGardenSection = async (uid) => {
-  console.warn('TODO: IMPLEMENT clearGardenSection for ', uid)
+  const user = await database.findOne({ uid: uid })
+  const garden = await database.findOne({ _id: user.gardenSection })
+  const nTop = await database.findOne({ _id: garden.neighbors.top })
+  const nRight = await database.findOne({ _id: garden.neighbors.right })
+  const nBottom = await database.findOne({ _id: garden.neighbors.bottom })
+  const nLeft = await database.findOne({ _id: garden.neighbors.left })
+
+  if (nTop) {
+    nTop.neighbors.bottom = null
+    await database.update({ _id: nTop._id }, nTop)
+  }
+
+  if (nRight) {
+    nRight.neighbors.left = null
+    await database.update({ _id: nLeft._id }, nLeft)
+  }
+
+  if (nBottom) {
+    nBottom.neighbors.top = null
+    await database.update({ _id: nBottom._id }, nBottom)
+  }
+
+  if (nLeft) {
+    nLeft.neighbors.right = null
+    await database.update({ _id: nLeft._id }, nLeft)
+  }
+
+  user.gardenSection = null
+  await database.update({ _id: user._id }, user)
+
+  await database.remove({ _id: garden._id })
+
+  console.warn('clearGardenSection for user', uid)
 }

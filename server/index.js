@@ -44,3 +44,7 @@ httpServer.listen(PORT, () => {
 });
 
 socketController.startAnimatingCreatures()
+
+setInterval(() => {
+  database.persistence.compactDatafile()
+}, 5000)

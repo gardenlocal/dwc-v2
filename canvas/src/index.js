@@ -6,13 +6,15 @@
 import * as PIXI from "pixi.js";
 import { Graphics, TextStyle } from "pixi.js";
 import { renderAdminCreatures } from "./render/adminGarden.js";
-import UserGarden, { renderCreature } from "./render/userGarden";
+import UserGarden from "./render/userGarden";
+import CreaturesLayer from "./render/CreaturesLayer.js";
 import { loadAll } from './render/assetLoader';
 import { renderCreatureTest } from "./render/creatureTest";
 import { DWC_META } from "../../shared-constants";
 import SVGCreatureShape from "./render/Geometry/SVGCreatureShape";
 import { addStats, Stats } from 'pixi-stats';
 import TWEEN from '@tweenjs/tween.js'
+import AdminGarden from './render/adminGarden'
 
 PIXI.settings.SPRITE_MAX_TEXTURES = Math.min(PIXI.settings.SPRITE_MAX_TEXTURES , 16);
 
@@ -99,23 +101,39 @@ export default class PixiAppWrapper {
     else
       window.DWCApp.stage.pivot.set((-window.innerWidth / scale + window.GARDEN_WIDTH) / 2, 0)    
   }
-  updateOnlineCreatures(onlineCreatures) {
-    if (this.garden) {
-      this.garden.updateOnlineCreatures(onlineCreatures)
+  updateOnlineCreatures(onlineUsers, onlineCreatures) {
+    if (this.gardenLayer) {
+      this.gardenLayer.updateOnlineUsers(onlineUsers)
+    }
+    if (this.creaturesLayer) {
+      this.creaturesLayer.updateOnlineCreatures(onlineCreatures)
     }
   }
   updateCreatureData(creatureData) {
-    if (this.garden) {
-      this.garden.updateCreatureData(creatureData)
+    if (this.creaturesLayer) {
+      this.creaturesLayer.updateCreatureData(creatureData)
     }
   }
   render() {
     if (this.isAdmin) {
-      //renderAdminCreatures(this.pixiApp)
+      this.adminContainer = new PIXI.Container()
+      this.adminContainer.position.set(this.GARDEN_WIDTH / 2, this.GARDEN_HEIGHT / 2)
+      this.adminContainer.scale.set(0.1)
+      this.pixiApp.stage.addChild(this.adminContainer)
+
+      this.gardenLayer = new AdminGarden(window.APP.onlineUsers, window.APP.onlineCreatures, window.APP.selfGarden)
+      this.adminContainer.addChild(this.gardenLayer)
+
+      this.creaturesLayer = new CreaturesLayer(window.APP.onlineUsers, window.APP.onlineCreatures, window.APP.selfGarden)      
+      this.adminContainer.addChild(this.creaturesLayer)
     } else {
-      this.garden = new UserGarden(window.APP.onlineUsers, window.APP.onlineCreatures, window.APP.selfGarden)
-      this.pixiApp.stage.addChild(this.garden)
-      //renderCreature(this.pixiApp)
+      this.gardenLayer = new UserGarden(window.APP.onlineUsers, window.APP.onlineCreatures, window.APP.selfGarden)
+      this.pixiApp.stage.addChild(this.gardenLayer)
+
+      this.creaturesLayer = new CreaturesLayer(window.APP.onlineUsers, window.APP.onlineCreatures, window.APP.selfGarden)      
+      this.creaturesLayer.x = -window.APP.selfGarden.x
+      this.creaturesLayer.y = -window.APP.selfGarden.y  
+      this.pixiApp.stage.addChild(this.creaturesLayer)
     }
 
     this.pixiApp.resize()
@@ -125,8 +143,11 @@ export default class PixiAppWrapper {
   }
 
   tick() {
-    if (this.garden) {
-      this.garden.tick()
+    if (this.gardenLayer) {
+      this.gardenLayer.tick()
+    }
+    if (this.creaturesLayer) {
+      this.creaturesLayer.tick()
     }
   }
 }

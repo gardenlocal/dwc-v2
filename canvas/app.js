@@ -93,7 +93,7 @@ class App {
     }, {})
 
     console.log('Update: ', this.onlineUsers, this.onlineCreatures)
-    this.pixiApp.updateOnlineCreatures(this.onlineCreatures)
+    this.pixiApp.updateOnlineCreatures(this.onlineUsers, this.onlineCreatures)
     return this.onlineCreatures  
   }
 
