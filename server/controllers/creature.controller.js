@@ -110,15 +110,17 @@ exports.getAllCreaturesInfo = async () => {
 exports.updateCreatures = async (onlineUsers) => {
 
   const updated = {}
-  if (onlineUsers.length == 0) return updated
+  if (onlineUsers.length == 0) return updated  
 
   const now = new Date().getTime()
 
   allCreatures = (await exports.getAllCreaturesInfo()).reduce((acc, el) => {
-    acc[el._id] = el
+    if (onlineUsers.indexOf(el.owner.uid) != -1)
+      acc[el._id] = el
     return acc
   }, {})
 
+  //console.log('update creatures: ', onlineUsers, allCreatures)
 
   for (const [key, creature] of Object.entries(allCreatures)) {
     const { animatedProperties } = creature

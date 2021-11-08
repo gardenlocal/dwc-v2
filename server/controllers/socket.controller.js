@@ -20,6 +20,7 @@ exports.userConnected = async (socket) => {
   socketMap[uid] = socket
 
   socket.on('disconnect', onDisconnect(socket))
+  socket.on('adminConnect', onAdminConnect(socket))
 
   // Get or create user for the given uid
   console.log('Fetching user from DB: ', uid)
@@ -53,6 +54,11 @@ exports.userConnected = async (socket) => {
 
   io.emit('usersUpdate', await getOnlineUsers())
   io.emit('creatures', await getAllCreatures())
+}
+
+const onAdminConnect = (socket) => async (reason) => {
+  console.log('on admin connect')
+  io.emit('adminConnectBroadcast', {})
 }
 
 const onDisconnect = (socket) => async (reason) => {

@@ -29,7 +29,7 @@ exports.createGardenSection = async () => {
   let newGarden = null
 
   // If the query didn't return any results, it means there are no gardens in the database, so we create the first one.
-  if (!gardenSection) {
+  if (!gardenSection || gardenSection.length == 0) {
     newGarden = { x: 0, y: 0, width: constants.GARDEN_WIDTH, height: constants.GARDEN_HEIGHT }
   } else {
     // We do a "random" walk until we find an empty spot
@@ -106,6 +106,11 @@ exports.createGardenSection = async () => {
     }
 
     newGarden.tileProps.push(currTile)
+  }
+
+  newGarden.shaderProps = {
+    shaderTimeSeed: Math.random() * 10,
+    shaderSpeed: Math.random() * 10 + 1
   }
 
   let garden = new GardenSection({ ...newGarden })

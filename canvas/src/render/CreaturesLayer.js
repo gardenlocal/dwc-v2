@@ -43,7 +43,8 @@ export default class CreaturesLayer extends PIXI.Container {
     }
   }
 
-  updateCreatureData(creaturesToUpdate) {    
+  updateCreatureData(creaturesToUpdate) {
+    console.log('updateCreatureData', creaturesToUpdate)
     for (const [key, value] of Object.entries(this.creatures)) {
       if (creaturesToUpdate[key]) {
         const creature = this.children.find(ele => ele.name === key)

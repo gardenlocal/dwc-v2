@@ -18,7 +18,7 @@ export default class AdminGarden extends PIXI.Container {
 
   drawBackgrounds() {
     Object.values(this.users).forEach(u => {
-      const garden = new UserGarden(this.users, this.creatures, u.gardenSection)
+      const garden = new UserGarden(this.users, this.creatures, u.gardenSection, u.uid)
       garden.x = u.gardenSection.x
       garden.y = u.gardenSection.y
       this.addChild(garden)
@@ -40,7 +40,7 @@ export default class AdminGarden extends PIXI.Container {
     // Second, add creatures that don't exist
     for (let k of Object.keys(onlineUsers)) {
       if (!existingUsers[k]) {
-        const garden = new UserGarden(this.users, this.creatures, onlineUsers[k].gardenSection)
+        const garden = new UserGarden(this.users, this.creatures, onlineUsers[k].gardenSection, onlineUsers[k].uid)
         garden.x = onlineUsers[k].gardenSection.x
         garden.y = onlineUsers[k].gardenSection.y
         this.addChild(garden)  

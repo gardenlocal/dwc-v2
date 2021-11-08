@@ -16,26 +16,31 @@ export const TRANSITION_TYPES = {
 }
 
 export default class ResidueBackground extends PIXI.Graphics {
-  constructor(currentShape, currentAnchor) {
+  constructor(currentShape, currentAnchor, shaderTimeSeed = 5, shaderSpeed = 5) {
     super()
 
     this.currentShape = currentShape
     this.currentAnchor = currentAnchor
     this.anchors = [0, Math.PI / 2, Math.PI, Math.PI * 3 / 2]
     this.transitionAlpha = 0 // currentShape == SHAPES.CIRCLE ? 0.1 : 0.2
-    console.log(this.currentShape , this.currentAnchor)
 
     this.W = window.GARDEN_WIDTH
     this.H = window.GARDEN_HEIGHT
-    this.time = Math.random() * 10
-    this.shaderSpeed = Math.random() * 10 + 1
+
+    this.time = shaderTimeSeed
+    if (window.APP.getIsAdmin()) {
+      //this.time += 2.95
+    }
+    this.shaderSpeed = shaderSpeed
+    //this.time = Math.random() * 10
+    //this.shaderSpeed = Math.random() * 10 + 1
 
     // for tess2
     this.clippingArea = new PIXI.Graphics()
     this.clippingArea.beginFill(0xffffff)
     this.clippingArea.drawRect(0, 0, this.W, this.H)  
     this.addChild(this.clippingArea)
-    // this.mask = this.clippingArea // replace mask with shader filter
+    this.mask = this.clippingArea // replace mask with shader filter
 
     // Set up gradient
     const geometry = new PIXI.Geometry() 
@@ -43,11 +48,20 @@ export default class ResidueBackground extends PIXI.Graphics {
     .addAttribute('aUvs', [0,0,1,0,1,1,0,1], 2)
     .addIndex([0, 1, 2, 0, 2, 3]);
   
+    let s = window.DWCApp.stage.scale.y
+    //let s = 1.0
+    if (window.APP.getIsAdmin()) {
+      s = 0.08
+      console.log('lugulugu is admin', this.W, this.H)
+    }
+    const globalPos = this.toGlobal(new PIXI.Point(0, 0))
     this.gradientUniforms = {
         u_time: 1.0,
         u_point1: [0.5, 0.0], u_radius1: 0.1, u_color1: [12.0 / 256.0, 239.0 / 256.0, 66.0 / 256.0],
         u_point2: [0.5, 1.0], u_radius2: 0.1, u_color2: [253.0 / 256.0, 136.0 / 256.0, 11.0 / 256.0],
-        u_resolution: [this.W, this.H]
+        u_offset: [globalPos.x / s, globalPos.y / s],
+        u_resolution: [this.W * s, this.H * s],
+        u_scale: s * 1.0
     }
 
     const gradientFilter = new PIXI.Filter(null, HorizontalGradientFrag, this.gradientUniforms);
@@ -219,7 +233,7 @@ export default class ResidueBackground extends PIXI.Graphics {
     this.time += delta/1000 ;
 
     // Shader background
-    this.gradientUniforms.u_time = Math.cos(this.time / this.shaderSpeed) *  0.7;
+    this.gradientUniforms.u_time = (this.time / this.shaderSpeed / 1.0)
 
     this.drawCircle()
     this.drawTriangle()  

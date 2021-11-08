@@ -8,13 +8,13 @@ import ResidueBackground from "./Backgrounds/ResidueBackground";
 //const BG_DATA = [TILE1, TILE2, TILE3, TILE4]
 
 export default class UserGarden extends PIXI.Container {
-  constructor(users, creatures, selfGarden) {
+  constructor(users, creatures, selfGarden, uid) {
     super()
     console.log('new user garden', users, selfGarden)
     this.users = users
     this.creatures = creatures
     this.userGarden = selfGarden
-    this.uid = this.userGarden.uid
+    this.uid = uid
 
     this.bgAnimationParams = {
       currentTile: 0
@@ -30,8 +30,9 @@ export default class UserGarden extends PIXI.Container {
     for (let i = 0; i < this.userGarden.tileProps.length; i++) {
       const currentTile = this.userGarden.tileProps[i]
       const initLoop = currentTile[0]
+      const { shaderTimeSeed, shaderSpeed } = this.userGarden.shaderProps
   
-      const bg = new ResidueBackground(initLoop.shape, initLoop.anchor)
+      const bg = new ResidueBackground(initLoop.shape, initLoop.anchor, shaderTimeSeed, shaderSpeed)
       this.tilesContainer.addChild(bg);
     }  
     

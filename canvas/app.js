@@ -31,7 +31,8 @@ class App {
     this.socket.on('connect_error', this.onSocketConnectError)
     this.socket.on('usersUpdate', this.onUsersUpdate)
     this.socket.on('creatures', this.onCreatures)
-    this.socket.on('creaturesUpdate', this.onCreaturesUpdate)    
+    this.socket.on('creaturesUpdate', this.onCreaturesUpdate)
+    this.socket.on('adminConnectBroadcast', this.onAdminConnect)
 
     this.selfGarden = null
     this.onlineCreatures = {}
@@ -41,6 +42,10 @@ class App {
       users: false,
       firstRender: false
     }
+  }
+  
+  getIsAdmin() {
+    return (this.pathname == '/admin')
   }
 
   renderAppIfReady() {
@@ -52,16 +57,25 @@ class App {
 
   onSocketConnect = () => {
     console.log('on socket connect')
+    if (this.getIsAdmin()) {
+      this.socket.emit('adminConnect', {})
+    }
   }
 
   onSocketConnectError = (error) => {
     console.log('on socket connect error: ', error)
   }
 
+  onAdminConnect = () => {
+    if (this.getIsAdmin()) return
+    this.pixiApp.reset()
+  }
+
   onUsersUpdate = (users) => {
     // get single user's garden data
     const currUser = users.find((u => (u.uid == this.user.id)))
     this.selfGarden = currUser ? currUser.gardenSection : null
+    this.selfUid = currUser ? currUser.uid : null
 
     // get all online users
     this.onlineUsers = users.reduce((acc, el) => {

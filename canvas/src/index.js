@@ -125,7 +125,7 @@ export default class PixiAppWrapper {
       this.creaturesLayer = new CreaturesLayer(window.APP.onlineUsers, window.APP.onlineCreatures, window.APP.selfGarden)      
       this.adminContainer.addChild(this.creaturesLayer)
     } else {
-      this.gardenLayer = new UserGarden(window.APP.onlineUsers, window.APP.onlineCreatures, window.APP.selfGarden)
+      this.gardenLayer = new UserGarden(window.APP.onlineUsers, window.APP.onlineCreatures, window.APP.selfGarden, window.APP.selfUid)
       this.pixiApp.stage.addChild(this.gardenLayer)
 
       this.creaturesLayer = new CreaturesLayer(window.APP.onlineUsers, window.APP.onlineCreatures, window.APP.selfGarden)      
@@ -138,6 +138,11 @@ export default class PixiAppWrapper {
 
     this.isLoading = false
     this.loadingScreen.alpha = 0
+  }
+
+  reset() {
+    this.pixiApp.stage.removeChildren()
+    this.render()
   }
 
   tick() {
