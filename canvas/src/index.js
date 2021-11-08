@@ -59,7 +59,7 @@ export default class PixiAppWrapper {
   }
 
   setupTween() {
-    this.ticker.add(TWEEN.update, TWEEN, PIXI.UPDATE_PRIORITY.HIGH)
+    this.ticker.add(() => { TWEEN.update() }, this, PIXI.UPDATE_PRIORITY.HIGH)
   }
 
   setupLoadingScreen() {
@@ -99,7 +99,16 @@ export default class PixiAppWrapper {
     else
       window.DWCApp.stage.pivot.set((-window.innerWidth / scale + window.GARDEN_WIDTH) / 2, 0)    
   }
-
+  updateOnlineCreatures(onlineCreatures) {
+    if (this.garden) {
+      this.garden.updateOnlineCreatures(onlineCreatures)
+    }
+  }
+  updateCreatureData(creatureData) {
+    if (this.garden) {
+      this.garden.updateCreatureData(creatureData)
+    }
+  }
   render() {
     if (this.isAdmin) {
       //renderAdminCreatures(this.pixiApp)

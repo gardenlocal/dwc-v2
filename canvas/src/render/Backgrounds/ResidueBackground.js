@@ -106,7 +106,7 @@ export default class ResidueBackground extends PIXI.Graphics {
     if (!this.isAnimating && this.firstRenderCount >= 2) return
     this.firstRenderCount++
 
-    let bezierAlpha = this.transitionAlpha
+    let bezierAlpha = this.transitionAlpha// + Math.cos(this.frame / 5) / 800
     const WIDTH = this.W
     const HEIGHT = this.H
     this.circleTransition.clear()
@@ -153,7 +153,7 @@ export default class ResidueBackground extends PIXI.Graphics {
     if (!this.isAnimating && this.firstRenderCount >= 2) return
     this.firstRenderCount++
 
-    let triangleAlpha = this.transitionAlpha
+    let triangleAlpha = this.transitionAlpha //+ Math.cos(this.frame / 5) / 800
 
     this.triangleTransition.clear()
     this.triangleTransition.beginFill(0xf9f9f9)
@@ -185,7 +185,8 @@ export default class ResidueBackground extends PIXI.Graphics {
 
     const tween = new TWEEN.Tween(this)
     .to({ transitionAlpha: intermediateTransitionAlpha }, d1)
-    .easing(TWEEN.Easing.Linear.None)
+    //.easing(TWEEN.Easing.Linear.None)
+    .easing(TWEEN.Easing.Quartic.InOut)
     .start()
 
     // tween.onComplete( () => console.log("appear done") )
@@ -212,6 +213,8 @@ export default class ResidueBackground extends PIXI.Graphics {
   }
 
   tick(coord) {
+    if (!this.frame) this.frame = 0
+    this.frame++
     let delta = PIXI.Ticker.shared.elapsedMS
     this.time += delta/1000 ;
 

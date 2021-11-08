@@ -76,7 +76,7 @@ class App {
   }
 
   onCreatures = (creatures) => {
-    this.updateOnlineCreatures(creatures)
+    this.updateOnlineCreatures(creatures)    
 
     this.initData.creatures = true
     this.renderAppIfReady()
@@ -93,25 +93,13 @@ class App {
     }, {})
 
     console.log('Update: ', this.onlineUsers, this.onlineCreatures)
-    return onlineCreatures  
+    this.pixiApp.updateOnlineCreatures(this.onlineCreatures)
+    return this.onlineCreatures  
   }
 
   onCreaturesUpdate = (creaturesToUpdate) => {
     console.log('Creatures Update: ', creaturesToUpdate)
-
-    /*
-    if (!allCreaturesContainer) return
-
-    for (const [key, value] of Object.entries(onlineCreatures)) {
-      if (creaturesToUpdate[key]) {
-        const creature = allCreaturesContainer.children.find(ele => ele.name === key)
-        const newState = creaturesToUpdate[key]
-
-        // Update the target for movement inside of the creature class
-        creature?.updateState(newState)        
-      }
-    }
-    */
+    this.pixiApp.updateCreatureData(creaturesToUpdate)
   }
 
   createOrFetchUser() {

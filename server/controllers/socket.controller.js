@@ -34,7 +34,7 @@ exports.userConnected = async (socket) => {
   console.log('Creating garden for user: ', uid)
   if (garden) {
     user.gardenSection = garden._id
-    await database.update({ _id: user._id }, user)
+    await database.update({ uid: user.uid }, user)
   } else {
     console.error('Failed to create garden section for user')
   }
@@ -48,7 +48,7 @@ exports.userConnected = async (socket) => {
     creature = await creatureController.createCreature(garden, user)
     console.log('created creature for user')
     user.creature = creature._id
-    await database.update({ _id: user._id }, user)
+    await database.update({ uid: user.uid }, user)
   }
 
   io.emit('usersUpdate', await getOnlineUsers())

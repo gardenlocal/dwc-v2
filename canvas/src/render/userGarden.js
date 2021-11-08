@@ -55,8 +55,6 @@ export default class UserGarden extends PIXI.Container {
       const currentTile = BG_DATA[i];
       const currentLoop = currentTile[this.bgAnimationParams.currentTile];
 
-      console.log('laba', currentLoop)
-
       await this.tilesContainer.children[i].appear(currentLoop.target, currentLoop.duration, currentLoop.shape, currentLoop.anchor) // appear at 0, disappear after bg2+bg3+bg4_duration
     }
 
@@ -75,6 +73,8 @@ export default class UserGarden extends PIXI.Container {
 
   drawCreatures() {
     this.allCreaturesContainer = new PIXI.Container()
+    this.allCreaturesContainer.x = -this.userGarden.x
+    this.allCreaturesContainer.y = -this.userGarden.y
     this.addChild(this.allCreaturesContainer)
 
     for (const [key, value] of Object.entries(this.creatures)) {
@@ -83,8 +83,40 @@ export default class UserGarden extends PIXI.Container {
     }  
   }
 
-  updateCreatureData(newCreatureData) {
+  updateOnlineCreatures(onlineCreatures) {
+    console.log('update online creatures: ', onlineCreatures)
 
+    // First, remove creatures that aren't online anymore
+    let creaturesToRemove = []
+    let existingCreatures = {}
+    for (let c of this.allCreaturesContainer.children) {
+      if (!onlineCreatures[c.name]) creaturesToRemove.push(c)
+      existingCreatures[c.name] = c
+    }
+    for (let c of creaturesToRemove) {
+      this.allCreaturesContainer.removeChild(c)
+    }
+    
+    // Second, add creatures that don't exist
+    for (let k of Object.keys(onlineCreatures)) {
+      if (!existingCreatures[k]) {
+        const c = new Creature(onlineCreatures[k])
+        this.allCreaturesContainer.addChild(c)
+      }
+    }
+
+  }
+
+  updateCreatureData(creaturesToUpdate) {    
+    for (const [key, value] of Object.entries(this.creatures)) {
+      if (creaturesToUpdate[key]) {
+        const creature = this.allCreaturesContainer.children.find(ele => ele.name === key)
+        const newState = creaturesToUpdate[key]
+
+        // Update the target for movement inside of the creature class
+        creature?.updateState(newState)        
+      }
+    }
   }
 
   tick() {
