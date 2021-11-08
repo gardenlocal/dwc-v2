@@ -3,8 +3,13 @@ const constants = require("../constants")
 const database = require('../db.js')
 const TYPES = require('../datatypes')
 const GardenSection = require('../models/GardenSection')
-const { randomElementFromArray } = require('../utils')
+const { randomElementFromArray, randomInRange, randomIntInRange } = require('../utils')
 const { DWC_META } = require("../../shared-constants")
+
+const GARDEN_TILE_SHAPES = {
+  TRIANGLE: 'TRIANGLE',
+  CIRCLE: 'CIRCLE'
+}
 
 exports.createGardenSection = async () => {
   let gardenSection
@@ -84,6 +89,25 @@ exports.createGardenSection = async () => {
   newGarden.tileScaleX = (Math.random() < 0.5) ? -1 : 1
   newGarden.tileScaleY = (Math.random() < 0.5) ? -1 : 1
 
+  // Set up animation properties
+  const noTiles = 4
+  const stepsPerTile = 7
+
+  newGarden.tileProps = []
+  for (let i = 0; i < noTiles; i++) {
+    const currTile = []
+    for (let j = 0; j < stepsPerTile; j++) {
+      currTile.push({
+        "target": randomInRange(0.3, 1.0),
+        "duration": randomInRange(25000, 75000),
+        "shape": randomElementFromArray(Object.values(DWC_META.tileShapes)),
+        "anchor":randomElementFromArray([0, 1, 2, 3])    
+      })
+    }
+
+    newGarden.tileProps.push(currTile)
+  }
+
   let garden = new GardenSection({ ...newGarden })
 
   try {
@@ -137,6 +161,42 @@ exports.createGardenSection = async () => {
     return null
   }
 
-  console.log('Created garden: ', garden)
+  //console.log('Created garden: ', garden)
   return garden
+}
+
+exports.clearGardenSection = async (uid) => {
+  const user = await database.findOne({ uid: uid })
+  const garden = await database.findOne({ _id: user.gardenSection })
+  const nTop = await database.findOne({ _id: garden.neighbors.top })
+  const nRight = await database.findOne({ _id: garden.neighbors.right })
+  const nBottom = await database.findOne({ _id: garden.neighbors.bottom })
+  const nLeft = await database.findOne({ _id: garden.neighbors.left })
+
+  if (nTop) {
+    nTop.neighbors.bottom = null
+    await database.update({ _id: nTop._id }, nTop)
+  }
+
+  if (nRight) {
+    nRight.neighbors.left = null
+    await database.update({ _id: nRight._id }, nLeft)
+  }
+
+  if (nBottom) {
+    nBottom.neighbors.top = null
+    await database.update({ _id: nBottom._id }, nBottom)
+  }
+
+  if (nLeft) {
+    nLeft.neighbors.right = null
+    await database.update({ _id: nLeft._id }, nLeft)
+  }
+
+  user.gardenSection = null
+  await database.update({ _id: user._id }, user)
+
+  await database.remove({ _id: garden._id })
+
+  console.warn('clearGardenSection for user', uid)
 }

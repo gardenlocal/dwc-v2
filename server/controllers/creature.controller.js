@@ -1,7 +1,8 @@
 const shuffle = require("lodash.shuffle")
 const constants = require("../constants")
 const utils = require("../utils")
-const { getUserInfo, getAllCreaturesInfo } = require('../controllers/db.controller')
+const TYPES = require('../datatypes')
+const { getUserInfo } = require('../controllers/db.controller')
 const Creature = require("../models/Creature")
 const database = require("../db")
 const { DWC_META, generateMoss, generateLichen, generateMushroom } = require("../../shared-constants")
@@ -10,7 +11,7 @@ const AnimatedProperty = require('../models/AnimatedProperty')
 let allCreatures = {}
 
 exports.createCreature = async (garden, user) => {
-  console.log('Create creature: ', user._id, user)
+  console.log('Create creature: ', user.uid)
 
   const g = garden
   const movementTransitionDuration = utils.randomInRange(10, 20)
@@ -27,9 +28,7 @@ exports.createCreature = async (garden, user) => {
     case 'mushroom':
       creatureProps = generateMushroom()
       break
-  }
-
-  console.log('New creature: ', creatureProps)
+  }  
 
   let creature = new Creature({
     appearance: {
@@ -52,8 +51,10 @@ exports.createCreature = async (garden, user) => {
         true
       )
     },
-    owner: user._id,
+    owner: user.uid,
   })
+
+  console.log('New creature: ', creature)
 
   creature = await database.insert(creature)
   allCreatures[creature._id] = creature
@@ -61,13 +62,59 @@ exports.createCreature = async (garden, user) => {
   return creature
 }
 
+exports.getCreatureForUser = async (uid) => {
+  const creature = await database.findOne({ type: TYPES.creature, owner: uid })
+  return creature
+}
+
+exports.moveCreatureToGarden = async (creature, garden) => {
+  creature.movement = {
+    fromX: utils.randomInRange(garden.x, garden.x + garden.width),
+    fromY: utils.randomInRange(garden.y, garden.y + garden.height),
+    directionChangeTimestamp: new Date().getTime(),
+    toX: utils.randomInRange(garden.x, garden.x + garden.width),
+    toY: utils.randomInRange(garden.y, garden.y + garden.height),
+    transitionDuration: 20
+  }
+
+  creature.animatedProperties = {
+    position: new AnimatedProperty(
+      DWC_META.creaturePropertyTypes.position,
+      { x: utils.randomInRange(garden.x, garden.x + garden.width), y: utils.randomInRange(garden.y, garden.y + garden.height) },
+      { x: utils.randomInRange(garden.x, garden.x + garden.width), y: utils.randomInRange(garden.y, garden.y + garden.height) },
+      utils.randomInRange(10, 20),
+      true
+    )
+  }
+
+  await database.update({ _id: creature._id }, creature)
+}
+
+exports.getAllCreaturesInfo = async () => {
+  let creatures = null
+  try {    
+    creatures = await database.find({ type: TYPES.creature })
+    if (!creatures) return []
+
+    for (let i = 0; i < creatures.length; i++) {
+      creatures[i].owner = await getUserInfo(creatures[i].owner)
+    }
+  } catch (e) {
+    console.error("Failed to retrieve all creatures")
+    return null
+  }
+
+  return creatures
+}
+
 exports.updateCreatures = async (onlineUsers) => {
+
   const updated = {}
   if (onlineUsers.length == 0) return updated
 
   const now = new Date().getTime()
 
-  allCreatures = (await getAllCreaturesInfo()).reduce((acc, el) => {
+  allCreatures = (await exports.getAllCreaturesInfo()).reduce((acc, el) => {
     acc[el._id] = el
     return acc
   }, {})
@@ -101,7 +148,7 @@ exports.updateCreatures = async (onlineUsers) => {
             to = { x: utils.randomInRange(g.x, g.x + g.width), y: utils.randomInRange(g.y, g.y + g.height) }
 
             // Duration for now is at random, between 10 and 20
-            duration = utils.randomInRange(10, 20)
+            duration = utils.randomIntInRange(10, 20)
 
             break
 
@@ -110,7 +157,7 @@ exports.updateCreatures = async (onlineUsers) => {
             to = utils.randomElementFromArray(Object.values(DWC_META.creatures))
 
             // Duration for now is at random, between 10 and 20
-            duration = utils.randomInRange(10, 20)
+            duration = utils.randomIntInRange(10, 20)
 
             break
 

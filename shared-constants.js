@@ -121,6 +121,10 @@ const DWC_META = {
         TILE_2: "tile-2",
         TILE_3: "tile-3",
         TILE_4: "tile-4"
+    },
+    tileShapes: {
+        TRIANGLE: 'TRIANGLE',
+        CIRCLE: 'CIRCLE'      
     }
 }
 

@@ -1,7 +1,12 @@
 const creatureController = require('./creature.controller')
-const { getUsersInfo, getAllCreaturesInfo } = require('./db.controller')
+const { getUserInfo, getUsersInfo } = require('./db.controller')
+const User = require('../models/User')
+const database = require('../db')
+const gardenController = require('./garden.controller')
 
 const socketMap = {}
+const socketIdToUserId = {}
+
 let animationTimeout
 let io = null
 
@@ -10,31 +15,70 @@ exports.initialize = (ioInstance) => {
 }
 
 exports.userConnected = async (socket) => {
-  console.log('sock: ', socket.decodedToken)
-  const userId = socket.decodedToken.id
-  socketMap[userId] = socket
+  const uid = socket.handshake.query.uid
+  socketIdToUserId[socket.id] = uid
+  socketMap[uid] = socket
 
   socket.on('disconnect', onDisconnect(socket))
+
+  // Get or create user for the given uid
+  console.log('Fetching user from DB: ', uid)
+  let user = await getUserInfo(uid)
+  if (!user) {
+    user = new User({ uid });
+    await database.insert(user)  
+  }
+
+  // Create a new garden section for the current user
+  const garden = await gardenController.createGardenSection()
+  console.log('Creating garden for user: ', uid)
+  if (garden) {
+    user.gardenSection = garden._id
+    await database.update({ uid: user.uid }, user)
+  } else {
+    console.error('Failed to create garden section for user')
+  }
+
+  // Create a new creature for the user if one doesn't exist,
+  // or move it in their garden if it does exist
+  let creature = await creatureController.getCreatureForUser(user.uid)
+  if (creature) {
+    creatureController.moveCreatureToGarden(creature, garden)
+  } else {
+    creature = await creatureController.createCreature(garden, user)
+    console.log('created creature for user')
+    user.creature = creature._id
+    await database.update({ uid: user.uid }, user)
+  }
+
   io.emit('usersUpdate', await getOnlineUsers())
   io.emit('creatures', await getAllCreatures())
 }
 
 const onDisconnect = (socket) => async (reason) => {
-  const userId = socket.decodedToken.id
-  delete socketMap[userId]
+  console.log('on disconnect: ', socket.id)
+  const uid = socketIdToUserId[socket.id]
+  
+  delete socketIdToUserId[socket.id]
+  delete socketMap[uid]
+
   io.emit('usersUpdate', await getOnlineUsers())
+  io.emit('creatures', await getAllCreatures())
+
+  await gardenController.clearGardenSection(uid)
 }
 
 const getOnlineUsers = async () => {
+  console.log('get online users: ', Object.keys(socketMap))
   return (await getUsersInfo(Object.keys(socketMap)))
 }
 
 const getAllCreatures = async () => {
-  return (await getAllCreaturesInfo())
+  return (await creatureController.getAllCreaturesInfo())
 }
 
 exports.startAnimatingCreatures = async () => {
-  allCreatures = (await getAllCreaturesInfo()).reduce((acc, el) => {
+  allCreatures = (await creatureController.getAllCreaturesInfo()).reduce((acc, el) => {
     acc[el._id] = el
     return acc
   }, {})
@@ -44,4 +88,5 @@ exports.startAnimatingCreatures = async () => {
     let updated = await creatureController.updateCreatures(onlineUsers)
     if (Object.keys(updated).length > 0) io.emit('creaturesUpdate', updated)
   }, 1000)
+
 }

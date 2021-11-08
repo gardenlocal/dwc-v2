@@ -19,12 +19,10 @@ exports.getAllUsersInfo = async () => {
   return users
 }
 
-exports.getUserInfo = async (id) => {
-  if (userCache[id]) return userCache[id]
-
+exports.getUserInfo = async (uid) => {
   let userData = null, gardenSection = null
   try {
-    userData = await database.findOne({ _id: id }, { password: 0 })
+    userData = await database.findOne({ uid: uid })
     if (userData)
       gardenSection = await database.findOne({ _id: userData.gardenSection })
 
@@ -33,17 +31,18 @@ exports.getUserInfo = async (id) => {
     }
 
   } catch (e) {
-    console.error('Failed to retrieve user by id', id, e)
+    console.error('Failed to retrieve user by id', uid, e)
   }
 
-  userCache[id] = userData
+  if (userData) userCache[uid] = userData
+
   return userData
 }
 
-exports.getUsersInfo = async (ids) => {
+exports.getUsersInfo = async (uids) => {
   let res = []
-  for (let i = 0; i < ids.length; i++) {
-    const u = await exports.getUserInfo(ids[i])
+  for (let i = 0; i < uids.length; i++) {
+    const u = await exports.getUserInfo(uids[i])
     if (u) res.push(u)
   }
   return res
@@ -61,20 +60,4 @@ exports.isUserAdmin = async (id) => {
 
   if (role.name == 'admin') return true
   return false
-}
-
-exports.getAllCreaturesInfo = async () => {
-  let creatures = null
-  try {    
-    creatures = await database.find({ type: TYPES.creature })
-    if (!creatures) return []
-
-    for (let i = 0; i < creatures.length; i++) {
-      creatures[i].owner = await exports.getUserInfo(creatures[i].owner)
-    }
-  } catch (e) {
-    console.error("Failed to retrieve all creatures")
-    return null
-  }
-  return creatures
 }

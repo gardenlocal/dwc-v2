@@ -118,6 +118,8 @@ export default class Creature extends PIXI.Container {
                 this.y = lerp(this.originPos.y, this.target.y, this.easedMovementAlpha)
             }
         }
+
+        //console.log('creature tick: ', this.x, this.y)
         
         this.destinationMarker.x = this.target.x - this.x
         this.destinationMarker.y = this.target.y - this.y
