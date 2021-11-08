@@ -3,8 +3,13 @@ const constants = require("../constants")
 const database = require('../db.js')
 const TYPES = require('../datatypes')
 const GardenSection = require('../models/GardenSection')
-const { randomElementFromArray } = require('../utils')
+const { randomElementFromArray, randomInRange, randomIntInRange } = require('../utils')
 const { DWC_META } = require("../../shared-constants")
+
+const GARDEN_TILE_SHAPES = {
+  TRIANGLE: 'TRIANGLE',
+  CIRCLE: 'CIRCLE'
+}
 
 exports.createGardenSection = async () => {
   let gardenSection
@@ -84,6 +89,25 @@ exports.createGardenSection = async () => {
   newGarden.tileScaleX = (Math.random() < 0.5) ? -1 : 1
   newGarden.tileScaleY = (Math.random() < 0.5) ? -1 : 1
 
+  // Set up animation properties
+  const noTiles = 4
+  const stepsPerTile = 7
+
+  newGarden.tileProps = []
+  for (let i = 0; i < noTiles; i++) {
+    const currTile = []
+    for (let j = 0; j < stepsPerTile; j++) {
+      currTile.push({
+        "target": randomInRange(0.3, 1.0),
+        "duration": randomInRange(25000, 75000),
+        "shape": randomElementFromArray(Object.values(DWC_META.tileShapes)),
+        "anchor":randomElementFromArray([0, 1, 2, 3])    
+      })
+    }
+
+    newGarden.tileProps.push(currTile)
+  }
+
   let garden = new GardenSection({ ...newGarden })
 
   try {
@@ -156,7 +180,7 @@ exports.clearGardenSection = async (uid) => {
 
   if (nRight) {
     nRight.neighbors.left = null
-    await database.update({ _id: nLeft._id }, nLeft)
+    await database.update({ _id: nRight._id }, nLeft)
   }
 
   if (nBottom) {

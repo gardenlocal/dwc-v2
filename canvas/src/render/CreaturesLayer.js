@@ -3,10 +3,6 @@
 
 import * as PIXI from "pixi.js";
 import Creature from './creature'
-import ResidueBackground from "./Backgrounds/ResidueBackground";
-import { SHAPES, TILE1, TILE2, TILE3, TILE4 } from "./Backgrounds/ResidueData.js";
-
-const BG_DATA = [TILE1, TILE2, TILE3, TILE4]
 
 export default class CreaturesLayer extends PIXI.Container {
   constructor(users, creatures) {
@@ -45,7 +41,6 @@ export default class CreaturesLayer extends PIXI.Container {
         this.addChild(c)
       }
     }
-
   }
 
   updateCreatureData(creaturesToUpdate) {    

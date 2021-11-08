@@ -2,15 +2,15 @@
 // https://stackoverflow.com/questions/40472364/moving-object-from-a-to-b-smoothly-across-canvas
 
 import * as PIXI from "pixi.js";
-import Creature from './creature'
 import ResidueBackground from "./Backgrounds/ResidueBackground";
-import { SHAPES, TILE1, TILE2, TILE3, TILE4 } from "./Backgrounds/ResidueData.js";
+//import { SHAPES, TILE1, TILE2, TILE3, TILE4 } from "./Backgrounds/ResidueData.js";
 
-const BG_DATA = [TILE1, TILE2, TILE3, TILE4]
+//const BG_DATA = [TILE1, TILE2, TILE3, TILE4]
 
 export default class UserGarden extends PIXI.Container {
   constructor(users, creatures, selfGarden) {
     super()
+    console.log('new user garden', users, selfGarden)
     this.users = users
     this.creatures = creatures
     this.userGarden = selfGarden
@@ -27,8 +27,8 @@ export default class UserGarden extends PIXI.Container {
     this.tilesContainer = new PIXI.Container()
     this.addChild(this.tilesContainer);
 
-    for (let i = 0; i < BG_DATA.length; i++) {
-      const currentTile = BG_DATA[i]
+    for (let i = 0; i < this.userGarden.tileProps.length; i++) {
+      const currentTile = this.userGarden.tileProps[i]
       const initLoop = currentTile[0]
   
       const bg = new ResidueBackground(initLoop.shape, initLoop.anchor)
@@ -39,24 +39,24 @@ export default class UserGarden extends PIXI.Container {
   }
 
   async animateBackgrounds() {
-    console.log("start loop");
+    console.log("start loop", this.userGarden);
 
     for(let i = 0; i < this.tilesContainer.children.length; i++) {
-      const currentTile = BG_DATA[i];
+      const currentTile = this.userGarden.tileProps[i];
       const currentLoop = currentTile[this.bgAnimationParams.currentTile];
 
       await this.tilesContainer.children[i].appear(currentLoop.target, currentLoop.duration, currentLoop.shape, currentLoop.anchor) // appear at 0, disappear after bg2+bg3+bg4_duration
     }
 
     for(let i = 0; i < this.tilesContainer.children.length; i++) {
-      const currentTile = BG_DATA[i]
+      const currentTile = this.userGarden.tileProps[i]
       const currentLoop = currentTile[this.bgAnimationParams.currentTile]
 
       await this.tilesContainer.children[i].disappear(currentLoop.target, currentLoop.duration) // appear at 0, disappear after bg2+bg3+bg4_duration
     }
 
     console.log("end loop")
-    this.bgAnimationParams.currentTile = (this.bgAnimationParams.currentTile + 1) % BG_DATA[0].length
+    this.bgAnimationParams.currentTile = (this.bgAnimationParams.currentTile + 1) % this.userGarden.tileProps[0].length
 
     this.animateBackgrounds()
   }
