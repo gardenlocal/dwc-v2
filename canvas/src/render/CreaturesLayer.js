@@ -22,6 +22,7 @@ export default class CreaturesLayer extends PIXI.Container {
 
   updateOnlineCreatures(onlineCreatures) {
     console.log('update online creatures: ', onlineCreatures)
+    this.creatures = onlineCreatures
 
     // First, remove creatures that aren't online anymore
     let creaturesToRemove = []

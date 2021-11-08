@@ -29,9 +29,12 @@ exports.userConnected = async (socket) => {
     user = new User({ uid });
     await database.insert(user)  
   }
-
+  console.log('done fetching user')
+  // Remove old garden for this user, if one existed.
+  await gardenController.clearGardenSection(uid)
+  console.log('removed old garden')
   // Create a new garden section for the current user
-  const garden = await gardenController.createGardenSection()
+  const garden = await gardenController.createGardenSection(uid)
   console.log('Creating garden for user: ', uid)
   if (garden) {
     user.gardenSection = garden._id

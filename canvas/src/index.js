@@ -21,7 +21,7 @@ export default class PixiAppWrapper {
     this.isAdmin = (options && options.isAdmin)
 
     this.setupPixiApp()
-    this.setupStats()
+    // this.setupStats()
     this.setupTween()
     this.resizeAppToWindow()
 
@@ -48,6 +48,12 @@ export default class PixiAppWrapper {
 
     this.appContainer = new PIXI.Container()
     this.pixiApp.stage.addChild(this.appContainer)
+    
+    if (window.APP.isTest) {
+      this.pixiApp.stage.alpha = 0
+      return
+    }
+    
     this.pixiApp.ticker.add(() => {
       this.tick()
     })
@@ -113,10 +119,16 @@ export default class PixiAppWrapper {
     }
   }
   render() {
+    if (window.APP.isTest) {
+      this.pixiApp.stop()
+      return
+    }
+
     if (this.isAdmin) {
       this.adminContainer = new PIXI.Container()
-      this.adminContainer.position.set(this.GARDEN_WIDTH / 2, this.GARDEN_HEIGHT / 2)
-      this.adminContainer.scale.set(0.1)
+      this.adminContainer.position.set(400, 400)
+      this.adminContainer.scale.set(0.2)
+      //this.adminContainer.backgroundColor = 0xff0000
       this.pixiApp.stage.addChild(this.adminContainer)
 
       this.gardenLayer = new AdminGarden(window.APP.onlineUsers, window.APP.onlineCreatures, window.APP.selfGarden)
@@ -124,6 +136,10 @@ export default class PixiAppWrapper {
 
       this.creaturesLayer = new CreaturesLayer(window.APP.onlineUsers, window.APP.onlineCreatures, window.APP.selfGarden)      
       this.adminContainer.addChild(this.creaturesLayer)
+
+      const bbox = this.adminContainer.getBounds()
+
+      //this.pixiApp.stage.scale.set(window.innerWidth / bbox.width)
     } else {
       this.gardenLayer = new UserGarden(window.APP.onlineUsers, window.APP.onlineCreatures, window.APP.selfGarden, window.APP.selfUid)
       this.pixiApp.stage.addChild(this.gardenLayer)

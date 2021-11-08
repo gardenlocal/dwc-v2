@@ -64,6 +64,9 @@ export default class Creature extends PIXI.Container {
             //this.creature.evolve(800)
         }, 5000)
         this.frame = 0
+
+        const label = new PIXI.Text(this.name, new PIXI.TextStyle({ fontSize: 40 }))
+        // this.addChild(label)
     }
 
     updateState(newState) {
@@ -91,6 +94,8 @@ export default class Creature extends PIXI.Container {
         this.movementAlpha = 0
         this.movementDuration = this.animatedProperties.position.duration
         this.creatureTargetRotation = Math.atan2(this.target.y - this.originPos.y, this.target.x - this.originPos.x)
+
+        console.log('updateTargetPosition for: ', this.name, this.x, this.y, this.target.x, this.target.y)
     }
 
     tick(d) {
@@ -100,8 +105,8 @@ export default class Creature extends PIXI.Container {
         // Per-frame update for the creature SVG Shape outlines
         this.creature.tick()
         // Movement animation
-        if (this.movementAlpha >= 1) {
-
+        if (this.movementAlpha > 1) {
+            this.movementAlpha = 1 
         } else {
             const step = delta / (1000 * this.movementDuration)
             this.movementAlpha += step

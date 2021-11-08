@@ -13,8 +13,10 @@ export default class UserGarden extends PIXI.Container {
     console.log('new user garden', users, selfGarden)
     this.users = users
     this.creatures = creatures
-    this.userGarden = selfGarden
+    this.userGarden = selfGarden    
     this.uid = uid
+
+    if (!this.userGarden) return
 
     this.bgAnimationParams = {
       currentTile: 0
@@ -40,23 +42,32 @@ export default class UserGarden extends PIXI.Container {
   }
 
   async animateBackgrounds() {
-    console.log("start loop", this.userGarden);
-
     for(let i = 0; i < this.tilesContainer.children.length; i++) {
       const currentTile = this.userGarden.tileProps[i];
       const currentLoop = currentTile[this.bgAnimationParams.currentTile];
 
       await this.tilesContainer.children[i].appear(currentLoop.target, currentLoop.duration, currentLoop.shape, currentLoop.anchor) // appear at 0, disappear after bg2+bg3+bg4_duration
+      if (i > 0) {
+        const currentTile = this.userGarden.tileProps[i - 1];
+        const currentLoop = currentTile[this.bgAnimationParams.currentTile];  
+        await this.tilesContainer.children[i - 1].disappear(currentLoop.target, currentLoop.duration) // appear at 0, disappear after bg2+bg3+bg4_duration  
+      }
     }
 
+    let i = this.tilesContainer.children.length - 1
+    const currentTile = this.userGarden.tileProps[i];
+    const currentLoop = currentTile[this.bgAnimationParams.currentTile];
+    await this.tilesContainer.children[i].disappear(currentLoop.target, currentLoop.duration) // appear at 0, disappear after bg2+bg3+bg4_duration  
+
+    /*
     for(let i = 0; i < this.tilesContainer.children.length; i++) {
       const currentTile = this.userGarden.tileProps[i]
       const currentLoop = currentTile[this.bgAnimationParams.currentTile]
 
       await this.tilesContainer.children[i].disappear(currentLoop.target, currentLoop.duration) // appear at 0, disappear after bg2+bg3+bg4_duration
     }
+    */
 
-    console.log("end loop")
     this.bgAnimationParams.currentTile = (this.bgAnimationParams.currentTile + 1) % this.userGarden.tileProps[0].length
 
     this.animateBackgrounds()

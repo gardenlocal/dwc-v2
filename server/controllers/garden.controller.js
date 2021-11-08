@@ -11,7 +11,7 @@ const GARDEN_TILE_SHAPES = {
   CIRCLE: 'CIRCLE'
 }
 
-exports.createGardenSection = async () => {
+exports.createGardenSection = async (uid) => {
   let gardenSection
 
   // Start from an arbitrary garden section
@@ -97,10 +97,12 @@ exports.createGardenSection = async () => {
   for (let i = 0; i < noTiles; i++) {
     const currTile = []
     for (let j = 0; j < stepsPerTile; j++) {
+      const shape = randomElementFromArray(Object.values(DWC_META.tileShapes))
+      const target = (shape == DWC_META.tileShapes.TRIANGLE ? randomElementFromArray([0.25, 0.4, 0.5, 0.6, 0.75]) : randomElementFromArray([0.25, 0.3, 0.4, 0.75]))
       currTile.push({
-        "target": randomInRange(0.3, 1.0),
+        "target": target,
         "duration": randomInRange(25000, 75000),
-        "shape": randomElementFromArray(Object.values(DWC_META.tileShapes)),
+        "shape": shape,
         "anchor":randomElementFromArray([0, 1, 2, 3])    
       })
     }
@@ -112,6 +114,8 @@ exports.createGardenSection = async () => {
     shaderTimeSeed: Math.random() * 10,
     shaderSpeed: Math.random() * 10 + 1
   }
+
+  newGarden.userUid = uid
 
   let garden = new GardenSection({ ...newGarden })
 
@@ -172,7 +176,10 @@ exports.createGardenSection = async () => {
 
 exports.clearGardenSection = async (uid) => {
   const user = await database.findOne({ uid: uid })
-  const garden = await database.findOne({ _id: user.gardenSection })
+  if (!user) return
+  const garden = await database.findOne({ userUid: uid })
+  if (!garden) return
+
   const nTop = await database.findOne({ _id: garden.neighbors.top })
   const nRight = await database.findOne({ _id: garden.neighbors.right })
   const nBottom = await database.findOne({ _id: garden.neighbors.bottom })
@@ -185,7 +192,7 @@ exports.clearGardenSection = async (uid) => {
 
   if (nRight) {
     nRight.neighbors.left = null
-    await database.update({ _id: nRight._id }, nLeft)
+    await database.update({ _id: nRight._id }, nRight)
   }
 
   if (nBottom) {

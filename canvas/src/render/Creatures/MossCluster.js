@@ -60,7 +60,7 @@ export default class Cluster extends PIXI.Graphics {
     tick() {
         //this.position.set(this.x + 10, this.y)
         this.creature.tick()
-        this.creatureBounds = this.creature.getBounds()
+        // this.creatureBounds = this.creature.getBounds()
         this.creature.position.set(0, 0)
         //this.message.position.set(this.creatureBounds.x, -15)
     }

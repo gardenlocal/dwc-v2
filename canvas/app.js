@@ -13,8 +13,10 @@ class App {
   }
 
   async setup() {
-    this.user = this.createOrFetchUser()
     this.pathname = window.location.pathname
+    this.isTest = this.pathname == '/test'
+    this.user = this.createOrFetchUser()
+    
     this.serverPort = window.location.hostname.includes('iptime') ? '1012' : '3000'
     this.serverUrl = `http://${window.location.hostname}`
 
@@ -117,6 +119,13 @@ class App {
   }
 
   createOrFetchUser() {
+    if (this.isTest) {
+      return {
+        id: uid(),
+        name: ''
+      }  
+    }
+
     let user = localStorage.getItem("user")
     if (!user) {
       user = JSON.stringify({

@@ -29,8 +29,10 @@ export default class ResidueBackground extends PIXI.Graphics {
 
     this.time = shaderTimeSeed
     if (window.APP.getIsAdmin()) {
-      //this.time += 2.95
+      // this.time += 20
     }
+
+    this.time = 0
     this.shaderSpeed = shaderSpeed
     //this.time = Math.random() * 10
     //this.shaderSpeed = Math.random() * 10 + 1
@@ -49,10 +51,8 @@ export default class ResidueBackground extends PIXI.Graphics {
     .addIndex([0, 1, 2, 0, 2, 3]);
   
     let s = window.DWCApp.stage.scale.y
-    //let s = 1.0
     if (window.APP.getIsAdmin()) {
-      s = 0.08
-      console.log('lugulugu is admin', this.W, this.H)
+      s *= 0.2
     }
     const globalPos = this.toGlobal(new PIXI.Point(0, 0))
     this.gradientUniforms = {
@@ -199,8 +199,8 @@ export default class ResidueBackground extends PIXI.Graphics {
 
     const tween = new TWEEN.Tween(this)
     .to({ transitionAlpha: intermediateTransitionAlpha }, d1)
-    //.easing(TWEEN.Easing.Linear.None)
-    .easing(TWEEN.Easing.Quartic.InOut)
+    .easing(TWEEN.Easing.Linear.None)
+    // .easing(TWEEN.Easing.Quartic.InOut)
     .start()
 
     // tween.onComplete( () => console.log("appear done") )
@@ -233,7 +233,7 @@ export default class ResidueBackground extends PIXI.Graphics {
     this.time += delta/1000 ;
 
     // Shader background
-    this.gradientUniforms.u_time = (this.time / this.shaderSpeed / 1.0)
+    this.gradientUniforms.u_time = (this.time / this.shaderSpeed / 2.0)
 
     this.drawCircle()
     this.drawTriangle()  
