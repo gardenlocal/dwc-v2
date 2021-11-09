@@ -2,7 +2,7 @@
 // https://stackoverflow.com/questions/40472364/moving-object-from-a-to-b-smoothly-across-canvas
 
 import * as PIXI from "pixi.js";
-import UserGarden from "./UserGarden";
+import UserGarden from "./userGarden";
 
 export default class AdminGarden extends PIXI.Container {
   constructor(users, creatures, selfGarden) {
