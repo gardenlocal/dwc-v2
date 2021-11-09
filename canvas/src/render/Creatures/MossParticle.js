@@ -5,13 +5,16 @@ import { sleep } from '../utils';
 import TWEEN from '@tweenjs/tween.js'
 
 export default class Particle extends PIXI.Graphics {
-    constructor(creatureType, elementType, elementsProps, fillColor) {
+    constructor(creatureType, elementType, elementsProps, fillColor, noVisibleElements) {
         super()
         this.creatureType = creatureType
-        this.elementType = elementType        
-        this.elementsProps = elementsProps
-        this.noElements = elementsProps.length
-        this.fillColor = fillColor
+        this.elementType = elementType
+        this.allElementsProps = elementsProps
+        this.allElementsIndex = noVisibleElements
+        
+        this.elementsProps = elementsProps.slice(0, noVisibleElements)
+        this.noElements = noVisibleElements//elementsProps.length
+        this.fillColor = fillColor        
 
         this.elements = []
         let xOffset = 0, yOffset = 0
@@ -88,7 +91,7 @@ export default class Particle extends PIXI.Graphics {
         let el = this.elements[0].children[0]
         const tween = new TWEEN.Tween(el.scale)
         .to({x: 0, y: 0 }, duration)
-        .easing(TWEEN.Easing.Quartic.InOut)
+        .easing(TWEEN.Easing.Quartic.Out)
         .start()
         await sleep(duration / 2)
 
@@ -96,7 +99,7 @@ export default class Particle extends PIXI.Graphics {
         this.elements.shift()
 
         const lastElement = this.elements[this.elements.length - 1].children[0]
-        const nextConnector = getMossNextChildConnector(this.creatureType, lastElement.nextTypeKey)
+        const nextConnector = this.allElementsProps[this.allElementsIndex] //getMossNextChildConnector(this.creatureType, lastElement.nextTypeKey)
         console.log('next connector: ', nextConnector)
         
         const nextElement = this.createChildFromConnector(nextConnector, this.connector)
@@ -108,12 +111,13 @@ export default class Particle extends PIXI.Graphics {
         el.alpha = 1
         const tween2 = new TWEEN.Tween(el.scale)
         .to({x: el.targetScale.x, y: el.targetScale.y }, duration)
-        .easing(TWEEN.Easing.Quartic.InOut)
+        .easing(TWEEN.Easing.Quartic.In)
         .start()
 
         this.connector = el.getConnectorForType(nextConnector.nextTypeKey, nextConnector.connectorIndex)         
         this.xOffset += this.connector.x
         this.yOffset += this.connector.y
+        this.allElementsIndex++
 
         await sleep(duration / 2)
 

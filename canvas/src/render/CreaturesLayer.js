@@ -57,6 +57,13 @@ export default class CreaturesLayer extends PIXI.Container {
     }
   }
 
+  evolveCreature(_id) {
+      console.log('evolving creature ', _id)
+      this.children.forEach(c => {
+          if (c.name == _id) c.evolve()
+      })
+  }
+
   tick() {
     this.children.forEach(c => {
       if (c.tick) c.tick()

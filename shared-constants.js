@@ -163,8 +163,9 @@ exports.generateMoss = () => {
     const svgElementIndex = randomIntInRange(0, noElementsForCreature)
     const firstElementType = Object.values(DWC_META.creaturesNew[creatureType])[svgElementIndex].name
 
-    const childrenSequence = getMossChildrenSequence(creatureType, firstElementType, 13, 28)
+    const childrenSequence = getMossChildrenSequence(creatureType, firstElementType, 20, 30)
     const fillColor = (Math.random() < 0.5) ? 0x0cef42 : 0xfd880b
+    const noVisibleElements = randomIntInRange(3, 6)
 
     const scale = randomInRange(1, 3)
     const rotation = randomInRange(0, 0)
@@ -175,6 +176,7 @@ exports.generateMoss = () => {
         childrenSequence,
         scale,
         rotation,
+        noVisibleElements,
         fillColor
     }    
 }

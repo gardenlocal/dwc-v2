@@ -16,7 +16,7 @@ exports.createCreature = async (garden, user) => {
   const g = garden
   const movementTransitionDuration = utils.randomInRange(10, 20)
 
-  const creatureType = utils.randomElementFromArray(Object.keys(DWC_META.creaturesNew))
+  const creatureType = Math.random() < 0.7 ? Object.keys(DWC_META.creaturesNew)[0] : Object.keys(DWC_META.creaturesNew)[1]//utils.randomElementFromArray(Object.keys(DWC_META.creaturesNew))
   let creatureProps
   switch (creatureType) {
     case 'moss':

@@ -21,6 +21,7 @@ exports.userConnected = async (socket) => {
 
   socket.on('disconnect', onDisconnect(socket))
   socket.on('adminConnect', onAdminConnect(socket))
+  socket.on('creatureEvolve', onCreatureEvolve(socket))
 
   // Get or create user for the given uid
   console.log('Fetching user from DB: ', uid)
@@ -62,6 +63,17 @@ exports.userConnected = async (socket) => {
 const onAdminConnect = (socket) => async (reason) => {
   console.log('on admin connect')
   io.emit('adminConnectBroadcast', {})
+}
+
+const creatureEvolveTimestamps = {}
+
+const onCreatureEvolve = (socket) => (data) => {
+  console.log('on creature evolve: ', data._id)
+  const now = new Date().getTime()
+  if (creatureEvolveTimestamps[data._id] && now - creatureEvolveTimestamps[data._id] < 2000) return
+
+  creatureEvolveTimestamps[data._id] = now
+  io.emit('creatureEvolveBroadcast', data)
 }
 
 const onDisconnect = (socket) => async (reason) => {

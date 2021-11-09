@@ -1,11 +1,12 @@
 import * as PIXI from 'pixi.js'
-import { distanceAndAngleBetweenTwoPoints, Vector } from './utils';
+import { distanceAndAngleBetweenTwoPoints, sleep, Vector } from './utils';
 import { DWC_META } from '../../../shared-constants';
 import PixiSVG from '../svg-lib'
 import SVGShape from './Geometry/SVGCreatureShape';
 import { randomElementFromArray, easeInOutBounce, easeInOutQuart, lerp } from './utils';
 import MossCluster from "./Creatures/MossCluster"
 import MushroomCluster from "./Creatures/MushroomCluster"
+import TWEEN from '@tweenjs/tween.js'
 
 export default class Creature extends PIXI.Container {
     constructor(state) {
@@ -44,7 +45,17 @@ export default class Creature extends PIXI.Container {
         this.destinationMarker.endFill();
         this.destinationMarker.x = toX - this.x
         this.destinationMarker.y = toY - this.y
-        this.addChild(this.destinationMarker)
+
+        this.interactive = true
+        this.on('mousedown', this.onMouseDown)
+        this.on('mouseup', this.onMouseUp)
+        this.on('mouseupoutside', this.onMouseUp)
+
+        this.on('touchstart', this.onMouseDown)
+        this.on('touchend', this.onMouseUp)
+        this.on('touchendoutside', this.onMouseUp)
+
+        // this.addChild(this.destinationMarker)
 
         switch (appearance.creatureType) {
             case 'moss':
@@ -67,6 +78,40 @@ export default class Creature extends PIXI.Container {
 
         const label = new PIXI.Text(this.name, new PIXI.TextStyle({ fontSize: 40 }))
         // this.addChild(label)
+    }
+
+    onMouseDown = async (e) => {        
+        window.APP.sendEvolveCreature(this.name)
+    }
+    onMouseUp = async (e) => {
+        // console.log('on mouse up')
+        // const tween = new TWEEN.Tween(this.scale)
+        // .to({x: 1, y: 1 }, 600)
+        // .easing(TWEEN.Easing.Quartic.InOut)
+        // .start()
+    }
+
+    async evolve() {
+        if (this.creature.evolve && !this.isEvolving) {
+            this.isEvolving = true
+
+            const tween = new TWEEN.Tween(this.scale)
+            .to({x: 1.4, y: 1.4 }, 800)
+            .easing(TWEEN.Easing.Quartic.InOut)
+            .start()
+            await sleep(800)
+                
+            this.creature.evolve(1000)            
+
+            const tween2 = new TWEEN.Tween(this.scale)
+            .to({x: 1, y: 1 }, 800)
+            .easing(TWEEN.Easing.Quartic.Out)
+            .start()    
+
+            await sleep(300)
+
+            this.isEvolving = false
+        }
     }
 
     updateState(newState) {

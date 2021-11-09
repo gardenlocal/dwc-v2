@@ -16,7 +16,7 @@ class App {
     this.pathname = window.location.pathname
     this.isTest = this.pathname == '/test'
     this.user = this.createOrFetchUser()
-    
+
     this.serverPort = window.location.hostname.includes('iptime') ? '1012' : '3000'
     this.serverUrl = `http://${window.location.hostname}`
 
@@ -35,6 +35,7 @@ class App {
     this.socket.on('creatures', this.onCreatures)
     this.socket.on('creaturesUpdate', this.onCreaturesUpdate)
     this.socket.on('adminConnectBroadcast', this.onAdminConnect)
+    this.socket.on('creatureEvolveBroadcast', this.onCreatureEvolve)
 
     this.selfGarden = null
     this.onlineCreatures = {}
@@ -71,6 +72,14 @@ class App {
   onAdminConnect = () => {
     if (this.getIsAdmin()) return
     this.pixiApp.reset()
+  }
+
+  sendEvolveCreature = (_id) => {
+    this.socket.emit('creatureEvolve', { _id })
+  }
+
+  onCreatureEvolve = ({ _id }) => {
+    this.pixiApp.evolveCreature(_id)
   }
 
   onUsersUpdate = (users) => {

@@ -118,6 +118,9 @@ export default class PixiAppWrapper {
       this.creaturesLayer.updateCreatureData(creatureData)
     }
   }
+  evolveCreature(_id) {
+    this.creaturesLayer.evolveCreature(_id)
+  }
   render() {
     if (window.APP.isTest) {
       this.pixiApp.stop()

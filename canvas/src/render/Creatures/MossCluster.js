@@ -8,12 +8,12 @@ import gradientFragment from '../shaders/radialGradient.glsl'
 import vertex from "../shaders/vertex.glsl";
 
 export default class Cluster extends PIXI.Graphics {
-    constructor({ creatureType, svgElementIndex, childrenSequence, scale, rotation, fillColor }, creatureName) {
+    constructor({ creatureType, svgElementIndex, childrenSequence, scale, rotation, fillColor, noVisibleElements }, creatureName) {
         super()
         this.creatureType = creatureType        
         this.elementType = Object.values(DWC_META.creaturesNew[creatureType])[svgElementIndex].name
 
-        this.creature = new Particle(this.creatureType, this.elementType, childrenSequence, fillColor)          
+        this.creature = new Particle(this.creatureType, this.elementType, childrenSequence, fillColor, noVisibleElements)          
         //this.drawParticle()
         this.addChild(this.creature)
         this.selfBbox = this.getBounds()
@@ -42,11 +42,13 @@ export default class Cluster extends PIXI.Graphics {
 
     async evolve(duration) {
         await this.creature.evolve(duration)
+        /*
         if (!this.stopEvolutionFlag) {
             this.evolve(duration)
         } else {
             this.stopEvolutionFlag = false
         }
+        */
     }
 
     stopEvolution() {
