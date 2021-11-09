@@ -144,7 +144,10 @@ export default class PixiAppWrapper {
 
       //this.pixiApp.stage.scale.set(window.innerWidth / bbox.width)
     } else {
-      this.gardenLayer = new UserGarden(window.APP.onlineUsers, window.APP.onlineCreatures, window.APP.selfGarden, window.APP.selfUid)
+      //this.gardenLayer = new UserGarden(window.APP.onlineUsers, window.APP.onlineCreatures, window.APP.selfGarden, window.APP.selfUid)
+      this.gardenLayer = new AdminGarden(window.APP.onlineUsers, window.APP.onlineCreatures, window.APP.selfGarden)
+      this.gardenLayer.x = -window.APP.selfGarden.x
+      this.gardenLayer.y = -window.APP.selfGarden.y  
       this.pixiApp.stage.addChild(this.gardenLayer)
 
       this.creaturesLayer = new CreaturesLayer(window.APP.onlineUsers, window.APP.onlineCreatures, window.APP.selfGarden)      

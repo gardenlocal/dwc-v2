@@ -92,7 +92,7 @@ export default class Creature extends PIXI.Container {
     }
 
     async evolve() {
-        if (this.creature.evolve && !this.isEvolving) {
+        if (!this.isEvolving) {
             this.isEvolving = true
 
             const tween = new TWEEN.Tween(this.scale)
@@ -101,7 +101,7 @@ export default class Creature extends PIXI.Container {
             .start()
             await sleep(800)
                 
-            this.creature.evolve(1000)            
+            if (this.creature.evolve) this.creature.evolve(1000)            
 
             const tween2 = new TWEEN.Tween(this.scale)
             .to({x: 1, y: 1 }, 800)
