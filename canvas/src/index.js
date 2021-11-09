@@ -4,15 +4,13 @@
 // https://github.com/pixijs/pixijs/pull/6415
 
 import * as PIXI from "pixi.js";
-import UserGarden from "./render/UserGarden";
 import CreaturesLayer from "./render/CreaturesLayer.js";
 import { loadAll } from './render/assetLoader';
-import { renderCreatureTest } from "./render/creatureTest";
 import { DWC_META } from "../../shared-constants";
 import SVGCreatureShape from "./render/Geometry/SVGCreatureShape";
 import { addStats, Stats } from 'pixi-stats';
 import TWEEN from '@tweenjs/tween.js'
-import AdminGarden from './render/AdminGarden'
+import AdminGarden from './render/adminGarden'
 
 PIXI.settings.SPRITE_MAX_TEXTURES = Math.min(PIXI.settings.SPRITE_MAX_TEXTURES , 16);
 
