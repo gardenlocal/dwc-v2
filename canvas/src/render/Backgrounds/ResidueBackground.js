@@ -183,7 +183,7 @@ export default class ResidueBackground extends PIXI.Graphics {
     this.mask = this.triangleTransition;
   }
 
-  async appear(target, duration, shape, anchor) {
+  async appear(target, duration, shape, anchor, shaderSpeed) {
     this.isAnimating = true
 
     this.currentShape = shape // randomElementFromArray(Object.values(SHAPES))
@@ -192,6 +192,10 @@ export default class ResidueBackground extends PIXI.Graphics {
     this.circleTransition.rotation = this.anchors[anchor]
     this.triangleTransition.rotation = this.anchors[anchor] // + Math.PI/2
     
+    console.log("shaderSpeed", shaderSpeed)
+    console.log("duration", duration)
+    if(shaderSpeed) this.shaderSpeed = shaderSpeed 
+
     const transitionDuration = duration
     const intermediateTransitionAlpha = target  // appear up to target
 
