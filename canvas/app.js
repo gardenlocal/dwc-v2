@@ -23,11 +23,14 @@ class App {
     this.pixiApp = new PixiApp({ isAdmin: this.pathname == '/admin' })
     await this.pixiApp.loadAssets()
 
-    this.socket = io(`${this.serverUrl}:${this.serverPort}`, {
+    this.socket = await io(`${this.serverUrl}:${this.serverPort}`, {
       query: {
         uid: this.user.id
       }
     })
+
+    // client's UID
+    window.UID = this.user.id
 
     this.socket.on('connect', this.onSocketConnect)
     this.socket.on('connect_error', this.onSocketConnectError)
@@ -111,7 +114,7 @@ class App {
     let onlineCreatures = creatures || Object.values(this.onlineCreatures)
 
     this.onlineCreatures = onlineCreatures.reduce((acc, el) => {
-      if (!!this.onlineUsers[el.owner.uid]) {
+      if (!!this.onlineUsers[el.owner?.uid]) {
         acc[el._id] = el
       }
       return acc
