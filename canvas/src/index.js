@@ -11,6 +11,10 @@ import SVGCreatureShape from "./render/Geometry/SVGCreatureShape";
 import { addStats, Stats } from 'pixi-stats';
 import TWEEN from '@tweenjs/tween.js'
 import AdminGarden from './render/adminGarden'
+import { sound } from '@pixi/sound';
+import creatureMp3 from '../assets/C.mp3'
+import creatureWav from '../assets/C.wav' // ???: 3 seconds delay when audio starts
+import creatureTrimWav from '../assets/C_trim.wav'  // trim version to test loop
 
 PIXI.settings.SPRITE_MAX_TEXTURES = Math.min(PIXI.settings.SPRITE_MAX_TEXTURES , 16);
 
@@ -90,8 +94,15 @@ export default class PixiAppWrapper {
     window.DWCCreatureShapes = Object.keys(DWC_META.creatures).reduce((acc, k) => {
       const svgData = PIXI.Loader.shared.resources[DWC_META.creatures[k]].data
       acc[DWC_META.creatures[k]] = new SVGCreatureShape(svgData)
-      return acc
     }, {})
+
+    // load sound
+    sound.add('creatureWav', {
+      url: creatureTrimWav,
+      preload: true,
+      loop: true,
+      // autoPlay: true
+    });
   }
 
   resizeAppToWindow() {
@@ -152,12 +163,37 @@ export default class PixiAppWrapper {
       this.creaturesLayer.x = -window.APP.selfGarden.x
       this.creaturesLayer.y = -window.APP.selfGarden.y  
       this.pixiApp.stage.addChild(this.creaturesLayer)
+
+      this.playSoundtrack()
     }
 
     this.pixiApp.resize()
 
     this.isLoading = false
     this.loadingScreen.alpha = 0
+  }
+
+  playSoundtrack() {
+    var root = document.getElementById("root")
+    // mobile
+    root.addEventListener('touchstart', () => {
+      console.log('touch: start music')
+
+      if(!sound._sounds?.creatureWav?.isPlaying){ // if not playing
+        sound.play('creatureWav')
+        console.log(sound._sounds.creatureWav)
+      }
+    })
+
+    // test for pc version
+    root.addEventListener('click', () => {
+      console.log('click: start music')
+
+      if(!sound._sounds?.creatureWav?.isPlaying){ // if not playing
+        sound.play('creatureWav')
+        console.log(sound._sounds.creatureWav)
+      }
+    })
   }
 
   reset() {
