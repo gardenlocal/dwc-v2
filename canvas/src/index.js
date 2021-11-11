@@ -12,7 +12,6 @@ import { addStats, Stats } from 'pixi-stats';
 import TWEEN from '@tweenjs/tween.js'
 import AdminGarden from './render/adminGarden'
 import { sound } from '@pixi/sound';
-import creatureMp3 from '../assets/C.mp3'
 import creatureWav from '../assets/C.wav' // ???: 3 seconds delay when audio starts
 import creatureTrimWav from '../assets/C_trim.wav'  // trim version to test loop
 
