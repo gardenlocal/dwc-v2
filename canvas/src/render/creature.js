@@ -12,13 +12,15 @@ export default class Creature extends PIXI.Container {
     constructor(state) {
         super()
 
-        console.log('creature state: ', state.owner._id)
+        console.log('creature state: ', state)
         const { appearance, _id, animatedProperties } = state;        
         this.name = _id
         this.ownerId = state.owner._id
         this.animatedProperties = animatedProperties        
         this.appearance = appearance        
         this.creatureName = state.owner.username
+
+        this.alpha = 0
 
         const { fillColor, radius } = appearance;
         const hex = PIXI.utils.rgb2hex([fillColor.r, fillColor.g, fillColor.b])
@@ -71,11 +73,9 @@ export default class Creature extends PIXI.Container {
         this.addChild(this.creature)
         this.creature.scale.set(appearance.scale)
         this.creature.startAnimatingGrowth(1000)
-        setTimeout(() => {
-            //this.creature.evolve(800)
-        }, 5000)
         this.frame = 0
 
+        this.updateTargetPosition(state.animatedProperties.position)
         const label = new PIXI.Text(this.name, new PIXI.TextStyle({ fontSize: 40 }))
         // this.addChild(label)
     }
@@ -129,7 +129,9 @@ export default class Creature extends PIXI.Container {
         }
     }
 
-    updateTargetPosition(prop) {
+    async updateTargetPosition(prop) {
+        console.log('updateTargetPosition for: ', prop)
+
         this.target.x = prop.to.x
         this.target.y = prop.to.y
         this.destinationMarker.x = this.target.x
@@ -140,7 +142,35 @@ export default class Creature extends PIXI.Container {
         this.movementDuration = this.animatedProperties.position.duration
         this.creatureTargetRotation = Math.atan2(this.target.y - this.originPos.y, this.target.x - this.originPos.x)
 
-        console.log('updateTargetPosition for: ', this.name, this.x, this.y, this.target.x, this.target.y)
+        if (this.motionTween) {
+            TWEEN.remove(this.motionTween)
+            this.motionTween = null
+        }
+
+        const alphaTween = new TWEEN.Tween(this)
+        .to({ alpha: 0.001 }, 1000)
+        .easing(TWEEN.Easing.Quartic.InOut)
+        .start()
+        await sleep(1000)
+        
+        this.position.set(prop.teleport.x, prop.teleport.y)
+        // this.x = prop.teleport.x
+        // this.y = prop.teleport.y
+
+        const alphaInTween = new TWEEN.Tween(this)
+        .to({ alpha: 1 }, 1000)
+        .easing(TWEEN.Easing.Quartic.InOut)
+        .start()
+        await sleep(500)
+
+        this.motionTween = new TWEEN.Tween(this)
+        .to({ x: this.target.x, y: this.target.y }, this.movementDuration * 1000)
+        .easing(TWEEN.Easing.Linear.None)
+        .start()
+    
+        // tween.onComplete( () => console.log("appear done") )
+    
+        await sleep(this.movementDuration * 1000)
     }
 
     tick(d) {
@@ -149,6 +179,9 @@ export default class Creature extends PIXI.Container {
 
         // Per-frame update for the creature SVG Shape outlines
         this.creature.tick()
+        this.creature.rotation += 0.001
+
+        /*
         // Movement animation
         if (this.movementAlpha > 1) {
             this.movementAlpha = 1 
@@ -157,9 +190,9 @@ export default class Creature extends PIXI.Container {
             this.movementAlpha += step
 
             if (this.appearance.creatureType == 'moss') {                
-                this.easedMovementAlpha = easeInOutQuart(this.movementAlpha)//this.movementAlpha
+                this.easedMovementAlpha = this.movementAlpha
             } else {
-                this.easedMovementAlpha = easeInOutQuart(this.movementAlpha)
+                this.easedMovementAlpha = this.movementAlpha//easeInOutQuart(this.movementAlpha)
             }
 
             if (this.frame % 1 == 0 || this.appearance.creatureType != 'moss') {
@@ -173,5 +206,6 @@ export default class Creature extends PIXI.Container {
         
         this.destinationMarker.x = this.target.x - this.x
         this.destinationMarker.y = this.target.y - this.y
+        */
     }
 }

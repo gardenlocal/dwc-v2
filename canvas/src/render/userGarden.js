@@ -96,15 +96,18 @@ export default class UserGarden extends PIXI.Container {
       await axios.get(WEATHER_API)
         .catch(function (err) {
           if(err.response){
-            console.log(err.response.data)
+            console.log('Error with response: ', err.response.data)
           } else if (err.request) {
-            console.log(err.request)
+            console.log('Error request: ', err.request)
           } else {
             console.log('Error', error.message);
           }
         })
+        
+    if (!weather) return
+
     const weatherData = weather.data;
-    // console.log('weatherData: ', weatherData)
+    console.log('weatherData: ', weatherData)
 
     this.temperature = weatherData.temperature;
     this.humidity = weatherData.humidity;

@@ -6,6 +6,7 @@ const gardenController = require('./garden.controller')
 
 const socketMap = {}
 const socketIdToUserId = {}
+const gardenForUidCache = {}
 
 let animationTimeout
 let io = null
@@ -40,6 +41,7 @@ exports.userConnected = async (socket) => {
   if (garden) {
     user.gardenSection = garden._id
     await database.update({ uid: user.uid }, user)
+    gardenForUidCache[uid] = garden
   } else {
     console.error('Failed to create garden section for user')
   }
@@ -82,6 +84,7 @@ const onDisconnect = (socket) => async (reason) => {
   
   delete socketIdToUserId[socket.id]
   delete socketMap[uid]
+  delete gardenForUidCache[uid]
 
   io.emit('usersUpdate', await getOnlineUsers())
   io.emit('creatures', await getAllCreatures())
@@ -106,7 +109,7 @@ exports.startAnimatingCreatures = async () => {
 
   animationTimeout = setInterval(async () => {
     const onlineUsers = Object.keys(socketMap)
-    let updated = await creatureController.updateCreatures(onlineUsers)
+    let updated = await creatureController.updateCreatures(onlineUsers, gardenForUidCache)
     if (Object.keys(updated).length > 0) io.emit('creaturesUpdate', updated)
   }, 1000)
 
