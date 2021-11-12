@@ -99,6 +99,10 @@ export default class UserGarden extends PIXI.Container {
   }
 
   async fetchWeatherData() {
+    // Cezar: If the API call fails (happened to me, if the server is down or w/e),
+    // The backgrounds don't get drawn because of an exception.
+    // Please enclose this in a try/catch or make sure things still work if the API call
+    // throws an exception.
     return
     const weather = 
       await axios.get(WEATHER_API)
