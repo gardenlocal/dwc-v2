@@ -5,6 +5,7 @@ import * as PIXI from "pixi.js";
 import ResidueBackground from "./Backgrounds/ResidueBackground";
 import axios from 'axios';
 import { map } from "./utils";
+import { update } from "@tweenjs/tween.js";
 //import { SHAPES, TILE1, TILE2, TILE3, TILE4 } from "./Backgrounds/ResidueData.js";
 
 const WEATHER_API = `http://dwc2-taeyoon-studio.iptime.org:1055/weather`
@@ -18,8 +19,8 @@ export default class UserGarden extends PIXI.Container {
     this.creatures = creatures
     this.userGarden = selfGarden    
     this.uid = uid
-    this.temperature = 0;
-    this.humidity = 0;
+    this.temperature = 5;
+    this.humidity = 50;
 
     if (!this.userGarden) return
 
@@ -27,8 +28,13 @@ export default class UserGarden extends PIXI.Container {
       currentTile: 0
     }
 
+    this.init()
+  }
+
+  async init() {
+    await this.fetchWeatherData()
     this.drawBackgrounds()
-    this.fetchWeatherData()
+
     window.setInterval(this.fetchWeatherData, 10000);
   }
 
@@ -51,10 +57,11 @@ export default class UserGarden extends PIXI.Container {
   async animateBackgrounds() {
 
     // params based on weather data
-    const duration = map(this.temperature, -5, 20, 85000, 25000) // hotter, faster, shorter duration
+    const duration = map(this.temperature, -5, 20, 8500, 2500) // hotter, faster, shorter duration
     const shaderSpeed = map(this.humidity, 60, 80, 1, 0.1)  // more humid, faster
     const shaderRand = Math.random() * 10 + shaderSpeed
-    const targetSize = map(this.humidity, 50, 80, 0.25, 0.75)  // more humid, larger size
+    const targetSize = map(this.humidity, 40, 80, 0.25, 0.75)  // more humid, larger size
+    console.log("HUMID ///////////////////", this.humidity, targetSize )
 
     for(let i = 0; i < this.tilesContainer.children.length; i++) {
       const currentTile = this.userGarden.tileProps[i];
@@ -109,6 +116,7 @@ export default class UserGarden extends PIXI.Container {
     this.temperature = weatherData.temperature;
     this.humidity = weatherData.humidity;
 
+    console.log("fetchWeatherData ///////////////////", weatherData)
     const timestamp = weatherData.timestamp;
     const unixTimeZero = Date.parse(timestamp) / 1000
     var date = new Date(unixTimeZero * 1000)
@@ -116,7 +124,7 @@ export default class UserGarden extends PIXI.Container {
   }
 
   tick() {
-    this.tilesContainer.children.forEach(bg => {
+    this.tilesContainer?.children.forEach(bg => {
       if(bg.tick) bg.tick()
     })
   }
