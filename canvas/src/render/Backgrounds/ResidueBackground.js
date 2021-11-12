@@ -28,11 +28,6 @@ export default class ResidueBackground extends PIXI.Graphics {
     this.H = window.GARDEN_HEIGHT
 
     this.time = shaderTimeSeed
-    if (window.APP.getIsAdmin()) {
-      // this.time += 20
-    }
-
-    this.time = 0
     this.shaderSpeed = shaderSpeed
     //this.time = Math.random() * 10
     //this.shaderSpeed = Math.random() * 10 + 1
@@ -43,25 +38,25 @@ export default class ResidueBackground extends PIXI.Graphics {
     this.clippingArea.drawRect(0, 0, this.W, this.H)  
     this.addChild(this.clippingArea)
     this.mask = this.clippingArea // replace mask with shader filter
-
-    // Set up gradient
-    const geometry = new PIXI.Geometry() 
-    .addAttribute('aVertexPosition', [0, 0, this.W , 0, this.W , this.H, 0, this.H], 2) 
-    .addAttribute('aUvs', [0,0,1,0,1,1,0,1], 2)
-    .addIndex([0, 1, 2, 0, 2, 3]);
   
-    let s = window.DWCApp.stage.scale.y
+    this.s = window.DWCApp.stage.scale.y
     if (window.APP.getIsAdmin()) {
-      s *= 0.2
+      this.s *= 0.2
     }
-    const globalPos = this.toGlobal(new PIXI.Point(0, 0))
+
     this.gradientUniforms = {
         u_time: 1.0,
         u_point1: [0.5, 0.0], u_radius1: 0.1, u_color1: [12.0 / 256.0, 239.0 / 256.0, 66.0 / 256.0],
         u_point2: [0.5, 1.0], u_radius2: 0.1, u_color2: [253.0 / 256.0, 136.0 / 256.0, 11.0 / 256.0],
-        u_offset: [globalPos.x / s, globalPos.y / s],
-        u_resolution: [this.W * s, this.H * s],
-        u_scale: s * 1.0
+        u_offset: [0.0, - window.DWCApp.stage.pivot.y * this.s * 1.0],
+        u_resolution: [this.W * 1.0, this.H * 1.0],
+        u_scale: this.s * 1.0
+    }
+
+    this.timeOffset = 0.0
+    if (window.APP.getIsAdmin()) {
+    } else {
+      this.timeOffset = (4 + (window.APP.selfGarden.y / 1000) % 4) % 4 + 2.0
     }
 
     const gradientFilter = new PIXI.Filter(null, HorizontalGradientFrag, this.gradientUniforms);
@@ -170,7 +165,7 @@ export default class ResidueBackground extends PIXI.Graphics {
     let triangleAlpha = this.transitionAlpha //+ Math.cos(this.frame / 5) / 800
 
     this.triangleTransition.clear()
-    this.triangleTransition.beginFill(0xf9f9f9)
+    this.triangleTransition.beginFill(0xffffff)
     const midCoord = lerpPoint({ x: 0, y: 0 }, { x: this.W, y: this.H }, triangleAlpha)
     this.triangleTransition.drawPolygon([
       0, 0,
@@ -234,10 +229,11 @@ export default class ResidueBackground extends PIXI.Graphics {
     if (!this.frame) this.frame = 0
     this.frame++
     let delta = PIXI.Ticker.shared.elapsedMS
-    this.time += delta/1000 ;
+    this.time += delta / 1000
+    // this.time += this.shaderSpeed / 1000 //0.016//delta/1000.0;
 
     // Shader background
-    this.gradientUniforms.u_time = (this.time / this.shaderSpeed / 2.0)
+    this.gradientUniforms.u_time = this.timeOffset + (this.time / this.shaderSpeed / 2.0) //((this.time + this.timeOffset) / this.shaderSpeed / 2.0)
 
     this.drawCircle()
     this.drawTriangle()  

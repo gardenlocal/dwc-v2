@@ -58,14 +58,14 @@ export default class UserGarden extends PIXI.Container {
 
     // params based on weather data
     const duration = map(this.temperature, -5, 20, 85000, 25000) // hotter, faster, shorter duration
-    const shaderSpeed = map(this.humidity, 60, 80, 1, 0.1)  // more humid, faster
-    const shaderRand = Math.random() * 10 + shaderSpeed
+    const shaderSpeed = map(this.humidity, 60, 80, 1, 0.1)  // more humid, faster    
     const targetSize = map(this.humidity, 40, 80, 0.25, 0.75)  // more humid, larger size
     console.log("HUMID ///////////////////", this.humidity, targetSize )
 
     for(let i = 0; i < this.tilesContainer.children.length; i++) {
       const currentTile = this.userGarden.tileProps[i];
       const currentLoop = currentTile[this.bgAnimationParams.currentTile];
+      const shaderRand = shaderSpeed * map(i, 0, 4, 5, 10)
 
       await this.tilesContainer.children[i].appear(targetSize, duration, currentLoop.shape, currentLoop.anchor, shaderRand) // appear at 0, disappear after bg2+bg3+bg4_duration
       if (i > 0) {
@@ -99,15 +99,19 @@ export default class UserGarden extends PIXI.Container {
   }
 
   async fetchWeatherData() {
+    return
     const weather = 
       await axios.get(WEATHER_API)
         .catch(function (err) {
           if(err.response){
             console.log('Error with response: ', err.response.data)
+            return
           } else if (err.request) {
             console.log('Error request: ', err.request)
+            return
           } else {
             console.log('Error', error.message);
+            return
           }
         })
         

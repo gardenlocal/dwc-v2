@@ -21,20 +21,12 @@ highp float dist(vec2 a, vec2 b) {
 }
 
 void main() {
-    // vec2 st = gl_FragCoord.xy;
-    //vec2 st = (gl_FragCoord.xy - u_offset.xy + vec2(100000.0, 100000.0) - 1000.0 * floor(gl_FragCoord.xy / 1000.0));
-    vec2 st = gl_FragCoord.xy - u_offset.xy;
-    st = st / u_resolution;
+    vec2 st = (gl_FragCoord.xy - u_offset.xy) / u_resolution / u_scale;
     float gradientScale = 4.0;
     st.y += u_time;
     st.y = st.y - (gradientScale * floor(st.y / gradientScale));
 
     vec3 color;
-    /*
-    vec2 u_point1 = vec2(0.50,1.0 - sin(u_time)); // top
-    vec2 u_point2 = vec2(0.50,0.50 - sin(u_time)); // midle white
-    vec2 u_point3 = vec2(0.50,0.0 - sin(u_time)); // bottom
-    */
 
     vec2 u_point1 = vec2(0.50,gradientScale * 1.0);
     vec2 u_point2 = vec2(0.50,gradientScale * 0.75);

@@ -21,7 +21,7 @@ export default class AdminGarden extends PIXI.Container {
 
     Object.values(this.users).forEach(u => {
       if (!window.APP.getIsAdmin()) {
-        if (Math.abs(u.gardenSection.x - currentUser.gardenSection.x) > 1010 || Math.abs(u.gardenSection.y - currentUser.gardenSection.y) > 1010) {
+        if (Math.abs(u.gardenSection.x - currentUser.gardenSection.x) > 1100 || Math.abs(u.gardenSection.y - currentUser.gardenSection.y) > 1100) {
           return
         }
       }
