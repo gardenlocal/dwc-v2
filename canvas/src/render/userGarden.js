@@ -57,7 +57,7 @@ export default class UserGarden extends PIXI.Container {
   async animateBackgrounds() {
 
     // params based on weather data
-    const duration = map(this.temperature, -5, 20, 8500, 2500) // hotter, faster, shorter duration
+    const duration = map(this.temperature, -5, 20, 85000, 25000) // hotter, faster, shorter duration
     const shaderSpeed = map(this.humidity, 60, 80, 1, 0.1)  // more humid, faster
     const shaderRand = Math.random() * 10 + shaderSpeed
     const targetSize = map(this.humidity, 40, 80, 0.25, 0.75)  // more humid, larger size
