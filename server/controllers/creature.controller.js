@@ -94,7 +94,7 @@ const getGardensBounds = async () => {
     bbox.x1 = Math.min(bbox.x1, g.x)
     bbox.y1 = Math.min(bbox.y1, g.y)
     bbox.x2 = Math.max(bbox.x2, g.x)
-    bbox.y2 = Math.min(bbox.y2, g.y)
+    bbox.y2 = Math.max(bbox.y2, g.y)
   }  
 
   bbox.x2 += 1000
@@ -105,27 +105,30 @@ const getGardensBounds = async () => {
 const generateCreatureMovement = async (type, ownerGarden, fromPosition) => {
 
   if (!fromPosition) {
-    fromPosition = { x: utils.randomInRange(ownerGarden.x + 150, ownerGarden.x + ownerGarden.width - 150), y: utils.randomInRange(ownerGarden.y + 150, ownerGarden.y + ownerGarden.height - 150) }    
+    fromPosition = { x: utils.randomInRange(ownerGarden.x + 250, ownerGarden.x + ownerGarden.width - 250), y: utils.randomInRange(ownerGarden.y + 250, ownerGarden.y + ownerGarden.height - 250) }    
   }
 
   const gardenBoundingBox = await getGardensBounds()
 
-  let teleportPosition = { x: utils.randomInRange(ownerGarden.x + 150, ownerGarden.x + ownerGarden.width - 150), y: utils.randomInRange(ownerGarden.y + 150, ownerGarden.y + ownerGarden.height - 150) }  
+  let teleportPosition = { x: utils.randomInRange(ownerGarden.x + 250, ownerGarden.x + ownerGarden.width - 250), y: utils.randomInRange(ownerGarden.y + 250, ownerGarden.y + ownerGarden.height - 250) }  
   let toPosition
 
   console.log('type is: ', type)
 
   switch (type) {
     case 'moss':
-      let y = gardenBoundingBox.y1 - 200
+      let diagonalY = (Math.random() < 0.5) ? 1 : -1
+      let diagonalX = (Math.random() < 0.5) ? 1 : -1
+      let y = (diagonalY < 0) ? (gardenBoundingBox.y2 + 200) : (gardenBoundingBox.y1 - 200)
       toPosition = {
-        x: teleportPosition.x + Math.abs(y - teleportPosition.y) * (1 / Math.sqrt(3)),
+        x: teleportPosition.x + diagonalX * Math.abs(y - teleportPosition.y), //* (1 / Math.sqrt(3)),
         y: y
       }
       break
     case 'mushroom':
+      const direction = (Math.random() < 0.5) ? 1 : -1
       toPosition = {
-        x: gardenBoundingBox.x2 + 200,
+        x: (direction < 0) ? gardenBoundingBox.x1 - 200 : gardenBoundingBox.x2 + 200,
         y: teleportPosition.y
       }
       break
