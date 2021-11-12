@@ -11,9 +11,11 @@ function sleep(s) {
 (async () => {
     let pages = []    
     const browser = await puppeteer.launch();
-    for (let i = 0; i < 15; i++) {                
+    for (let i = 0; i < 12; i++) {                
         const page = await browser.newPage();
         await page.goto('http://localhost:1234/test');
+        // await page.goto('http://dwc2-taeyoon-studio.iptime.org:1013/test');
+        
         await page.setDefaultNavigationTimeout(0); 
         pages.push(page)
         //await page.screenshot({ path: 'example.png' });
@@ -25,8 +27,8 @@ function sleep(s) {
         //browsers.push(browser)        
     }
 
-    await sleep(40000)
-    
+    await sleep(400000)
+
     for (let i = 0; i < pages.length; i++) {
         pages[i].close()
         await sleep(Math.random() * 2000)

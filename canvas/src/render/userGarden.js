@@ -69,15 +69,15 @@ export default class UserGarden extends PIXI.Container {
 
       await this.tilesContainer.children[i].appear(targetSize, duration, currentLoop.shape, currentLoop.anchor, shaderRand) // appear at 0, disappear after bg2+bg3+bg4_duration
       if (i > 0) {
-        const currentTile = this.userGarden.tileProps[i - 1];
-        const currentLoop = currentTile[this.bgAnimationParams.currentTile];  
+        // const currentTile = this.userGarden.tileProps[i - 1];
+        // const currentLoop = currentTile[this.bgAnimationParams.currentTile];  
         await this.tilesContainer.children[i - 1].disappear(targetSize, duration) // appear at 0, disappear after bg2+bg3+bg4_duration  
       }
     }
 
     let i = this.tilesContainer.children.length - 1
-    const currentTile = this.userGarden.tileProps[i];
-    const currentLoop = currentTile[this.bgAnimationParams.currentTile];
+    // const currentTile = this.userGarden.tileProps[i];
+    // const currentLoop = currentTile[this.bgAnimationParams.currentTile];
     await this.tilesContainer.children[i].disappear(targetSize, duration) // appear at 0, disappear after bg2+bg3+bg4_duration  
 
     /*
@@ -103,15 +103,17 @@ export default class UserGarden extends PIXI.Container {
       await axios.get(WEATHER_API)
         .catch(function (err) {
           if(err.response){
-            console.log(err.response.data)
+            console.log('Error with response: ', err.response.data)
           } else if (err.request) {
-            console.log(err.request)
+            console.log('Error request: ', err.request)
           } else {
             console.log('Error', error.message);
           }
         })
+        
+    if (!weather) return
+
     const weatherData = weather.data;
-    // console.log('weatherData: ', weatherData)
 
     this.temperature = weatherData.temperature;
     this.humidity = weatherData.humidity;
