@@ -17,12 +17,32 @@ export default class AdminGarden extends PIXI.Container {
   }
 
   drawBackgrounds() {
+    let currentUser = Object.values(this.users).filter(u => u.uid == window.UID)[0]
+
     Object.values(this.users).forEach(u => {
+      if (!window.APP.getIsAdmin()) {
+        if (Math.abs(u.gardenSection.x - currentUser.gardenSection.x) > 1010 || Math.abs(u.gardenSection.y - currentUser.gardenSection.y) > 1010) {
+          return
+        }
+      }
       const garden = new UserGarden(this.users, this.creatures, u.gardenSection, u.uid)
       garden.x = u.gardenSection.x
       garden.y = u.gardenSection.y
       this.addChild(garden)
+
+      if (u.uid == currentUser.uid) {        
+        // This is the current user, we need to add an event listener for click
+        garden.interactive = true
+        garden.on('mousedown', this.onGardenTap)
+      }
     })
+  }
+
+  onGardenTap = (e) => {
+    console.log('on garden tap: ', e.data.global)
+    let local = this.toLocal(e.data.global)
+    console.log('--- local: ', local)
+    window.APP.sendGardenTap(local)
   }
 
   updateOnlineUsers(onlineUsers) {

@@ -81,6 +81,10 @@ class App {
     this.socket.emit('creatureEvolve', { _id })
   }
 
+  sendGardenTap = (coords) => {
+    this.socket.emit('gardenTap', coords)
+  }
+
   onCreatureEvolve = ({ _id }) => {
     this.pixiApp.evolveCreature(_id)
   }

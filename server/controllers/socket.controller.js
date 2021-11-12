@@ -23,6 +23,7 @@ exports.userConnected = async (socket) => {
   socket.on('disconnect', onDisconnect(socket))
   socket.on('adminConnect', onAdminConnect(socket))
   socket.on('creatureEvolve', onCreatureEvolve(socket))
+  socket.on('gardenTap', onGardenTap(socket))
 
   // Get or create user for the given uid
   console.log('Fetching user from DB: ', uid)
@@ -76,6 +77,13 @@ const onCreatureEvolve = (socket) => (data) => {
 
   creatureEvolveTimestamps[data._id] = now
   io.emit('creatureEvolveBroadcast', data)
+}
+
+onGardenTap = (socket) => async (data) => {
+  const uid = socketIdToUserId[socket.id]
+  const user = await getUserInfo(uid)
+  let updates = await creatureController.updateSingleCreatureForTap(user, data)
+  io.emit('creaturesUpdate', updates)
 }
 
 const onDisconnect = (socket) => async (reason) => {

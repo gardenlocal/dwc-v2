@@ -102,7 +102,7 @@ const getGardensBounds = async () => {
   return bbox
 }
 
-const generateCreatureMovement = async (type, ownerGarden, fromPosition) => {
+const generateCreatureMovement = async (type, ownerGarden, fromPosition, teleport) => {
 
   if (!fromPosition) {
     fromPosition = { x: utils.randomInRange(ownerGarden.x + 250, ownerGarden.x + ownerGarden.width - 250), y: utils.randomInRange(ownerGarden.y + 250, ownerGarden.y + ownerGarden.height - 250) }    
@@ -110,7 +110,7 @@ const generateCreatureMovement = async (type, ownerGarden, fromPosition) => {
 
   const gardenBoundingBox = await getGardensBounds()
 
-  let teleportPosition = { x: utils.randomInRange(ownerGarden.x + 250, ownerGarden.x + ownerGarden.width - 250), y: utils.randomInRange(ownerGarden.y + 250, ownerGarden.y + ownerGarden.height - 250) }  
+  let teleportPosition = teleport ? teleport : ({ x: utils.randomInRange(ownerGarden.x + 250, ownerGarden.x + ownerGarden.width - 250), y: utils.randomInRange(ownerGarden.y + 250, ownerGarden.y + ownerGarden.height - 250) })
   let toPosition
 
   console.log('type is: ', type)
@@ -147,6 +147,20 @@ const generateCreatureMovement = async (type, ownerGarden, fromPosition) => {
   )
 }
 
+exports.updateSingleCreatureForTap = async (user, newPosition) => {
+  const garden = user.gardenSection
+  const creature = await exports.getCreatureForUser(user.uid)
+
+  const creatureAnimationParams = await generateCreatureMovement(creature.appearance.creatureType, garden, null, newPosition)
+  creature.animatedProperties.position = creatureAnimationParams
+  await database.update({ _id: creature._id }, { $set: { animatedProperties: creature.animatedProperties }})
+  
+  let updated = {}
+  updated[creature._id] = { position: creatureAnimationParams }
+
+  return updated
+}
+
 exports.updateCreatures = async (onlineUsers, gardensForUid) => {
   //console.log('online users: ', onlineUsers)
   const updated = {}
@@ -160,18 +174,13 @@ exports.updateCreatures = async (onlineUsers, gardensForUid) => {
     return acc
   }, {})
 
-  // console.log('update creatures: ', onlineUsers, allCreatures)
-
   for (const [key, creature] of Object.entries(allCreatures)) {
     const { animatedProperties } = creature
-
-    // console.log('Checking creature: ', creature.animatedProperties)
 
     let updatesForKey = {}
     for (const [animKey, animProp] of Object.entries(animatedProperties)) {
 
       if (now - animProp.startTime >= animProp.duration * 1000) {
-        // We respawn the creature in its own user's garden
         //const ownerGarden = gardensForUid[creature.owner.uid]
         const ownerGarden = utils.randomElementFromArray(Object.values(gardensForUid))
         const creatureAnimationParams = await generateCreatureMovement(creature.appearance.creatureType, ownerGarden, animProp.to)
@@ -184,29 +193,6 @@ exports.updateCreatures = async (onlineUsers, gardensForUid) => {
       }
     }
   }
-  
-  // console.log('Updates: ', updated)
 
   return updated
-    /*
-    const { directionChangeTimestamp, transitionDuration } = allCreatures[key].movement
-    if (now - directionChangeTimestamp >= 1000 * transitionDuration) {
-      allCreatures[key].movement.fromX = allCreatures[key].movement.toX
-      allCreatures[key].movement.fromY = allCreatures[key].movement.toY
-
-      const randomUser = onlineUsers[utils.randomIntInRange(0, onlineUsers.length)]    
-      const user = await getUserInfo(randomUser)
-      const garden = user.gardenSection
-
-      allCreatures[key].movement.toX = utils.randomInRange(garden.x, garden.x + garden.width)
-      allCreatures[key].movement.toY = utils.randomInRange(garden.y, garden.y + garden.height)
-      allCreatures[key].movement.directionChangeTimestamp = now
-      allCreatures[key].movement.transitionDuration = utils.randomIntInRange(10, 25)
-
-      await database.update({ _id: allCreatures[key]._id }, allCreatures[key])
-
-      updated[key] = allCreatures[key]
-    }
-  }
-  */  
 }

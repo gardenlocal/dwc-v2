@@ -77,6 +77,9 @@ export default class Creature extends PIXI.Container {
 
         this.updateTargetPosition(state.animatedProperties.position)
         const label = new PIXI.Text(this.name, new PIXI.TextStyle({ fontSize: 40 }))
+
+        const bbox = this.getBounds()
+        this.pivot.set(-bbox.width / 2, -bbox.height / 2)
         // this.addChild(label)
     }
 
@@ -140,7 +143,7 @@ export default class Creature extends PIXI.Container {
         this.originPos.y = this.y
         this.movementAlpha = 0
         this.movementDuration = this.animatedProperties.position.duration
-        this.creatureTargetRotation = Math.atan2(this.target.y - this.originPos.y, this.target.x - this.originPos.x)
+        this.creatureTargetRotation = Math.atan2(this.target.y - this.originPos.y, this.target.x - this.originPos.x)        
 
         if (this.motionTween) {
             TWEEN.remove(this.motionTween)
@@ -154,6 +157,7 @@ export default class Creature extends PIXI.Container {
         await sleep(1000)
         
         this.position.set(prop.teleport.x, prop.teleport.y)
+        this.creature.rotation = 0
         // this.x = prop.teleport.x
         // this.y = prop.teleport.y
 
