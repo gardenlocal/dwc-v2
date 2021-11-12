@@ -14,7 +14,6 @@ exports.createCreature = async (garden, user) => {
   console.log('Create creature: ', user.uid)
 
   const g = garden
-  const movementTransitionDuration = utils.randomInRange(10, 20)
 
   const creatureType = Math.random() < 0.7 ? Object.keys(DWC_META.creaturesNew)[0] : Object.keys(DWC_META.creaturesNew)[1]//utils.randomElementFromArray(Object.keys(DWC_META.creaturesNew))
   let creatureProps
@@ -120,8 +119,15 @@ const generateCreatureMovement = async (type, ownerGarden, fromPosition, telepor
       let diagonalY = (Math.random() < 0.5) ? 1 : -1
       let diagonalX = (Math.random() < 0.5) ? 1 : -1
       let y = (diagonalY < 0) ? (gardenBoundingBox.y2 + 200) : (gardenBoundingBox.y1 - 200)
+      let x = teleportPosition.x + diagonalX * Math.abs(y - teleportPosition.y) 
+
+      if (x < gardenBoundingBox.x1 - 500 || x > gardenBoundingBox.x2 + 500) {
+        x = (diagonalX < 0) ? (gardenBoundingBox.x1 - 200) : (gardenBoundingBox.x2 + 200)
+        y = teleportPosition.y + diagonalY * Math.abs(x - teleportPosition.x)
+      }
+      
       toPosition = {
-        x: teleportPosition.x + diagonalX * Math.abs(y - teleportPosition.y), //* (1 / Math.sqrt(3)),
+        x: x,
         y: y
       }
       break
@@ -136,7 +142,7 @@ const generateCreatureMovement = async (type, ownerGarden, fromPosition, telepor
       break
   }
 
-  let duration = utils.randomIntInRange(20, 30)
+  let duration = utils.randomInRange(0.5, 1) * utils.distance(teleportPosition, toPosition) * 0.05
 
   return new AnimatedProperty(
     DWC_META.creaturePropertyTypes.position,
