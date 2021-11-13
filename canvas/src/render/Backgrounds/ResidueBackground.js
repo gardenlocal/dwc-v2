@@ -74,8 +74,6 @@ export default class ResidueBackground extends PIXI.Graphics {
 
     this.isAnimating = false
     this.firstRenderCount = 0
-    // helper guide
-    // this.helper = new PIXI.Graphics();
   }
 
   setupCircle() {
@@ -139,16 +137,6 @@ export default class ResidueBackground extends PIXI.Graphics {
     this.circleTransition.closePath();
 
     this.mask = this.circleTransition;
-    
-    // this.helper.clear();
-    // this.helper.beginFill(0xff1100);
-    // this.helper.drawCircle(pA.x, pA.y, 10)
-    // this.helper.beginFill(0x0011ff);
-    // this.helper.drawCircle(pB.x, pB.y, 10)
-    // this.helper.beginFill(0xff0088)
-    // this.helper.drawCircle(cpx1, cpy1, 10)
-    // this.addChild(this.helper)
-
   }
 
   drawTriangle() {
@@ -187,8 +175,6 @@ export default class ResidueBackground extends PIXI.Graphics {
     this.circleTransition.rotation = this.anchors[anchor]
     this.triangleTransition.rotation = this.anchors[anchor] // + Math.PI/2
     
-    console.log("shaderSpeed", shaderSpeed)
-    console.log("duration", duration)
     if(shaderSpeed) this.shaderSpeed = shaderSpeed 
 
     const transitionDuration = duration
@@ -201,8 +187,6 @@ export default class ResidueBackground extends PIXI.Graphics {
     .easing(TWEEN.Easing.Linear.None)
     // .easing(TWEEN.Easing.Quartic.InOut)
     .start()
-
-    // tween.onComplete( () => console.log("appear done") )
 
     await sleep(d1)
 
@@ -218,8 +202,6 @@ export default class ResidueBackground extends PIXI.Graphics {
     .to({ transitionAlpha: 0 }, d2)
     .easing(TWEEN.Easing.Linear.None)
     .start()
-
-    // tween2.onComplete( () => console.log("disappear done") )
 
     await sleep(d2)
     this.isAnimating = false
