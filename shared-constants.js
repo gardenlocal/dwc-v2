@@ -128,32 +128,6 @@ const DWC_META = {
 
 exports.DWC_META = DWC_META
 
-exports.generateMushroom = () => {
-    const creatureType = 'mushroom'
-    const noElementsForCreature = Object.keys(DWC_META.creaturesNew[creatureType]).length
-    const svgElementIndex = randomIntInRange(0, noElementsForCreature)
-
-    const mirrorSectionScale = randomInRange(0.3, 1)        
-
-    const mainSectionChildren = getMushroomChildren(3, 8)
-    const mirrorSectionChildren = getMushroomChildren(3, 8)
-
-    const scale = randomInRange(1, 4)
-    const rotation = randomInRange(-Math.PI / 2, Math.PI / 2)
-    const fillColor = (Math.random() < 0.5) ? 0x0cef42 : 0xfd880b
-
-    return {
-        creatureType,
-        svgElementIndex,
-        mirrorSectionScale,        
-        mainSectionChildren,
-        mirrorSectionChildren,
-        scale,
-        rotation,
-        fillColor
-    }
-}
-
 exports.generateMoss = () => {
     const creatureType = 'moss'
     const noElementsForCreature = Object.keys(DWC_META.creaturesNew[creatureType]).length
@@ -214,6 +188,34 @@ const getMossNextChildConnector = (creatureType, elementType, prevIndex = -4) =>
     }
 }
 exports.getMossNextChildConnector = getMossNextChildConnector
+
+exports.generateMushroom = () => {
+    const creatureType = 'mushroom'
+    const noElementsForCreature = Object.keys(DWC_META.creaturesNew[creatureType]).length
+    const svgElementIndex = randomIntInRange(0, noElementsForCreature)
+
+    const mirrorSectionScale = randomInRange(0.3, 0.6)        
+
+    const mainSectionChildren = getMushroomChildren(3, 8)
+    const mirrorSectionChildren = getMushroomChildren(3, 8)
+    const mirrorSectionParentIndex = randomIntInRange(0, mainSectionChildren.length)
+
+    const scale = randomInRange(1, 4)
+    const rotation = randomInRange(-Math.PI / 2, Math.PI / 2)
+    const fillColor = (Math.random() < 0.5) ? 0x0cef42 : 0xfd880b
+
+    return {
+        creatureType,
+        svgElementIndex,
+        mirrorSectionScale,        
+        mainSectionChildren,
+        mirrorSectionChildren,
+        mirrorSectionParentIndex,
+        scale,
+        rotation,
+        fillColor
+    }
+}
 
 const getMushroomChildren = (minChildren, maxChildren) => {
     let noElements = randomIntInRange(minChildren, maxChildren)    

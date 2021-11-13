@@ -53,8 +53,8 @@ async function render(app) {
 
   //drawAllMoss(100)
   //drawMushrooms()
-  drawOneMoss()
-  //drawOneMushroom()
+  //drawOneMoss()
+  drawOneMushroom()
 
   app.stage.addChild(gardenContainer)
 
