@@ -78,8 +78,6 @@ export default class Creature extends PIXI.Container {
         this.updateTargetPosition(state.animatedProperties.position)
         const label = new PIXI.Text(this.name, new PIXI.TextStyle({ fontSize: 40 }))
 
-        const bbox = this.getBounds()
-        this.pivot.set(-bbox.width / 2, -bbox.height / 2)
         // this.addChild(label)
     }
 
@@ -98,20 +96,27 @@ export default class Creature extends PIXI.Container {
         if (!this.isEvolving) {
             this.isEvolving = true
 
+            /*
             const tween = new TWEEN.Tween(this.scale)
             .to({x: 1.4, y: 1.4 }, 800)
             .easing(TWEEN.Easing.Quartic.InOut)
             .start()
             await sleep(800)
+            */
                 
-            if (this.creature.evolve) this.creature.evolve(1000)            
+            if (this.creature.evolve) await this.creature.evolve(1000)            
 
+            /*
             const tween2 = new TWEEN.Tween(this.scale)
             .to({x: 1, y: 1 }, 800)
             .easing(TWEEN.Easing.Quartic.Out)
             .start()    
 
-            await sleep(300)
+            await sleep(1200)
+            */
+
+            // const bbox = this.creature.getBounds()
+            // this.creature.pivot.set(bbox.width / 2, bbox.height / 2)    
 
             this.isEvolving = false
         }

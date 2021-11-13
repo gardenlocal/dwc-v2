@@ -119,7 +119,7 @@ export default class Particle extends PIXI.Graphics {
         this.yOffset += this.connector.y
         this.allElementsIndex++
 
-        await sleep(duration / 2)
+        await sleep(3 * duration / 2)
 
         //this.bbox = this.getBounds()
         //this.pivot.set(-this.bbox.x, -this.bbox.y)

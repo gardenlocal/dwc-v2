@@ -6,6 +6,8 @@ import Particle from './MossParticle';
 import { BlurFilter } from '@pixi/filter-blur';
 import gradientFragment from '../shaders/radialGradient.glsl'
 import vertex from "../shaders/vertex.glsl";
+import TWEEN from '@tweenjs/tween.js'
+import { sleep } from '../utils';
 
 export default class Cluster extends PIXI.Graphics {
     constructor({ creatureType, svgElementIndex, childrenSequence, scale, rotation, fillColor, noVisibleElements }, creatureName) {
@@ -13,24 +15,41 @@ export default class Cluster extends PIXI.Graphics {
         this.creatureType = creatureType        
         this.elementType = Object.values(DWC_META.creaturesNew[creatureType])[svgElementIndex].name
 
+        const textBoxColor = (fillColor != 0x0cef42) ? 0x0cef42 : 0xfd880b
+
         this.creature = new Particle(this.creatureType, this.elementType, childrenSequence, fillColor, noVisibleElements)          
         //this.drawParticle()
         this.addChild(this.creature)
         this.selfBbox = this.getBounds()
 
-        this.creatureBounds = this.creature.getBounds()
+        this.creatureBounds = this.creature.getLocalBounds()
+        console.log('creature bounds: ', this.creatureBounds)
         const textStyle = new PIXI.TextStyle({
-            fontSize: 40,
-            fill: fillColor,
+            fontSize: 22,
+            //fill: fillColor,
+            //fill: '#f9f9f9',
+            fill: textBoxColor,
             stroke: "white",
         })
 
         this.pivot.set(this.selfBbox.width / 2, this.selfBbox.height / 2)
 
-        this.message = new PIXI.Text(creatureName, textStyle);
-        this.message.position.set(this.creatureBounds.x, 0 - 15)
+        this.messageText = new PIXI.Text("Taeyoon's Moss", textStyle);
+        this.messageText.position.set(10, 5)
+        this.messageBg = new PIXI.Graphics()
+        const msgBounds = this.messageText.getLocalBounds()
+        this.messageBg.beginFill(textBoxColor)
+        this.messageBg.drawRect(msgBounds.x, msgBounds.y, msgBounds.width + 20, msgBounds.height + 10)
+        this.messageBg.alpha = 0.0001
+
+
+        this.message = new PIXI.Container()        
+        this.message.addChild(this.messageBg)
+        this.message.addChild(this.messageText)
         this.message.scale.set(0.25)
         this.addChild(this.message)
+        this.textBounds = this.message.getLocalBounds()
+        this.message.position.set(this.creatureBounds.x + this.creatureBounds.width / 2 - this.textBounds.width / 8, this.creatureBounds.y + this.creatureBounds.height / 2 - this.textBounds.height / 8)
 
         //this.scale.set(scale)
         //this.rotation = rotation
@@ -38,17 +57,34 @@ export default class Cluster extends PIXI.Graphics {
 
     async startAnimatingGrowth(elementDuration, elementDelay) {
         await this.creature.startAnimatingGrowth(elementDuration, elementDelay)
+        this.textBounds = this.message.getLocalBounds()
+        this.message.position.set(this.creatureBounds.x + this.creatureBounds.width / 2 - this.textBounds.width / 8, this.creatureBounds.y + this.creatureBounds.height / 2 - this.textBounds.height / 8)
     }
 
     async evolve(duration) {
+        this.isEvolving = true
         await this.creature.evolve(duration)
-        /*
-        if (!this.stopEvolutionFlag) {
-            this.evolve(duration)
-        } else {
-            this.stopEvolutionFlag = false
-        }
-        */
+        this.isEvolving = false
+
+        this.selfBbox = this.getLocalBounds()        
+        this.creatureBounds = this.creature.getLocalBounds()
+        this.textBounds = this.message.getLocalBounds()
+
+        const tween = new TWEEN.Tween(this.message.position)
+        // TODO (cezar): That /8 is actually / 2 * this.message.scale.x (which is currentlly 0.25)
+        .to({x: this.creatureBounds.x + this.creatureBounds.width / 2 - this.textBounds.width / 8, y: this.creatureBounds.y + this.creatureBounds.height / 2 - this.textBounds.height / 8 }, 500)
+        .easing(TWEEN.Easing.Quartic.InOut)
+        .start()
+
+        const tween2 = new TWEEN.Tween(this.pivot)
+        .to({x: this.selfBbox.x + this.selfBbox.width / 2, y: this.selfBbox.y + this.selfBbox.height / 2 }, 500)
+        .easing(TWEEN.Easing.Quartic.InOut)
+        .start()
+        
+        await sleep(500)
+
+        //this.message.position.set(this.creatureBounds.x, this.creatureBounds.y - 15)
+        //console.log('creature bounds: ', this.creatureBounds, this.getBounds())
     }
 
     stopEvolution() {
@@ -60,11 +96,18 @@ export default class Cluster extends PIXI.Graphics {
     }
 
     tick() {
-        //this.position.set(this.x + 10, this.y)
         this.creature.tick()
-        // this.creatureBounds = this.creature.getBounds()
         this.creature.position.set(0, 0)
-        //this.message.position.set(this.creatureBounds.x, -15)
+        /*
+        if (this.isEvolving) {
+            this.selfBbox = this.getLocalBounds()        
+            this.creatureBounds = this.creature.getLocalBounds()
+            this.textBounds = this.message.getBounds()    
+
+            this.message.position.set(this.creatureBounds.x + this.creatureBounds.width / 2 - this.textBounds.width / 8, this.creatureBounds.y + this.creatureBounds.height / 2 - this.textBounds.height / 8)
+            this.pivot.set(this.selfBbox.x + this.selfBbox.width / 2, this.selfBbox.y + this.selfBbox.height / 2)
+        }
+        */
     }
 
     drawParticle() {

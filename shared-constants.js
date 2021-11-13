@@ -13,16 +13,14 @@ const DWC_META = {
                 name: "moss-element-1",
                 anchor: { x: 0.5, y: 0 },
                 connectors: {
-                    "moss-element-1": 6,
-                    "moss-element-2": 9
+                    "moss-element-2": 6
                 }
             },
             "moss-element-2": {
                 name: "moss-element-2",
                 anchor: { x: 0, y: 0 },
                 connectors: {
-                    "moss-element-1": 6,
-                    "moss-element-2": 6
+                    "moss-element-1": 6
                 }
             }
         },
@@ -165,7 +163,7 @@ exports.generateMoss = () => {
 
     const childrenSequence = getMossChildrenSequence(creatureType, firstElementType, 20, 30)
     const fillColor = (Math.random() < 0.5) ? 0x0cef42 : 0xfd880b
-    const noVisibleElements = randomIntInRange(3, 6)
+    const noVisibleElements = randomIntInRange(4, 8)
 
     const scale = randomInRange(1, 3)
     const rotation = randomInRange(0, 0)
@@ -185,31 +183,34 @@ const getMossChildrenSequence = (creatureType, elementType, minChildren, maxChil
     let noElements = randomIntInRange(minChildren, maxChildren)
     let elementsProps = []
     let typeKey, nextTypeKey
+    let lastConnectorIndex = -4
 
     nextTypeKey = elementType
     for (let i = 0; i < noElements; i++) {
         typeKey = nextTypeKey
 
-        const nextConnector = getMossNextChildConnector(creatureType, typeKey)
+        const nextConnector = getMossNextChildConnector(creatureType, typeKey, lastConnectorIndex)
         elementsProps.push(nextConnector)
 
         nextTypeKey = nextConnector.nextTypeKey
+        lastConnectorIndex = nextConnector.connectorIndex
     }
 
     return elementsProps
 }
 
-const getMossNextChildConnector = (creatureType, elementType) => {
+const getMossNextChildConnector = (creatureType, elementType, prevIndex = -4) => {
     let nextTypeKey = randomElementFromArray(Object.keys(DWC_META.creaturesNew[creatureType][elementType].connectors))
-    if (Math.random() > 0.2) {
-        while (nextTypeKey == elementType) {
-            nextTypeKey = randomElementFromArray(Object.keys(DWC_META.creaturesNew[creatureType][elementType].connectors))
-        }
+    let connectorIndex = randomIntInRange(0, DWC_META.creaturesNew[creatureType][elementType].connectors[nextTypeKey])
+    // Make sure to add a connector that doesn't place a shape back onto the previous position
+    // This relies on properly ordering layers inside of the svg
+    while (Math.floor(connectorIndex / 2) == Math.floor(prevIndex / 2)) {
+        connectorIndex = randomIntInRange(0, DWC_META.creaturesNew[creatureType][elementType].connectors[nextTypeKey])
     }
     return {
         typeKey: elementType,
         nextTypeKey: nextTypeKey,
-        connectorIndex: randomIntInRange(0, DWC_META.creaturesNew[creatureType][elementType].connectors[nextTypeKey])
+        connectorIndex: connectorIndex
     }
 }
 exports.getMossNextChildConnector = getMossNextChildConnector
