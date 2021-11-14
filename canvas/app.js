@@ -3,6 +3,7 @@ import PixiApp from './src/index'
 import { uid } from 'uid';
 import { io } from 'socket.io-client';
 import axios from 'axios';
+// import 'regenerator-runtime/runtime'
 
 const WEATHER_API = `http://dwc2-taeyoon-studio.iptime.org:1055/weather`
 

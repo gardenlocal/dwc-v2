@@ -11,7 +11,7 @@
     "d-path-parser": "^1.0.0",
     "geometric": "^2.2.8",
     "pixi-stats": "^1.0.7",
-    "pixi.js": "^6.1.3",
+    "pixi.js": "^6.2.0",
     "socket.io-client": "^4.2.0",
     "src": "^1.1.2",
     "tinycolor2": "^1.4.2",
@@ -29,6 +29,9 @@
     "start": "parcel index.html",
     "build": "parcel index.html"
   },
+  "browserslist": [
+    "since 2017-06"
+  ],
   "author": "sosunnyproject",
   "license": "ISC"
 }
