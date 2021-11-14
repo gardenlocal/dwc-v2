@@ -76,6 +76,10 @@ export default class Particle extends PIXI.Graphics {
     }
     async startAnimatingGrowth(durationPerElement, delayPerElement = 500) {
         for (let i = 0; i < this.elements.length; i++) {
+            this.elements[i].children[0].alpha = 0
+        }
+        
+        for (let i = 0; i < this.elements.length; i++) {
             const el = this.elements[i].children[0]
             el.scale.set(0)
             el.alpha = 1
@@ -119,7 +123,7 @@ export default class Particle extends PIXI.Graphics {
         this.yOffset += this.connector.y
         this.allElementsIndex++
 
-        await sleep(duration / 2)
+        await sleep(3 * duration / 2)
 
         //this.bbox = this.getBounds()
         //this.pivot.set(-this.bbox.x, -this.bbox.y)

@@ -14,7 +14,7 @@ const WEATHER_API = `http://dwc2-taeyoon-studio.iptime.org:1055/weather`
 export default class UserGarden extends PIXI.Container {
   constructor(users, creatures, selfGarden, uid) {
     super()
-    console.log('new user garden', users, selfGarden)
+    // console.log('new user garden', users, selfGarden)
     this.users = users
     this.creatures = creatures
     this.userGarden = selfGarden    
@@ -98,7 +98,7 @@ export default class UserGarden extends PIXI.Container {
   }
 
   async fetchWeatherData() {
-
+    return
     try {
       const weather = await axios.get(WEATHER_API)
         
