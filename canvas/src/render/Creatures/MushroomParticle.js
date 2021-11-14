@@ -57,6 +57,11 @@ export default class MushroomParticle extends PIXI.Graphics {
     getNumberOfElements() {
         return this.elements.length
     }
+    hideAll() {
+        for (let i = 0; i < this.elements.length; i++) {
+            this.elements[i].alpha = 0
+        }
+    }
     async startAnimatingGrowth(durationPerElement, delayPerElement = 250) {
         const el = this.elements[0]
         el.scale.set(0)

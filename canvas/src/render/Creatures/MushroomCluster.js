@@ -93,6 +93,8 @@ export default class MushroomCluster extends PIXI.Graphics {
     }
 
     async startAnimatingGrowth(elementDuration) {
+        this.creatureTop.hideAll()
+        this.creatureBottom.hideAll()
         await this.creatureTop.startAnimatingGrowth(elementDuration)
         await this.creatureBottom.startAnimatingGrowth(elementDuration)
         await sleep(1000)
