@@ -1,18 +1,19 @@
-import LOGIN from './src/html/login.js';
-import SIGNUP from './src/html/signup.js';
-import USER from './src/html/user.js';
-import CANVAS from './src/html/canvas.js';
-import AuthService from './src/services/auth.service';
 import { sleep } from './src/render/utils.js';
 import PixiApp from './src/index'
 import { uid } from 'uid';
 import { io } from 'socket.io-client';
+import axios from 'axios';
+
+const WEATHER_API = `http://dwc2-taeyoon-studio.iptime.org:1055/weather`
 
 class App {
   constructor() {
   }
 
   async setup() {
+    window.TEMPERATURE = 5
+    window.HUMIDITY = 55
+
     this.pathname = window.location.pathname
     this.isTest = this.pathname == '/test'
     this.user = this.createOrFetchUser()
@@ -21,6 +22,9 @@ class App {
     this.serverUrl = `http://${window.location.hostname}`
 
     this.pixiApp = new PixiApp({ isAdmin: this.pathname == '/admin' })
+
+    await this.fetchWeatherData()
+    setInterval(this.fetchWeatherData, 10000)
     await this.pixiApp.loadAssets()
 
     this.socket = await io(`${this.serverUrl}:${this.serverPort}`, {
@@ -152,6 +156,22 @@ class App {
     }
 
     return JSON.parse(user)
+  }
+
+  async fetchWeatherData() {
+    try {
+      const weather = await axios.get(WEATHER_API)
+        
+      const weatherData = weather.data;
+      console.log("fetchWeatherData -------------", weatherData)
+
+      window.TEMPERATURE = weatherData.temperature;
+      window.HUMIDITY = weatherData.humidity;
+    } catch (error) {
+        console.log("ERROR ------------ ", error)
+        return
+    }
+    
   }
 }
 
