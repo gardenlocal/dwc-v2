@@ -6,7 +6,7 @@ import SVGCreatureLayer from './SVGCreatureLayer'
 let sharedRenderer = PIXI.autoDetectRenderer()
 let sharedRenderTexture = PIXI.RenderTexture.create({ width: 2000, height: 2000 })
 
-export default class SVGCreatureShape extends PIXI.Graphics {
+export default class SVGCreatureShape extends PIXI.Container {
     constructor(svgAsset, elementType, connectedElements, fillColor) {
         super()
         this.svgAsset = svgAsset
@@ -69,6 +69,8 @@ export default class SVGCreatureShape extends PIXI.Graphics {
                 }
             }
         }
+
+        // this.cacheAsBitmap = true
     }
 
     getConnectorForType(type, index) {

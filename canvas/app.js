@@ -24,8 +24,11 @@ class App {
 
     this.pixiApp = new PixiApp({ isAdmin: this.pathname == '/admin' })
 
-    await this.fetchWeatherData()
-    setInterval(this.fetchWeatherData, 10000)
+    this.fetchWeatherData()
+
+    console.log('post data')
+    console.log(window.TEMPERATURE, window.HUMIDITY)
+    //setInterval(this.fetchWeatherData, 10000)
     await this.pixiApp.loadAssets()
 
     this.socket = await io(`${this.serverUrl}:${this.serverPort}`, {
@@ -160,19 +163,21 @@ class App {
   }
 
   async fetchWeatherData() {
+    let weather
     try {
-      const weather = await axios.get(WEATHER_API)
-        
-      const weatherData = weather.data;
-      console.log("fetchWeatherData -------------", weatherData)
-
-      window.TEMPERATURE = weatherData.temperature;
-      window.HUMIDITY = weatherData.humidity;
+      weather = await axios.get(WEATHER_API)
     } catch (error) {
-        console.log("ERROR ------------ ", error)
-        return
-    }
+      console.log("ERROR ------------ ", error)
+      return new Promise((res, rej) => res())
+    } finally {
+      if (weather && weather.data) {
+        const weatherData = weather.data;
+        console.log("fetchWeatherData -------------", weatherData)
     
+        window.TEMPERATURE = weatherData.temperature;
+        window.HUMIDITY = weatherData.humidity;  
+      }  
+    }
   }
 }
 

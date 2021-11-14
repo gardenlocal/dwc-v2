@@ -10,16 +10,16 @@ function sleep(s) {
 
 (async () => {
     let pages = []    
-    const browser = await puppeteer.launch({ headless: false });
-    for (let i = 0; i < 1; i++) {                
+    const browser = await puppeteer.launch({ headless: true });
+    for (let i = 0; i < 15; i++) {                
         const page = await browser.newPage();
-        // await page.goto('http://localhost:1234/test');
-        await page.goto('http://dwc2-taeyoon-studio.iptime.org:1013/test');
+        await page.goto('http://localhost:1234/test');
+        // await page.goto('http://dwc2-taeyoon-studio.iptime.org:1013/test');
         
         await page.setDefaultNavigationTimeout(0); 
         pages.push(page)
         //await page.screenshot({ path: 'example.png' });
-        await sleep(2000)
+        await sleep(5000)
 
         // setTimeout(async () => {
         //     await page.close()

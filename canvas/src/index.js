@@ -86,6 +86,7 @@ export default class PixiAppWrapper {
   }
 
   async loadAssets() {
+    console.log('start load assets')
     await loadAll((t) => {
       console.log('Loading progress: ', t.progress)
     })
