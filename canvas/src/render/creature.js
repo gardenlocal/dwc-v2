@@ -6,6 +6,7 @@ import SVGShape from './Geometry/SVGCreatureShape';
 import { randomElementFromArray, easeInOutBounce, easeInOutQuart, lerp } from './utils';
 import MossCluster from "./Creatures/MossCluster"
 import MushroomCluster from "./Creatures/MushroomCluster"
+import LichenCluster from "./Creatures/LichenCluster"
 import TWEEN from '@tweenjs/tween.js'
 
 export default class Creature extends PIXI.Container {
@@ -64,6 +65,7 @@ export default class Creature extends PIXI.Container {
                 this.creature = new MossCluster(appearance, this.creatureName)
                 break
             case 'lichen':
+                this.creature = new LichenCluster(appearance, this.creatureName)
                 break
             case 'mushroom':
                 this.creature = new MushroomCluster(appearance, this.creatureName)
@@ -72,7 +74,6 @@ export default class Creature extends PIXI.Container {
 
         this.addChild(this.creature)
         this.creature.scale.set(appearance.scale)
-        this.creature.startAnimatingGrowth(1000)
         this.frame = 0
 
         this.updateTargetPosition(state.animatedProperties.position)
@@ -163,6 +164,8 @@ export default class Creature extends PIXI.Container {
         
         this.position.set(prop.teleport.x, prop.teleport.y)
         this.creature.rotation = 0
+
+        this.creature.startAnimatingGrowth(1500)
         // this.x = prop.teleport.x
         // this.y = prop.teleport.y
 

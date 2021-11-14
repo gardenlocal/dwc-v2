@@ -76,6 +76,10 @@ export default class Particle extends PIXI.Graphics {
     }
     async startAnimatingGrowth(durationPerElement, delayPerElement = 500) {
         for (let i = 0; i < this.elements.length; i++) {
+            this.elements[i].children[0].alpha = 0
+        }
+        
+        for (let i = 0; i < this.elements.length; i++) {
             const el = this.elements[i].children[0]
             el.scale.set(0)
             el.alpha = 1

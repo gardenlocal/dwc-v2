@@ -30,6 +30,15 @@ const DWC_META = {
                 anchor: { x: 0, y: 0.5 },
                 connectors: {}
             }
+        },
+        lichen: {
+            "lichen-element-1": {
+                name: "lichen-element-1",
+                anchor: { x: 0.5, y: 0.5 },
+                connectors: {
+                    "lichen-element-1": 4
+                }
+            }
         }
     },
     creaturesOld: {
@@ -237,8 +246,74 @@ const getMushroomChildren = (minChildren, maxChildren) => {
 }
 
 exports.generateLichen = () => {
-    return {
+    const creatureType = "lichen"
 
+    let noChildren = randomIntInRange(1, 5)
+    let parentType = randomElementFromArray(Object.keys(DWC_META.creaturesNew[creatureType]))
+    let element = {
+        type: parentType,
+        children: [],
+        parentConnector: null,
+        visibleChildren: noChildren
+    }
+    
+    let parentUsedConnectors = {}
+
+    for (let i = 0; i < 30; i++) {        
+        let childType = randomElementFromArray(Object.keys(DWC_META.creaturesNew[creatureType][parentType].connectors))
+        let ch = {
+            type: childType,
+            children: [],
+        }
+
+        // Only keep track of the last "noChildren" used connectors
+        if (i >= noChildren) {
+            let connIndex = element.children[i - noChildren].parentConnector
+            delete parentUsedConnectors[connIndex]
+        }
+
+        const connectorCount = DWC_META.creaturesNew[creatureType][childType].connectors[childType]
+        ch.parentConnector = randomIntInRange(0, connectorCount)
+        while (parentUsedConnectors[ch.parentConnector]) {
+            ch.parentConnector = randomIntInRange(0, connectorCount)
+        }
+        parentUsedConnectors[ch.parentConnector] = true
+
+
+        let no2Children = randomIntInRange(0, 5)
+        let childUsedConnectors = {}
+
+        for (let j = 0; j < no2Children; j++) {
+            const child2Type = randomElementFromArray(Object.keys(DWC_META.creaturesNew[creatureType][childType].connectors))
+            let c = {
+                type: child2Type,
+                children: []
+            }            
+
+            const connector2Count = DWC_META.creaturesNew[creatureType][childType].connectors[child2Type]
+            c.type = child2Type
+            c.parentConnector = randomIntInRange(0, connector2Count)
+            while (childUsedConnectors[c.parentConnector]) {
+                c.parentConnector = randomIntInRange(0, connector2Count)
+            }
+            childUsedConnectors[c.parentConnector] = true
+
+            ch.children.push(c)            
+        }
+
+        element.children.push(ch)
+    }
+
+    const scale = randomInRange(1, 4)
+    const rotation = randomInRange(-Math.PI / 2, Math.PI / 2)
+    const fillColor = (Math.random() < 0.5) ? 0x0cef42 : 0xfd880b
+
+    return {
+        creatureType,
+        scale,
+        rotation,
+        fillColor,
+        element
     }
 }
 

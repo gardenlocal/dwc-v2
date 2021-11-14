@@ -138,7 +138,7 @@ export default class PixiAppWrapper {
       return
     }
 
-    if (true) {
+    if (false) {
       renderCreatureTest(this.pixiApp)
     } else {
       if (this.isAdmin) {

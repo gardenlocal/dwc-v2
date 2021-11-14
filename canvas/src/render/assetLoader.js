@@ -30,6 +30,8 @@ import MossNew2 from '../../assets/moss-element-2.svg';
 
 import MushroomNew1 from '../../assets/mushroom-element-1.svg';
 
+import LichenNew1 from '../../assets/lichen-element-1.svg'
+
 import { DWC_META } from '../../../shared-constants';
 
 const loader = PIXI.Loader.shared
@@ -54,6 +56,7 @@ const addNewCreatures = () => {
     loader.add(DWC_META.creaturesNew.moss["moss-element-1"].name, MossNew1)
     loader.add(DWC_META.creaturesNew.moss["moss-element-2"].name, MossNew2)
     loader.add(DWC_META.creaturesNew.mushroom["mushroom-element-1"].name, MushroomNew1)
+    loader.add(DWC_META.creaturesNew.lichen["lichen-element-1"].name, LichenNew1)
 }
 
 const addOldCreatures = () => {

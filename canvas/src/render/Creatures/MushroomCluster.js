@@ -89,14 +89,14 @@ export default class MushroomCluster extends PIXI.Graphics {
         this.creatureBottom = this.generateChildFromParameters(this.params)
         this.creature.addChild(this.creatureBottom)
         await this.creatureBottom.startAnimatingGrowth(1500)
-        await this.evolve(1500)
+        // await this.evolve(1500)
     }
 
     async startAnimatingGrowth(elementDuration) {
         await this.creatureTop.startAnimatingGrowth(elementDuration)
         await this.creatureBottom.startAnimatingGrowth(elementDuration)
         await sleep(1000)
-        await this.evolve(1500)
+        // await this.evolve(1500)
     }
 
     getNumberOfElements() {

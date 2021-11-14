@@ -15,7 +15,8 @@ exports.createCreature = async (garden, user) => {
 
   const g = garden
 
-  const creatureType = Math.random() < 0.7 ? Object.keys(DWC_META.creaturesNew)[0] : Object.keys(DWC_META.creaturesNew)[1]//utils.randomElementFromArray(Object.keys(DWC_META.creaturesNew))
+  //const creatureType = Math.random() < 0.7 ? Object.keys(DWC_META.creaturesNew)[0] : Object.keys(DWC_META.creaturesNew)[1]//utils.randomElementFromArray(Object.keys(DWC_META.creaturesNew))
+  const creatureType = utils.randomElementFromArray(Object.keys(DWC_META.creaturesNew))
   let creatureProps
   switch (creatureType) {
     case 'moss':
@@ -88,7 +89,6 @@ exports.getAllCreaturesInfo = async () => {
 const getGardensBounds = async () => {
   const bbox = { x1: 1000000, y1: 1000000, x2: -100000, y2: -100000 }
   const gardens = await database.find({ type: 'gardenSection' })
-  console.log('Gardens: ', gardens)
   for (let g of gardens) {
     bbox.x1 = Math.min(bbox.x1, g.x)
     bbox.y1 = Math.min(bbox.y1, g.y)
@@ -113,6 +113,7 @@ const generateCreatureMovement = async (type, ownerGarden, fromPosition, telepor
   let toPosition
 
   console.log('type is: ', type)
+  let direction
 
   switch (type) {
     case 'moss':
@@ -132,13 +133,18 @@ const generateCreatureMovement = async (type, ownerGarden, fromPosition, telepor
       }
       break
     case 'mushroom':
-      const direction = (Math.random() < 0.5) ? 1 : -1
+      direction = (Math.random() < 0.5) ? 1 : -1
       toPosition = {
         x: (direction < 0) ? gardenBoundingBox.x1 - 200 : gardenBoundingBox.x2 + 200,
         y: teleportPosition.y
       }
       break
     case 'lichen':
+      direction = (Math.random() < 0.5) ? 1 : -1
+      toPosition = {
+        x: teleportPosition.x, 
+        y: (direction < 0) ? gardenBoundingBox.y1 - 200 : gardenBoundingBox.y2 + 200,
+      }
       break
   }
 

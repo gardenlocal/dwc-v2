@@ -52,7 +52,6 @@ export default class MushroomParticle extends PIXI.Graphics {
     getChildBounds(childIndex) {
         let global = this.elements[childIndex + 1].getBounds()
         let local = this.elements[childIndex + 1].getLocalBounds()
-        console.log('bounds: ', global, local)
         return global
     }
     getNumberOfElements() {
@@ -62,7 +61,6 @@ export default class MushroomParticle extends PIXI.Graphics {
         const el = this.elements[0]
         el.scale.set(0)
         el.alpha = 1
-        console.log('tween is: ', TWEEN)
         const tween = new TWEEN.Tween(this.elements[0].scale)
             .to({x: el.targetScale.x, y: el.targetScale.y }, durationPerElement)
             .easing(TWEEN.Easing.Quartic.InOut)
