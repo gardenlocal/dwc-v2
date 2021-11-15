@@ -28,7 +28,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "parcel index.html",
     "build": "parcel build index.html",
-    "deploy": "npm run build && sudo rm -r /var/www/dwc/* sudo cp -r dist/* /var/www/dwc/"
+    "deploy": "npm run build && sudo rm -r /var/www/dwc/* && sudo cp -r dist/* /var/www/dwc/"
   },
   "browserslist": [
     "since 2017-06"
