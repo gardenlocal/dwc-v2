@@ -7,6 +7,8 @@ import { randomElementFromArray, easeInOutBounce, easeInOutQuart, lerp } from '.
 import MossCluster from "./Creatures/MossCluster"
 import MushroomCluster from "./Creatures/MushroomCluster"
 import TWEEN from '@tweenjs/tween.js'
+import { sound } from '@pixi/sound';
+import WATERDROP_SOUND from '../../assets/waterdrop-sound.mp3';
 
 export default class Creature extends PIXI.Container {
     constructor(state) {
@@ -81,9 +83,20 @@ export default class Creature extends PIXI.Container {
         const bbox = this.getBounds()
         this.pivot.set(-bbox.width / 2, -bbox.height / 2)
         // this.addChild(label)
+
+        // load sound
+        sound.add('creatureTapSound', {
+            url: WATERDROP_SOUND,
+            preload: true,
+            loop: false,
+            // autoPlay: true
+        });
     }
 
-    onMouseDown = async (e) => {        
+    onMouseDown = async (e) => {     
+        window.SCREENREADER.textContent = "나는 작은 심장에 매일 하늘을 퍼 뜬다."
+        this.playSoundtrack('creatureTapSound')
+   
         window.APP.sendEvolveCreature(this.name)
     }
     onMouseUp = async (e) => {
@@ -134,6 +147,7 @@ export default class Creature extends PIXI.Container {
 
     async updateTargetPosition(prop) {
         console.log('updateTargetPosition for: ', prop)
+        window.SCREENREADER.textContent = "내가 그의 이름을 불러주었을 때 그는 나에게로 와서 꽃이 되었다."
 
         this.target.x = prop.to.x
         this.target.y = prop.to.y
@@ -175,6 +189,13 @@ export default class Creature extends PIXI.Container {
         // tween.onComplete( () => console.log("appear done") )
     
         await sleep(this.movementDuration * 1000)
+    }
+
+    playSoundtrack() {
+        if(!sound._sounds?.creatureTapSound?.isPlaying){ // if not playing
+            sound.play('creatureTapSound')
+            console.log(sound._sounds.creatureTapSound)
+        }
     }
 
     tick(d) {

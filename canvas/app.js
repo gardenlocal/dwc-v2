@@ -159,4 +159,5 @@ window.addEventListener('DOMContentLoaded', () => {
   console.log('DOM Content Loaded')
   window.APP = new App()
   window.APP.setup()
+  window.SCREENREADER = document.getElementById('description')
 })

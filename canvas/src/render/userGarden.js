@@ -79,15 +79,6 @@ export default class UserGarden extends PIXI.Container {
     // const currentLoop = currentTile[this.bgAnimationParams.currentTile];
     await this.tilesContainer.children[i].disappear(targetSize, duration) // appear at 0, disappear after bg2+bg3+bg4_duration  
 
-    /*
-    for(let i = 0; i < this.tilesContainer.children.length; i++) {
-      const currentTile = this.userGarden.tileProps[i]
-      const currentLoop = currentTile[this.bgAnimationParams.currentTile]
-
-      await this.tilesContainer.children[i].disappear(currentLoop.target, currentLoop.duration) // appear at 0, disappear after bg2+bg3+bg4_duration
-    }
-    */
-
     this.bgAnimationParams.currentTile = (this.bgAnimationParams.currentTile + 1) % this.userGarden.tileProps[0].length
 
     this.animateBackgrounds()

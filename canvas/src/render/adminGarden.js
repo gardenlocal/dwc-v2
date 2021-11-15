@@ -3,6 +3,8 @@
 
 import * as PIXI from "pixi.js";
 import UserGarden from "./userGarden";
+import { sound } from '@pixi/sound';
+import DRY_LEAVES_SOUND from '../../assets/dry-leaves.mp3';
 
 export default class AdminGarden extends PIXI.Container {
   constructor(users, creatures, selfGarden) {
@@ -14,6 +16,12 @@ export default class AdminGarden extends PIXI.Container {
     console.log('new admin garden: ', this.users)
 
     this.drawBackgrounds()
+
+    sound.add('gardenTapSound', {
+      url: DRY_LEAVES_SOUND,
+      preload: true,
+      loop: false,
+  });
   }
 
   drawBackgrounds() {
@@ -34,6 +42,7 @@ export default class AdminGarden extends PIXI.Container {
         // This is the current user, we need to add an event listener for click
         garden.interactive = true
         garden.on('mousedown', this.onGardenTap)
+        garden.on('touchstart', this.onGardenTap)
       }
     })
   }
@@ -43,6 +52,14 @@ export default class AdminGarden extends PIXI.Container {
     let local = this.toLocal(e.data.global)
     console.log('--- local: ', local)
     window.APP.sendGardenTap(local)
+    this.playSoundtrack()    
+  }
+
+  playSoundtrack() {
+    if(!sound._sounds?.gardenTapSound?.isPlaying){ // if not playing
+      sound.play('gardenTapSound')
+      console.log("gardenTapSound: ", sound._sounds.gardenTapSound)
+    }
   }
 
   updateOnlineUsers(onlineUsers) {

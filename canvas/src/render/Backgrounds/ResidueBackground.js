@@ -167,6 +167,8 @@ export default class ResidueBackground extends PIXI.Graphics {
   }
 
   async appear(target, duration, shape, anchor, shaderSpeed) {
+    window.SCREENREADER.textContent = "우리들은 모두 무엇이 되고 싶다."
+
     this.isAnimating = true
 
     this.currentShape = shape // randomElementFromArray(Object.values(SHAPES))
@@ -194,6 +196,8 @@ export default class ResidueBackground extends PIXI.Graphics {
   }
 
   async disappear(target, duration) {
+    window.SCREENREADER.textContent = "잊혀지지 않는 하나의 의미가 되고 싶다."
+
     this.isAnimating = true
     const intermediateTransitionAlpha = target  // disappear from target
     const d2 = Math.abs((intermediateTransitionAlpha) * duration / 2)
