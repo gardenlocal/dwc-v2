@@ -4,7 +4,7 @@ import SVGCreatureShape from '../Geometry/SVGCreatureShape';
 import { sleep } from '../utils';
 import TWEEN from '@tweenjs/tween.js'
 
-export default class Particle extends PIXI.Graphics {
+export default class Particle extends PIXI.Container {
     constructor(creatureType, elementType, elementsProps, fillColor, noVisibleElements, evolutionIndex) {
         super()
         this.creatureType = creatureType

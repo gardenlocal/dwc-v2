@@ -4,7 +4,7 @@ import SVGCreatureShape from '../Geometry/SVGCreatureShape';
 import { sleep, randomElementFromArray } from '../utils';
 import TWEEN from '@tweenjs/tween.js'
 
-export default class MushroomParticle extends PIXI.Graphics {
+export default class MushroomParticle extends PIXI.Container {
     constructor(creatureType, elementType, childrenDimensions, fillColor) {
         super()
         this.creatureType = creatureType

@@ -9,7 +9,7 @@ import vertex from "../shaders/vertex.glsl";
 import TWEEN from '@tweenjs/tween.js'
 import { sleep } from '../utils';
 
-export default class Cluster extends PIXI.Graphics {
+export default class Cluster extends PIXI.Container {
     constructor({ creatureType, svgElementIndex, childrenSequence, scale, rotation, fillColor, noVisibleElements, evolutionIndex }, creatureName) {
         super()
         this.creatureType = creatureType

@@ -149,13 +149,11 @@ class App {
       return acc
     }, {})
 
-    console.log('Update: ', this.onlineUsers, this.onlineCreatures)
     this.pixiApp.updateOnlineCreatures(this.onlineUsers, this.onlineCreatures)
     return this.onlineCreatures  
   }
 
   onCreaturesUpdate = (creaturesToUpdate) => {
-    console.log('Creatures Update: ', creaturesToUpdate)
     this.pixiApp.updateCreatureData(creaturesToUpdate)
   }
 

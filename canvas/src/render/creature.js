@@ -4,6 +4,7 @@ import { DWC_META } from '../../../shared-constants';
 import PixiSVG from '../svg-lib'
 import SVGShape from './Geometry/SVGCreatureShape';
 import { randomElementFromArray, easeInOutBounce, easeInOutQuart, lerp } from './utils';
+import { BlurFilter } from '@pixi/filter-blur';
 import MossCluster from "./Creatures/MossCluster"
 import MushroomCluster from "./Creatures/MushroomCluster"
 import LichenCluster from "./Creatures/LichenCluster"
@@ -78,7 +79,6 @@ export default class Creature extends PIXI.Container {
 
         this.updateTargetPosition(state.animatedProperties.position)
         const label = new PIXI.Text(this.name, new PIXI.TextStyle({ fontSize: 40 }))
-
         // this.addChild(label)
     }
 
@@ -96,7 +96,7 @@ export default class Creature extends PIXI.Container {
     async evolve() {
         if (!this.isEvolving) {
             this.isEvolving = true
-
+            this.isAnimating = true
             /*
             const tween = new TWEEN.Tween(this.scale)
             .to({x: 1.4, y: 1.4 }, 800)
@@ -118,7 +118,7 @@ export default class Creature extends PIXI.Container {
 
             // const bbox = this.creature.getBounds()
             // this.creature.pivot.set(bbox.width / 2, bbox.height / 2)    
-
+            this.isAnimating = false
             this.isEvolving = false
         }
     }
@@ -139,6 +139,7 @@ export default class Creature extends PIXI.Container {
     }
 
     async updateTargetPosition(prop) {
+        this.isAnimating = true
         console.log('updateTargetPosition for: ', prop)
 
         this.target.x = prop.to.x
@@ -179,10 +180,15 @@ export default class Creature extends PIXI.Container {
         .to({ x: this.target.x, y: this.target.y }, this.movementDuration * 1000)
         .easing(TWEEN.Easing.Linear.None)
         .start()
+
+        await sleep(2000)
+        this.isAnimating = false
     
         // tween.onComplete( () => console.log("appear done") )
+
+        console.log('movement duration: ', this.movementDuration)
     
-        await sleep(this.movementDuration * 1000)
+        await sleep(this.movementDuration * 1000)        
     }
 
     tick(d) {
@@ -192,5 +198,11 @@ export default class Creature extends PIXI.Container {
         // Per-frame update for the creature SVG Shape outlines
         this.creature.tick()
         this.creature.rotation += 0.001 * (delta / 16)
+
+        //spriteMask.scale.set(0.95)
+        // this.creatureSprite
+
+        // container.addChild(spriteMask)
+        // container.mask = spriteMask        
     }
 }

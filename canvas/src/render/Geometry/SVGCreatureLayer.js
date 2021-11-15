@@ -5,7 +5,7 @@ import { distanceAndAngleBetweenTwoPoints, randomInRange } from '../utils'
 const morphOffsetCache = {}
 
 export default class SVGLayer extends PIXI.Graphics {
-    constructor(name, svgObj, fillColor, pointCount = 48) {
+    constructor(name, svgObj, fillColor, pointCount = 8) {
         super()
         this.name = name
         this.svgObj = svgObj

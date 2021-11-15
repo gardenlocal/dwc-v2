@@ -4,7 +4,7 @@ import SVGCreatureShape from '../Geometry/SVGCreatureShape';
 import { sleep } from '../utils';
 import TWEEN from '@tweenjs/tween.js'
 
-export default class LichenParticle extends PIXI.Graphics {
+export default class LichenParticle extends PIXI.Container {
     constructor(creatureType, { type, children, visibleChildren, parentConnector, evolutionIndex }, fillColor) {
         super()
 

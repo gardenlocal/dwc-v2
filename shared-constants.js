@@ -146,7 +146,7 @@ exports.generateMoss = () => {
 
     const childrenSequence = getMossChildrenSequence(creatureType, firstElementType, 50, 60)
     const fillColor = (Math.random() < 0.5) ? 0x0cef42 : 0xfd880b
-    const noVisibleElements = randomIntInRange(4, 8)
+    const noVisibleElements = randomIntInRange(6, 18)
     const evolutionIndex = noVisibleElements
 
     const scale = randomInRange(1, 3)

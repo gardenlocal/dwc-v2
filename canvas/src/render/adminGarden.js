@@ -23,8 +23,6 @@ export default class AdminGarden extends PIXI.Container {
 
     Object.values(this.users).forEach(u => {
       if (!window.APP.getIsAdmin()) {
-        console.log('culling: ', u.gardenSection.x, currentUser.gardenSection.x)
-
         let isWideScreen = (window.innerWidth > window.innerHeight)
         let dX = Math.abs(u.gardenSection.x - currentUser.gardenSection.x)
         let dY = Math.abs(u.gardenSection.y - currentUser.gardenSection.y)
@@ -44,6 +42,7 @@ export default class AdminGarden extends PIXI.Container {
         // This is the current user, we need to add an event listener for click
         garden.interactive = true
         garden.on('mousedown', this.onGardenTap)
+        garden.on('touchstart', this.onGardenTap)
       }
     })
   }

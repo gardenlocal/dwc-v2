@@ -10,7 +10,7 @@ export default class SVGCreatureShape extends PIXI.Container {
     constructor(svgAsset, elementType, connectedElements, fillColor) {
         super()
         this.svgAsset = svgAsset
-        this.elementType = elementType
+        this.elementType = elementType        
         this.connectedElements = connectedElements
         this.svg = new PixiSVG(this.svgAsset, { unpackTree: true })
         this.fillColor = fillColor
@@ -21,6 +21,7 @@ export default class SVGCreatureShape extends PIXI.Container {
     }
 
     initialize() {        
+        console.log('initialize: ', this.elementType)
         if (this.initialized) return
         this.initialized = true
         // First draw the entire SVG onto an off-screen render texture, in order for the geometry to be computed.
@@ -34,7 +35,14 @@ export default class SVGCreatureShape extends PIXI.Container {
         // Create the layers
         for (const [key, value] of Object.entries(layersOfInterest)) {
             // console.log('creating layers: ', key, value)
-            this.layers[key] = new SVGCreatureLayer(key, value, this.fillColor)
+            let noPoints
+            if (!this.elementType) noPoints = 20 
+            else {
+                if (this.elementType.indexOf('moss') > -1) noPoints = 3
+                else if (this.elementType.indexOf('lichen') > -1) noPoints = 8
+                else noPoints = 40    
+            }
+            this.layers[key] = new SVGCreatureLayer(key, value, this.fillColor, noPoints)
             this.addChild(this.layers[key])
         }
 

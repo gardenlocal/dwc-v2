@@ -9,7 +9,7 @@ import vertex from "../shaders/vertex.glsl";
 import TWEEN from '@tweenjs/tween.js'
 import { sleep } from '../utils';
 
-export default class LichenCluster extends PIXI.Graphics {
+export default class LichenCluster extends PIXI.Container {
     constructor({ creatureType, scale, rotation, fillColor, element, evolutionIndex }, creatureName) {
         super()
         this.creatureType = creatureType
@@ -94,6 +94,7 @@ export default class LichenCluster extends PIXI.Graphics {
         //this.message.position.set(this.creatureBounds.x, this.creatureBounds.y - 15)
         //console.log('creature bounds: ', this.creatureBounds, this.getBounds())
         */
+       await sleep(2500)
     }
 
     stopEvolution() {

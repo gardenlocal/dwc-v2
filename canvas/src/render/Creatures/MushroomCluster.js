@@ -8,7 +8,7 @@ import gradientFragment from '../shaders/radialGradient.glsl'
 import vertex from "../shaders/vertex.glsl";
 import TWEEN from '@tweenjs/tween.js';
 
-export default class MushroomCluster extends PIXI.Graphics {
+export default class MushroomCluster extends PIXI.Container {
     constructor(params, creatureName) {
         super()
         this.params = params
