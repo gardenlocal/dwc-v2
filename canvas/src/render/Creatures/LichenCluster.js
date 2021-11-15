@@ -10,14 +10,17 @@ import TWEEN from '@tweenjs/tween.js'
 import { sleep } from '../utils';
 
 export default class LichenCluster extends PIXI.Graphics {
-    constructor({ creatureType, scale, rotation, fillColor, element }, creatureName) {
+    constructor({ creatureType, scale, rotation, fillColor, element, evolutionIndex }, creatureName) {
         super()
         this.creatureType = creatureType
         this.elementType = Object.values(DWC_META.creaturesNew[creatureType])[0].name
+        this.evolutionIndex = evolutionIndex
 
         const textBoxColor = (fillColor != 0x0cef42) ? 0x0cef42 : 0xfd880b
 
-        this.creature = new LichenParticle(creatureType, element, fillColor)
+        console.log('Lichen cluster: ', { ...element, evolutionIndex })
+
+        this.creature = new LichenParticle(creatureType, { ...element, evolutionIndex }, fillColor)
         //this.drawParticle()
         this.addChild(this.creature)
         this.selfBbox = this.getBounds()
@@ -49,7 +52,7 @@ export default class LichenCluster extends PIXI.Graphics {
         this.message.position.set(this.creatureBounds.x + this.creatureBounds.width / 2 - this.textBounds.width / 8, this.creatureBounds.y + this.creatureBounds.height / 2 - this.textBounds.height / 8)
 
         this.scale.set(scale)
-        //this.rotation = rotation
+        this.rotation = rotation
     }
 
     async startAnimatingGrowth(elementDuration, elementDelay) {
@@ -65,6 +68,7 @@ export default class LichenCluster extends PIXI.Graphics {
     }
 
     async evolve(duration) {
+        await this.creature.evolve(duration)
         /*
         this.isEvolving = true
         await this.creature.evolve(duration)

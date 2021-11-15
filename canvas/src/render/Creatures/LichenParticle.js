@@ -5,18 +5,32 @@ import { sleep } from '../utils';
 import TWEEN from '@tweenjs/tween.js'
 
 export default class LichenParticle extends PIXI.Graphics {
-    constructor(creatureType, { type, children, visibleChildren, parentConnector }, fillColor) {
+    constructor(creatureType, { type, children, visibleChildren, parentConnector, evolutionIndex }, fillColor) {
         super()
+
+        console.log('new LichenParticle: ', type, children, visibleChildren, parentConnector, evolutionIndex)
 
         this.creatureType = creatureType
         this.type = type
         this.allChildren = children
         this.visibleChildren = visibleChildren || children.length
         this.parentConnector = parentConnector
-        this.fillColor = fillColor
+        this.fillColor = fillColor        
 
-        this.elements = this.allChildren.slice(0, visibleChildren)
-        this.elementsIndex = visibleChildren
+        if (this.parentConnector == null) {
+            // top level
+            this.elementsIndex = (evolutionIndex % this.allChildren.length)
+            this.elements = []
+
+            for (let i = this.elementsIndex - this.visibleChildren; i < this.elementsIndex; i++) {
+                console.log('i: ', i)
+                const index = (i + this.allChildren.length) % this.allChildren.length
+                this.elements.push(this.allChildren[index])
+            }
+        } else {
+            this.elementsIndex = visibleChildren
+            this.elements = this.allChildren.slice(0, visibleChildren)
+        }        
 
         this.frame = 0
 
@@ -29,11 +43,11 @@ export default class LichenParticle extends PIXI.Graphics {
         }
         this.addChild(this.parentElement)
 
+        this.onlyChildren = []
         for (let c of this.elements) {
-            // if (this.parentConnector)
             const ch = this.createChildFromConnector(c)
-    
-            this.addChild(ch)    
+            this.addChild(ch)
+            this.onlyChildren.push(ch)   
         }
 
         // this.alpha = 0.0001
@@ -41,7 +55,8 @@ export default class LichenParticle extends PIXI.Graphics {
         this.targetScale = { x: 1, y: 1 }
     }
     createChildFromConnector(c) {
-        const ch = new LichenParticle(this.creatureType, c, this.fillColor)
+        console.log('create child from connector: ', c)
+        const ch = new LichenParticle(this.creatureType, { ...c, evolutionIndex: -1 }, this.fillColor)
         const connector = ch.parentElement.getConnectorForType(c.type, c.parentConnector)
 
         const bbox = ch.parentElement.getLocalBounds()
@@ -84,56 +99,34 @@ export default class LichenParticle extends PIXI.Graphics {
             await sleep(delayPerElement)
         }
     }
-    async evolve(duration) {
-        /*
-        let el = this.elements[0].children[0]
-        const tween = new TWEEN.Tween(el.scale)
-        .to({x: 0, y: 0 }, duration)
-        .easing(TWEEN.Easing.Quartic.Out)
-        .start()
-        await sleep(duration / 2)
+    async startAnimatingDeath(durationPerElement, delayPerElement = 200) {
+        for (let i = 1; i < this.children.length; i++) {
+            const el = this.children[i]
+            await el.startAnimatingDeath(durationPerElement, delayPerElement)
+            // await sleep(delayPerElement)
+        }
 
-        this.removeChild(this.children[0])
-        this.elements.shift()
-
-        const lastElement = this.elements[this.elements.length - 1].children[0]
-        const nextConnector = this.allElementsProps[this.allElementsIndex] //getMossNextChildConnector(this.creatureType, lastElement.nextTypeKey)
-        console.log('next connector: ', nextConnector)
-        
-        const nextElement = this.createChildFromConnector(nextConnector, this.connector)
-        this.elements.push(nextElement)
-        this.addChild(nextElement)
-
-        el = nextElement.children[0]
-        el.scale.set(0)
-        el.alpha = 1
-        const tween2 = new TWEEN.Tween(el.scale)
-        .to({x: el.targetScale.x, y: el.targetScale.y }, duration)
-        .easing(TWEEN.Easing.Quartic.In)
+        const tween = new TWEEN.Tween(this.scale)
+        .to({x: 0, y: 0 }, durationPerElement)
+        .easing(TWEEN.Easing.Quartic.InOut)
         .start()
 
-        this.connector = el.getConnectorForType(nextConnector.nextTypeKey, nextConnector.connectorIndex)         
-        this.xOffset += this.connector.x
-        this.yOffset += this.connector.y
-        this.allElementsIndex++
-
-        await sleep(3 * duration / 2)
-
-        //this.bbox = this.getBounds()
-        //this.pivot.set(-this.bbox.x, -this.bbox.y)
-        */
+        await sleep(durationPerElement)
     }
-    stopAnimatingGrowth() {        
+    async evolve(duration) {
+        let el = this.onlyChildren[0]
+        await el.startAnimatingDeath(1000)
+        this.removeChild(el)
+        this.onlyChildren.shift()
+
+        const newChild = this.createChildFromConnector(this.allChildren[this.elementsIndex])
+        this.addChild(newChild)
+        this.onlyChildren.push(newChild)
+        await newChild.startAnimatingGrowth(1500)
+
+        this.elementsIndex = (this.elementsIndex + 1) % this.allChildren.length
     }
     tick(d) {
         this.children.forEach(c => c.children[0].tick())
-        /*
-        this.frame++
-        if (this.frame % 30 == 0) {
-            this.x += 10
-            this.y += 5.666
-            this.rotation += 0.05
-        }
-        */       
     }
 }

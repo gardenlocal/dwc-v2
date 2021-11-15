@@ -16,7 +16,7 @@ exports.createCreature = async (garden, user) => {
   const g = garden
 
   //const creatureType = Math.random() < 0.7 ? Object.keys(DWC_META.creaturesNew)[0] : Object.keys(DWC_META.creaturesNew)[1]//utils.randomElementFromArray(Object.keys(DWC_META.creaturesNew))
-  const creatureType = 'moss'//utils.randomElementFromArray(Object.keys(DWC_META.creaturesNew))
+  const creatureType = 'lichen'//utils.randomElementFromArray(Object.keys(DWC_META.creaturesNew))
   let creatureProps
   switch (creatureType) {
     case 'moss':
@@ -160,9 +160,10 @@ const generateCreatureMovement = async (type, ownerGarden, fromPosition, telepor
 }
 
 exports.evolveCreature = async (creatureId) => {
-  const creature = await database.findOne({ _id: creatureId })
+  const creature = await database.findOne({ _id: creatureId })  
   if (!creature) return
-  if (creature.appearance.evolutionIndex) {
+  console.log('evolving: ', creature._id, creature.appearance.evolutionIndex)
+  if (creature.appearance.evolutionIndex != undefined) {
     creature.appearance.evolutionIndex++
     await database.update({ _id: creatureId }, creature)
   }

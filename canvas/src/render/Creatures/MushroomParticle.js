@@ -63,10 +63,16 @@ export default class MushroomParticle extends PIXI.Graphics {
         }
     }
     async startAnimatingGrowth(durationPerElement, delayPerElement = 250) {
+        this.hideAll()
+
+        if (this.growthTween) {
+            TWEEN.remove(this.growthTween)
+        }
+        
         const el = this.elements[0]
         el.scale.set(0)
         el.alpha = 1
-        const tween = new TWEEN.Tween(this.elements[0].scale)
+        this.growthTween = new TWEEN.Tween(this.elements[0].scale)
             .to({x: el.targetScale.x, y: el.targetScale.y }, durationPerElement)
             .easing(TWEEN.Easing.Quartic.InOut)
             .start()
@@ -104,29 +110,6 @@ export default class MushroomParticle extends PIXI.Graphics {
         await sleep(durationPerElement)
     }
     async updateChildrenDimensions(newDimensions) {        
-
-        /*
-        newDimensions = []
-        for (let i = this.childrenDimensions.length - 1; i >= 0; i--) {
-            newDimensions.push(this.childrenDimensions[i])
-        }
-        */
-        let noElements = this.childrenDimensions.length
-        let childrenDimensions = []
-        let possibleSizes = [2, 3, 4, 5, 6, 8]
-    
-        let sum = 0
-        for (let i = 0; i < noElements; i++) {
-            let curr = randomElementFromArray(possibleSizes)
-            childrenDimensions.push(curr)
-            sum += curr
-        }
-    
-        for (let i = 0; i < noElements; i++) {            
-            childrenDimensions[i] /= sum
-        }
-        newDimensions = childrenDimensions
-
         const parent = this.elements[0]
         const parentBbox = parent.getLocalBounds()
         let yPosition = 0
@@ -136,10 +119,7 @@ export default class MushroomParticle extends PIXI.Graphics {
             let s = newDimensions[i - 1]
 
             const bbox = el.getLocalBounds()
-            //child.position.set(parentBbox.width, parentBbox.height * yPosition + bbox.height / 2 * s)
-            // el.position.y = parentBbox.height * yPosition + bbox.height / 2 * (s)
             el.targetScale = { x: -s, y: s }
-            //child.alpha = 0.001
 
             const tweenP = new TWEEN.Tween(el.position)
             .to({y: parentBbox.height * yPosition + bbox.height / 2 * (s) }, 500)
@@ -151,7 +131,7 @@ export default class MushroomParticle extends PIXI.Graphics {
             .easing(TWEEN.Easing.Quartic.Out)
             .start()
 
-            yPosition += s //* parent.scale.y
+            yPosition += s
         }
 
         this.childrenDimensions = newDimensions

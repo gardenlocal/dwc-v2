@@ -205,11 +205,19 @@ exports.generateMushroom = () => {
     const noElementsForCreature = Object.keys(DWC_META.creaturesNew[creatureType]).length
     const svgElementIndex = randomIntInRange(0, noElementsForCreature)
 
-    const mirrorSectionScale = randomInRange(0.3, 0.6)        
+    const noChildren = randomIntInRange(3, 8)
 
-    const mainSectionChildren = getMushroomChildren(3, 8)
-    const mirrorSectionChildren = getMushroomChildren(3, 8)
-    const mirrorSectionParentIndex = randomIntInRange(0, mainSectionChildren.length)
+    const evolutions = []
+    const noEvolutions = 6
+    for (let i = 0; i < noEvolutions; i++) {
+        evolutions.push({
+            mainSectionChildren: getMushroomChildren(noChildren, noChildren + 1),
+            mainSectionChildrenAnims: [getMushroomChildren(noChildren, noChildren + 1), getMushroomChildren(noChildren, noChildren + 1)],
+            mirrorSectionScale: randomInRange(0.3, 0.6),
+            mirrorSectionChildren: getMushroomChildren(3, 8),
+            mirrorSectionParentIndex: randomIntInRange(0, noChildren)   
+        })
+    }
 
     const scale = randomInRange(1, 4)
     const rotation = randomInRange(-Math.PI / 2, Math.PI / 2)
@@ -219,10 +227,8 @@ exports.generateMushroom = () => {
     return {
         creatureType,
         svgElementIndex,
-        mirrorSectionScale,        
-        mainSectionChildren,
-        mirrorSectionChildren,
-        mirrorSectionParentIndex,
+        noChildren,
+        evolutions,
         evolutionIndex,
         scale,
         rotation,
@@ -253,7 +259,7 @@ exports.generateLichen = () => {
     const creatureType = "lichen"
     const totalEvolutions = 35
 
-    let noChildren = randomIntInRange(1, 5)
+    let noChildren = randomIntInRange(1, 4)
     let parentType = randomElementFromArray(Object.keys(DWC_META.creaturesNew[creatureType]))
     let element = {
         type: parentType,
@@ -285,7 +291,7 @@ exports.generateLichen = () => {
         parentUsedConnectors[ch.parentConnector] = true
 
 
-        let no2Children = randomIntInRange(0, 5)
+        let no2Children = randomIntInRange(0, 3)
         let childUsedConnectors = {}
 
         for (let j = 0; j < no2Children; j++) {
@@ -320,6 +326,7 @@ exports.generateLichen = () => {
         rotation,
         fillColor,
         evolutionIndex,
+        visibleChildren: noChildren,
         element
     }
 }

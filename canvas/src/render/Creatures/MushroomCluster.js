@@ -12,35 +12,27 @@ export default class MushroomCluster extends PIXI.Graphics {
     constructor(params, creatureName) {
         super()
         this.params = params
-        const { creatureType, svgElementIndex, mirrorSectionScale, mainSectionChildren, mirrorSectionChildren, mirrorSectionParentIndex, scale, rotation, fillColor } = params
+        const { creatureType, svgElementIndex, evolutionIndex, evolutions, scale, rotation, fillColor } = params
+        this.fillColor = fillColor
         this.creatureType = creatureType
         this.elementType = Object.values(DWC_META.creaturesNew[creatureType])[svgElementIndex].name
 
-        let creatureTopChildren = mainSectionChildren
+        this.evolutions = evolutions
+        this.evolutionIndex = evolutionIndex % evolutions.length
 
-        this.creatureTop = new MushroomParticle(this.creatureType, this.elementType, creatureTopChildren, fillColor)
-        const topBBox = this.creatureTop.getBounds()
-
-        /*
-        this.creatureBottom = new MushroomParticle(this.creatureType, this.elementType, creatureBottomChildren, fillColor)
-        this.creatureBottom.scale.set(mirrorSectionScale, mirrorSectionScale)
-        const bottomBBox = this.creatureBottom.getBounds()                
+        console.log('Mushroom evolution index: ', this.evolutionIndex)
         
-        const childBounds = this.creatureTop.getChildBounds(mirrorSectionParentIndex)
-        const gX = childBounds.x + childBounds.width
-        const gY = childBounds.y + childBounds.height / 2
-        const pos = this.toLocal(new PIXI.Point(gX, gY))
-        this.creatureBottom.position.set(pos.x, pos.y - bottomBBox.height / 2)
-        */
-        this.creature = new PIXI.Container()        
-        this.creatureBottom = this.generateChildFromParameters(params)
+        const { mainSectionChildren, mirrorSectionScale, mirrorSectionChildren, mirrorSectionParentIndex } = this.evolutions[this.evolutionIndex]
+
+        this.creature = new PIXI.Container()
+
+        this.creatureTop = new MushroomParticle(this.creatureType, this.elementType, mainSectionChildren, fillColor)        
+        this.creatureBottom = this.generateChildFromParameters(this.evolutions[this.evolutionIndex])
         
         this.creature.addChild(this.creatureTop)
         this.creature.addChild(this.creatureBottom)
 
         const bbox = this.creature.getBounds()
-        // this.creature.pivot.set(-bbox.width / 2, 0)
-
         this.addChild(this.creature)
 
         const textStyle = new PIXI.TextStyle({
@@ -65,8 +57,8 @@ export default class MushroomCluster extends PIXI.Graphics {
     generateChildFromParameters({ mirrorSectionChildren, mirrorSectionScale, mirrorSectionParentIndex, fillColor }) {
         const oldRotation = this.rotation
         this.rotation = 0
-        console.log('generate child from parameters: ', mirrorSectionParentIndex)
-        const creatureBottom = new MushroomParticle(this.creatureType, this.elementType, mirrorSectionChildren, fillColor)
+
+        const creatureBottom = new MushroomParticle(this.creatureType, this.elementType, mirrorSectionChildren, this.fillColor)
         creatureBottom.scale.set(mirrorSectionScale, mirrorSectionScale)
         const bottomBBox = creatureBottom.getBounds()                
         
@@ -81,12 +73,15 @@ export default class MushroomCluster extends PIXI.Graphics {
     }
 
     async evolve(duration) {
+        this.evolutionIndex = (this.evolutionIndex + 1) % this.evolutions.length
+        let currEvolution = this.evolutions[this.evolutionIndex]
+
         await this.creatureBottom.startAnimatingDeath(duration)
-        await this.creatureTop.updateChildrenDimensions([])
-        await this.creatureTop.updateChildrenDimensions([])
-        await this.creatureTop.updateChildrenDimensions([])
+        await this.creatureTop.updateChildrenDimensions(currEvolution.mainSectionChildrenAnims[0])
+        await this.creatureTop.updateChildrenDimensions(currEvolution.mainSectionChildrenAnims[1])
+        await this.creatureTop.updateChildrenDimensions(currEvolution.mainSectionChildren)
         this.creature.removeChild(this.creatureBottom)
-        this.creatureBottom = this.generateChildFromParameters(this.params)
+        this.creatureBottom = this.generateChildFromParameters(currEvolution)
         this.creature.addChild(this.creatureBottom)
         await this.creatureBottom.startAnimatingGrowth(1500)
         // await this.evolve(1500)
