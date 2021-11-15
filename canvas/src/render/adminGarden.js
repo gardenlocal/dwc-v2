@@ -13,8 +13,6 @@ export default class AdminGarden extends PIXI.Container {
     this.creatures = creatures
     this.userGarden = selfGarden
 
-    console.log('new admin garden: ', this.users)
-
     this.drawBackgrounds()
   }
 
@@ -48,9 +46,7 @@ export default class AdminGarden extends PIXI.Container {
   }
 
   onGardenTap = (e) => {
-    console.log('on garden tap: ', e.data.global)
     let local = this.toLocal(e.data.global)
-    console.log('--- local: ', local)
     window.APP.sendGardenTap(local)
   }
 

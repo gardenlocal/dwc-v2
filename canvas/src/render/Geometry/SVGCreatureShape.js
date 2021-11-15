@@ -21,7 +21,6 @@ export default class SVGCreatureShape extends PIXI.Container {
     }
 
     initialize() {        
-        console.log('initialize: ', this.elementType)
         if (this.initialized) return
         this.initialized = true
         // First draw the entire SVG onto an off-screen render texture, in order for the geometry to be computed.
@@ -88,6 +87,7 @@ export default class SVGCreatureShape extends PIXI.Container {
     tick() {
         if (!this.initialized) {
             this.initialize()
+            this.cacheAsBitmap = true
         }
         Object.values(this.layers).forEach(l => l.tick())
     }

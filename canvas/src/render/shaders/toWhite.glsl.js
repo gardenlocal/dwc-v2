@@ -18,7 +18,7 @@ void main() {
     vec4 color = texture2D(uSampler, vTextureCoord);
     // gl_FragColor = vec4(0.97, 0.97, 0.97, color.a);
     float m = max(color.r, color.g);
-    gl_FragColor = vec4(m, m, m, color.a);
+    gl_FragColor = vec4(color.r * 2.0, color.g * 2.0, color.b * 2.0, color.a);
 }
 
 `

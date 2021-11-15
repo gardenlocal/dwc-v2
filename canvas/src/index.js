@@ -27,7 +27,7 @@ export default class PixiAppWrapper {
     this.isAdmin = (options && options.isAdmin)
 
     this.setupPixiApp()
-    // this.setupStats()
+    this.setupStats()
     this.setupTween()
     this.resizeAppToWindow()
 
@@ -96,12 +96,12 @@ export default class PixiAppWrapper {
     })
 
     // Have all available creatures globally available, in order to be able to morph between them.
-    window.DWCCreatureShapes = Object.keys(DWC_META.creatures).reduce((acc, k) => {
-      console.log('reduce ', acc, k)
-      const svgData = PIXI.Loader.shared.resources[DWC_META.creatures[k]].data
-      acc[DWC_META.creatures[k]] = new SVGCreatureShape(svgData)
-      return acc
-    }, {})
+    // window.DWCCreatureShapes = Object.keys(DWC_META.creatures).reduce((acc, k) => {
+    //   console.log('reduce ', acc, k)
+    //   const svgData = PIXI.Loader.shared.resources[DWC_META.creatures[k]].data
+    //   acc[DWC_META.creatures[k]] = new SVGCreatureShape(svgData)
+    //   return acc
+    // }, {})
 
     // load sound
     sound.add('creatureWav', {

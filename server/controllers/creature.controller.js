@@ -34,14 +34,6 @@ exports.createCreature = async (garden, user) => {
     appearance: {
       ...creatureProps      
     },
-    movement: {
-      fromX: utils.randomInRange(garden.x, garden.x + garden.width),
-      fromY: utils.randomInRange(garden.y, garden.y + garden.height),
-      directionChangeTimestamp: new Date().getTime(),
-      toX: utils.randomInRange(garden.x, garden.x + garden.width),
-      toY: utils.randomInRange(garden.y, garden.y + garden.height),
-      transitionDuration: 20
-    },
     animatedProperties: {
       position: await generateCreatureMovement(creatureProps.creatureType, garden)
     },
@@ -111,8 +103,6 @@ const generateCreatureMovement = async (type, ownerGarden, fromPosition, telepor
 
   let teleportPosition = teleport ? teleport : ({ x: utils.randomInRange(ownerGarden.x + 250, ownerGarden.x + ownerGarden.width - 250), y: utils.randomInRange(ownerGarden.y + 250, ownerGarden.y + ownerGarden.height - 250) })
   let toPosition
-
-  console.log('type is: ', type)
   let direction
 
   switch (type) {
