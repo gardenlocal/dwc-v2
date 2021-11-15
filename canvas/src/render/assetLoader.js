@@ -1,5 +1,6 @@
 import * as PIXI from 'pixi.js'
 
+/*
 import Creature1 from '../../assets/old/creature-1.svg';
 import Creature2 from '../../assets/old/creature-2.svg';
 import Creature4 from '../../assets/old/creature-4.svg';
@@ -24,6 +25,7 @@ import LichenElement4 from '../../assets/old/lichen-element-4.svg';
 
 import MushroomElement1 from '../../assets/old/mushroom-element-1.svg';
 import MushroomElement2 from '../../assets/old/mushroom-element-2.svg';
+*/
 
 import MossNew1 from '../../assets/moss-element-1.svg';
 import MossNew2 from '../../assets/moss-element-2.svg';
@@ -36,6 +38,7 @@ import { DWC_META } from '../../../shared-constants';
 
 const loader = PIXI.Loader.shared
 
+/*
 const addCreatures = () => {
     loader.add(DWC_META.creatures.CREATURE_1, Creature1)
     loader.add(DWC_META.creatures.CREATURE_2, Creature2)
@@ -52,13 +55,6 @@ const addBackgroundTiles = () => {
     loader.add(DWC_META.tiles.TILE_4, Tile4)
 }
 
-const addNewCreatures = () => {
-    loader.add(DWC_META.creaturesNew.moss["moss-element-1"].name, MossNew1)
-    loader.add(DWC_META.creaturesNew.moss["moss-element-2"].name, MossNew2)
-    loader.add(DWC_META.creaturesNew.mushroom["mushroom-element-1"].name, MushroomNew1)
-    loader.add(DWC_META.creaturesNew.lichen["lichen-element-1"].name, LichenNew1)
-}
-
 const addOldCreatures = () => {
     loader.add(DWC_META.creaturesOld.moss["moss-element-1"].name, MossElement1)
     loader.add(DWC_META.creaturesOld.moss["moss-element-2"].name, MossElement2)
@@ -73,10 +69,18 @@ const addOldCreatures = () => {
     loader.add(DWC_META.creaturesOld.mushroom["mushroom-element-1"].name, MushroomElement1)
     loader.add(DWC_META.creaturesOld.mushroom["mushroom-element-2"].name, MushroomElement2)
 }
+*/
+
+const addNewCreatures = () => {
+    loader.add(DWC_META.creaturesNew.moss["moss-element-1"].name, MossNew1)
+    loader.add(DWC_META.creaturesNew.moss["moss-element-2"].name, MossNew2)
+    loader.add(DWC_META.creaturesNew.mushroom["mushroom-element-1"].name, MushroomNew1)
+    loader.add(DWC_META.creaturesNew.lichen["lichen-element-1"].name, LichenNew1)
+}
 
 export const loadAll = async (onProgress) => {
-    addCreatures()
-    addBackgroundTiles()
+    // addCreatures()
+    // addBackgroundTiles()
     addNewCreatures()
 
     return new Promise((res, rej) => {
