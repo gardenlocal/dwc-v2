@@ -4,17 +4,24 @@ import SVGCreatureShape from '../Geometry/SVGCreatureShape';
 import { sleep } from '../utils';
 import TWEEN from '@tweenjs/tween.js'
 
-export default class Particle extends PIXI.Graphics {
-    constructor(creatureType, elementType, elementsProps, fillColor, noVisibleElements) {
+export default class Particle extends PIXI.Container {
+    constructor(creatureType, elementType, elementsProps, fillColor, noVisibleElements, evolutionIndex) {
         super()
         this.creatureType = creatureType
         this.elementType = elementType
         this.allElementsProps = elementsProps
-        this.allElementsIndex = noVisibleElements
-        
-        this.elementsProps = elementsProps.slice(0, noVisibleElements)
+        this.allElementsIndex = (evolutionIndex % this.allElementsProps.length)
         this.noElements = noVisibleElements//elementsProps.length
         this.fillColor = fillColor        
+
+        this.elementsProps = []
+        for (let i = this.allElementsIndex - this.noElements; i < this.allElementsIndex; i++) {
+            let index = (i + this.allElementsProps.length) % this.allElementsProps.length
+            console.log('indexes: ', index)
+            this.elementsProps.push(this.allElementsProps[index])
+        }
+        
+        // this.elementsProps = elementsProps.slice(0, noVisibleElements)
 
         this.elements = []
         let xOffset = 0, yOffset = 0
@@ -76,6 +83,10 @@ export default class Particle extends PIXI.Graphics {
     }
     async startAnimatingGrowth(durationPerElement, delayPerElement = 500) {
         for (let i = 0; i < this.elements.length; i++) {
+            this.elements[i].children[0].alpha = 0
+        }
+        
+        for (let i = 0; i < this.elements.length; i++) {
             const el = this.elements[i].children[0]
             el.scale.set(0)
             el.alpha = 1
@@ -117,9 +128,9 @@ export default class Particle extends PIXI.Graphics {
         this.connector = el.getConnectorForType(nextConnector.nextTypeKey, nextConnector.connectorIndex)         
         this.xOffset += this.connector.x
         this.yOffset += this.connector.y
-        this.allElementsIndex++
+        this.allElementsIndex = (this.allElementsIndex + 1) % this.allElementsProps.length
 
-        await sleep(duration / 2)
+        await sleep(3 * duration / 2)
 
         //this.bbox = this.getBounds()
         //this.pivot.set(-this.bbox.x, -this.bbox.y)

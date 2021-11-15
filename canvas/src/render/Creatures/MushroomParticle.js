@@ -1,10 +1,10 @@
 import * as PIXI from 'pixi.js'
 import { DWC_META } from '../../../../shared-constants';
 import SVGCreatureShape from '../Geometry/SVGCreatureShape';
-import { sleep } from '../utils';
+import { sleep, randomElementFromArray } from '../utils';
 import TWEEN from '@tweenjs/tween.js'
 
-export default class MushroomParticle extends PIXI.Graphics {
+export default class MushroomParticle extends PIXI.Container {
     constructor(creatureType, elementType, childrenDimensions, fillColor) {
         super()
         this.creatureType = creatureType
@@ -49,15 +49,30 @@ export default class MushroomParticle extends PIXI.Graphics {
             currElement: 0
         }
     }
+    getChildBounds(childIndex) {
+        let global = this.elements[childIndex + 1].getBounds()
+        let local = this.elements[childIndex + 1].getLocalBounds()
+        return global
+    }
     getNumberOfElements() {
         return this.elements.length
     }
+    hideAll() {
+        for (let i = 0; i < this.elements.length; i++) {
+            this.elements[i].alpha = 0
+        }
+    }
     async startAnimatingGrowth(durationPerElement, delayPerElement = 250) {
+        this.hideAll()
+
+        if (this.growthTween) {
+            TWEEN.remove(this.growthTween)
+        }
+        
         const el = this.elements[0]
         el.scale.set(0)
         el.alpha = 1
-        console.log('tween is: ', TWEEN)
-        const tween = new TWEEN.Tween(this.elements[0].scale)
+        this.growthTween = new TWEEN.Tween(this.elements[0].scale)
             .to({x: el.targetScale.x, y: el.targetScale.y }, durationPerElement)
             .easing(TWEEN.Easing.Quartic.InOut)
             .start()
@@ -75,7 +90,53 @@ export default class MushroomParticle extends PIXI.Graphics {
             await sleep(delayPerElement)
         }            
     }
-    stopAnimatingGrowth() {        
+    async startAnimatingDeath(durationPerElement, delayPerElement = 350) {        
+        for (let i = 1; i < this.elements.length; i++) {
+            const el = this.elements[i]
+            const tween = new TWEEN.Tween(el.scale)
+            .to({x: 0, y: 0 }, durationPerElement)
+            .easing(TWEEN.Easing.Quartic.InOut)
+            .start()
+            await sleep(delayPerElement)
+        }
+
+        const el = this.elements[0]
+        console.log('tween is: ', TWEEN)
+        const tween = new TWEEN.Tween(this.elements[0].scale)
+            .to({x: 0, y: 0 }, durationPerElement)
+            .easing(TWEEN.Easing.Quartic.InOut)
+            .start()
+
+        await sleep(durationPerElement)
+    }
+    async updateChildrenDimensions(newDimensions) {        
+        const parent = this.elements[0]
+        const parentBbox = parent.getLocalBounds()
+        let yPosition = 0
+
+        for (let i = 1; i < this.elements.length; i++) {
+            const el = this.elements[i]
+            let s = newDimensions[i - 1]
+
+            const bbox = el.getLocalBounds()
+            el.targetScale = { x: -s, y: s }
+
+            const tweenP = new TWEEN.Tween(el.position)
+            .to({y: parentBbox.height * yPosition + bbox.height / 2 * (s) }, 500)
+            .easing(TWEEN.Easing.Quartic.Out)
+            .start()
+
+            const tweenS = new TWEEN.Tween(el.scale)
+            .to({x: -s, y: s }, 500)
+            .easing(TWEEN.Easing.Quartic.Out)
+            .start()
+
+            yPosition += s
+        }
+
+        this.childrenDimensions = newDimensions
+
+        await sleep(500)
     }
     tick(d) {
         this.children.forEach(c => c.tick())

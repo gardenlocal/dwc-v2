@@ -7,20 +7,16 @@ import axios from 'axios';
 import { map } from "./utils";
 import { update } from "@tweenjs/tween.js";
 //import { SHAPES, TILE1, TILE2, TILE3, TILE4 } from "./Backgrounds/ResidueData.js";
-
-const WEATHER_API = `http://dwc2-taeyoon-studio.iptime.org:1055/weather`
 //const BG_DATA = [TILE1, TILE2, TILE3, TILE4]
 
 export default class UserGarden extends PIXI.Container {
   constructor(users, creatures, selfGarden, uid) {
     super()
-    console.log('new user garden', users, selfGarden)
+    // console.log('new user garden', users, selfGarden)
     this.users = users
     this.creatures = creatures
     this.userGarden = selfGarden    
     this.uid = uid
-    this.temperature = 5;
-    this.humidity = 55;
 
     if (!this.userGarden) return
 
@@ -32,10 +28,7 @@ export default class UserGarden extends PIXI.Container {
   }
 
   async init() {
-    await this.fetchWeatherData()
-    this.drawBackgrounds()
-
-    window.setInterval(this.fetchWeatherData, 10000);
+    this.drawBackgrounds()    
   }
 
   drawBackgrounds() {
@@ -70,14 +63,21 @@ export default class UserGarden extends PIXI.Container {
       if (i > 0) {
         // const currentTile = this.userGarden.tileProps[i - 1];
         // const currentLoop = currentTile[this.bgAnimationParams.currentTile];  
-        await this.tilesContainer.children[i - 1].disappear(targetSize, duration) // appear at 0, disappear after bg2+bg3+bg4_duration  
+        // await this.tilesContainer.children[i - 1].disappear(targetSize, duration) // appear at 0, disappear after bg2+bg3+bg4_duration  
       }
     }
 
+    /*
     let i = this.tilesContainer.children.length - 1
-    // const currentTile = this.userGarden.tileProps[i];
-    // const currentLoop = currentTile[this.bgAnimationParams.currentTile];
     await this.tilesContainer.children[i].disappear(targetSize, duration) // appear at 0, disappear after bg2+bg3+bg4_duration  
+    */
+
+    for(let i = 0; i < this.tilesContainer.children.length; i++) {
+      const currentTile = this.userGarden.tileProps[i]
+      const currentLoop = currentTile[this.bgAnimationParams.currentTile]
+
+      await this.tilesContainer.children[i].disappear(currentLoop.target, currentLoop.duration) // appear at 0, disappear after bg2+bg3+bg4_duration
+    }
 
     this.bgAnimationParams.currentTile = (this.bgAnimationParams.currentTile + 1) % this.userGarden.tileProps[0].length
 
@@ -88,24 +88,12 @@ export default class UserGarden extends PIXI.Container {
 
   }
 
-  async fetchWeatherData() {
+  get temperature() {
+    return window.TEMPERATURE || 5
+  }
 
-    try {
-      const weather = await axios.get(WEATHER_API)
-        
-      const weatherData = weather.data;
-      console.log("fetchWeatherData -------------", weatherData)
-
-      this.temperature = weatherData.temperature;
-      this.humidity = weatherData.humidity;
-
-      // const timestamp = weatherData.timestamp;
-
-    } catch (error) {
-        console.log("ERROR ------------ ", error)
-        return
-    }
-    
+  get humidity() {
+    return window.HUMIDITY || 55
   }
 
   tick() {

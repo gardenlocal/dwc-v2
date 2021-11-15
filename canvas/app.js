@@ -1,18 +1,20 @@
-import LOGIN from './src/html/login.js';
-import SIGNUP from './src/html/signup.js';
-import USER from './src/html/user.js';
-import CANVAS from './src/html/canvas.js';
-import AuthService from './src/services/auth.service';
 import { sleep } from './src/render/utils.js';
 import PixiApp from './src/index'
 import { uid } from 'uid';
 import { io } from 'socket.io-client';
+import axios from 'axios';
+// import 'regenerator-runtime/runtime'
+
+const WEATHER_API = `http://dwc2-taeyoon-studio.iptime.org:1055/weather`
 
 class App {
   constructor() {
   }
 
   async setup() {
+    window.TEMPERATURE = 5
+    window.HUMIDITY = 55
+
     this.pathname = window.location.pathname
     this.isTest = this.pathname == '/test'
     this.user = this.createOrFetchUser()
@@ -21,6 +23,12 @@ class App {
     this.serverUrl = `http://${window.location.hostname}`
 
     this.pixiApp = new PixiApp({ isAdmin: this.pathname == '/admin' })
+
+    // this.fetchWeatherData()
+
+    console.log('post data')
+    console.log(window.TEMPERATURE, window.HUMIDITY)
+    //setInterval(this.fetchWeatherData, 10000)
     await this.pixiApp.loadAssets()
 
     this.socket = await io(`${this.serverUrl}:${this.serverPort}`, {
@@ -47,6 +55,23 @@ class App {
       creatures: false,
       users: false,
       firstRender: false
+    }
+
+    window.addEventListener('visibilitychange', this.onVisibilityChange)
+  }
+
+  onVisibilityChange = (e) => {
+    const active = (document.visibilityState == 'visible')
+    console.log('is active: ', active)
+    if (!active) {
+      this.socket.disconnect()
+      this.initData.firstRender = false
+      this.pixiApp.stop()
+      this.onlineCreatures = {}
+      this.onlineUsers = {}
+    } else {
+      this.socket.connect()      
+      // this.pixiApp.reset()
     }
   }
   
@@ -124,13 +149,11 @@ class App {
       return acc
     }, {})
 
-    console.log('Update: ', this.onlineUsers, this.onlineCreatures)
     this.pixiApp.updateOnlineCreatures(this.onlineUsers, this.onlineCreatures)
     return this.onlineCreatures  
   }
 
   onCreaturesUpdate = (creaturesToUpdate) => {
-    console.log('Creatures Update: ', creaturesToUpdate)
     this.pixiApp.updateCreatureData(creaturesToUpdate)
   }
 
@@ -152,6 +175,24 @@ class App {
     }
 
     return JSON.parse(user)
+  }
+
+  async fetchWeatherData() {
+    let weather
+    try {
+      weather = await axios.get(WEATHER_API)
+    } catch (error) {
+      console.log("ERROR ------------ ", error)
+      return new Promise((res, rej) => res())
+    } finally {
+      if (weather && weather.data) {
+        const weatherData = weather.data;
+        console.log("fetchWeatherData -------------", weatherData)
+    
+        window.TEMPERATURE = weatherData.temperature;
+        window.HUMIDITY = weatherData.humidity;  
+      }  
+    }
   }
 }
 

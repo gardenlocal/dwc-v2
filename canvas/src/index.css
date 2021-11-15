@@ -10,8 +10,6 @@ body{
  width: 100vw;
  height: 100vh;
  position: absolute;
- left: 50%;
- transform: translateX(-50%);
  box-sizing: border-box;
 }
 
@@ -36,7 +34,7 @@ body h1 {
 div#stats {
   position: fixed;
   top: 0;
-  right: 0;
+  left: 0;
   z-index: 500;
   width: max(200px, 10vw, 10vh);
   height: max(100px, 6vh, 6vw);
@@ -45,4 +43,11 @@ div#stats {
   font-family: sans-serif !important;
   font-size: 10pt;
   transform: translateX(50%) translateY(25%) scale(0.7) translateX(-50%) translateY(-50%);
+}
+
+canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform: translateX(-25%) translateY(-25%) scale(0.5);  
 }

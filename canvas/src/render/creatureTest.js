@@ -8,11 +8,12 @@ import { updateUsers, updateCreatures } from "../data/globalData";
 import cnFragment from './shaders/cnFragment.glsl.js'
 import gradientFragment from './shaders/gradient.glsl'
 import vertex from "./shaders/vertex.glsl";
-import { DWC_META, generateMoss, generateMushroom } from "../../../shared-constants";
+import { DWC_META, generateLichen, generateMoss, generateMushroom } from "../../../shared-constants";
 import UserBackground from "./Backgrounds/UserBackground";
 import Particle from "./Creatures/MossParticle"
 import MossCluster from "./Creatures/MossCluster"
 import MushroomCluster from "./Creatures/MushroomCluster"
+import LichenCluster from "./Creatures/LichenCluster"
 import { map, randomElementFromArray, randomInRange, randomIntInRange } from "./utils";
 import TWEEN from '@tweenjs/tween.js'
 
@@ -53,9 +54,13 @@ async function render(app) {
 
   //drawAllMoss(100)
   //drawMushrooms()
-  drawOneMoss()
-  //drawOneMushroom()
+  //drawOneMoss()
+  // drawOneMushroom()
+  // setInterval(() => {
+    drawOneLichen()
+  // }, 1000)
 
+  lichen.startAnimatingGrowth(1500)
   app.stage.addChild(gardenContainer)
 
 }
@@ -64,6 +69,21 @@ let PADDING = 50
 let currX = PADDING
 let currY = PADDING
 let maxY = 0
+
+let lichen
+
+function drawOneLichen() {
+  if (lichen) {
+    gardenContainer.removeChild(lichen)
+  }
+  const lichenProps = generateLichen()
+  lichen = new LichenCluster(lichenProps)
+
+  lichen.position.set(500, 500)
+
+  gardenContainer.addChild(lichen)
+  allCreatures.push(lichen)
+}
 
 function drawOneMushroom() {
   const mushroomProps = generateMushroom()
