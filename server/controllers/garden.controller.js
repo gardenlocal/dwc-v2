@@ -84,11 +84,6 @@ exports.createGardenSection = async (uid) => {
     }
   }
 
-  // Set up garden background
-  newGarden.backgroundTile = randomElementFromArray(Object.values(DWC_META.tiles))
-  newGarden.tileScaleX = (Math.random() < 0.5) ? -1 : 1
-  newGarden.tileScaleY = (Math.random() < 0.5) ? -1 : 1
-
   // Set up animation properties
   const noTiles = 4
   const stepsPerTile = 7
@@ -97,7 +92,8 @@ exports.createGardenSection = async (uid) => {
   for (let i = 0; i < noTiles; i++) {
     const currTile = []
     for (let j = 0; j < stepsPerTile; j++) {
-      const shape = randomElementFromArray(Object.values(DWC_META.tileShapes))
+      const shapeTypes = getConfig().backgroundTypes
+      const shape = randomElementFromArray(shapeTypes)
       const target = (shape == DWC_META.tileShapes.TRIANGLE ? randomElementFromArray([0.25, 0.4, 0.5, 0.6, 0.75]) : randomElementFromArray([0.25, 0.3, 0.4, 0.75]))
       currTile.push({
         "target": target,

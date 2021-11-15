@@ -2,19 +2,11 @@
 // https://stackoverflow.com/questions/40472364/moving-object-from-a-to-b-smoothly-across-canvas
 
 import * as PIXI from "pixi.js";
-import { io } from 'socket.io-client';
-import Creature from './creature'
-import { updateUsers, updateCreatures } from "../data/globalData";
-import cnFragment from './shaders/cnFragment.glsl.js'
 import gradientFragment from './shaders/gradient.glsl'
-import vertex from "./shaders/vertex.glsl";
 import { DWC_META, generateLichen, generateMoss, generateMushroom } from "../../../shared-constants";
-import UserBackground from "./Backgrounds/UserBackground";
-import Particle from "./Creatures/MossParticle"
 import MossCluster from "./Creatures/MossCluster"
 import MushroomCluster from "./Creatures/MushroomCluster"
 import LichenCluster from "./Creatures/LichenCluster"
-import { map, randomElementFromArray, randomInRange, randomIntInRange } from "./utils";
 import TWEEN from '@tweenjs/tween.js'
 
 let gardenContainer;
