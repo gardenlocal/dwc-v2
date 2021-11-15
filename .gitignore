@@ -2,9 +2,11 @@
 server/node_modules
 client/node_modules
 server/storage/main.db
+server/storage/weather.db
 canvas/node_modules
 tests/node_modules
 */dist
 */.cache
 canvas/dist
 canvas/.cache
+.env

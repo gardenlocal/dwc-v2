@@ -7,6 +7,7 @@ const Creature = require("../models/Creature")
 const database = require("../db")
 const { DWC_META, generateMoss, generateLichen, generateMushroom } = require("../../shared-constants")
 const AnimatedProperty = require('../models/AnimatedProperty')
+const { getConfig } = require('../config.js')
 
 let allCreatures = {}
 
@@ -16,7 +17,8 @@ exports.createCreature = async (garden, user) => {
   const g = garden
 
   //const creatureType = Math.random() < 0.7 ? Object.keys(DWC_META.creaturesNew)[0] : Object.keys(DWC_META.creaturesNew)[1]//utils.randomElementFromArray(Object.keys(DWC_META.creaturesNew))
-  const creatureType = utils.randomElementFromArray(Object.keys(DWC_META.creaturesNew))
+  const creatureTypes = getConfig().creatureTypes
+  const creatureType = utils.randomElementFromArray(creatureTypes)
   let creatureProps
   switch (creatureType) {
     case 'moss':
@@ -39,8 +41,6 @@ exports.createCreature = async (garden, user) => {
     },
     owner: user.uid,
   })
-
-  console.log('New creature: ', creature)
 
   creature = await database.insert(creature)
   allCreatures[creature._id] = creature
