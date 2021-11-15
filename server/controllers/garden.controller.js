@@ -5,6 +5,7 @@ const TYPES = require('../datatypes')
 const GardenSection = require('../models/GardenSection')
 const { randomElementFromArray, randomInRange, randomIntInRange } = require('../utils')
 const { DWC_META } = require("../../shared-constants")
+const { getConfig } = require("../config.js")
 
 const GARDEN_TILE_SHAPES = {
   TRIANGLE: 'TRIANGLE',
