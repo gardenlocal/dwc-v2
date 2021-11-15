@@ -24,7 +24,7 @@ class App {
 
     this.pixiApp = new PixiApp({ isAdmin: this.pathname == '/admin' })
 
-    this.fetchWeatherData()
+    // this.fetchWeatherData()
 
     console.log('post data')
     console.log(window.TEMPERATURE, window.HUMIDITY)
@@ -55,6 +55,23 @@ class App {
       creatures: false,
       users: false,
       firstRender: false
+    }
+
+    window.addEventListener('visibilitychange', this.onVisibilityChange)
+  }
+
+  onVisibilityChange = (e) => {
+    const active = (document.visibilityState == 'visible')
+    console.log('is active: ', active)
+    if (!active) {
+      this.socket.disconnect()
+      this.initData.firstRender = false
+      this.pixiApp.stop()
+      this.onlineCreatures = {}
+      this.onlineUsers = {}
+    } else {
+      this.socket.connect()      
+      // this.pixiApp.reset()
     }
   }
   

@@ -47,7 +47,7 @@ export default class Cluster extends PIXI.Graphics {
         this.message.addChild(this.messageBg)
         this.message.addChild(this.messageText)
         this.message.scale.set(0.25)
-        this.addChild(this.message)
+        // this.addChild(this.message)
         this.textBounds = this.message.getLocalBounds()
         this.message.position.set(this.creatureBounds.x + this.creatureBounds.width / 2 - this.textBounds.width / 8, this.creatureBounds.y + this.creatureBounds.height / 2 - this.textBounds.height / 8)
 

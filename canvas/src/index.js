@@ -16,7 +16,11 @@ import creatureWav from '../assets/C.wav' // ???: 3 seconds delay when audio sta
 import creatureTrimWav from '../assets/C_trim.wav'  // trim version to test loop
 import { renderCreatureTest } from './render/creatureTest'
 
-PIXI.settings.SPRITE_MAX_TEXTURES = Math.min(PIXI.settings.SPRITE_MAX_TEXTURES , 16);
+PIXI.settings.SPRITE_MAX_TEXTURES = Math.min(PIXI.settings.SPRITE_MAX_TEXTURES, 16);
+PIXI.settings.FILTER_MULTISAMPLE = PIXI.MSAA_QUALITY.NONE
+PIXI.settings.PRECISION_FRAGMENT = 'highp';
+PIXI.settings.ROUND_PIXELS = true
+PIXI.settings.ANISOTROPIC_LEVEL = 0
 
 export default class PixiAppWrapper {
   constructor(options) {
@@ -37,7 +41,7 @@ export default class PixiAppWrapper {
     this.pixiContainer = document.querySelector("#root")    
     this.pixiApp = new PIXI.Application({
       antialias: true,
-      resolution: 1,
+      resolution: 2,
       resizeTo: this.pixiContainer
     })
 
@@ -203,6 +207,9 @@ export default class PixiAppWrapper {
     })
   }
 
+  stop() {
+    this.pixiApp.stage.removeChildren()
+  }
   reset() {
     this.pixiApp.stage.removeChildren()
     this.render()

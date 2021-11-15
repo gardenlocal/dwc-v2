@@ -4,6 +4,8 @@
 import * as PIXI from "pixi.js";
 import UserGarden from "./userGarden";
 
+const CULL_BOUNDS = 1100
+
 export default class AdminGarden extends PIXI.Container {
   constructor(users, creatures, selfGarden) {
     super()
@@ -21,10 +23,18 @@ export default class AdminGarden extends PIXI.Container {
 
     Object.values(this.users).forEach(u => {
       if (!window.APP.getIsAdmin()) {
-        if (Math.abs(u.gardenSection.x - currentUser.gardenSection.x) > 1100 || Math.abs(u.gardenSection.y - currentUser.gardenSection.y) > 1100) {
+        console.log('culling: ', u.gardenSection.x, currentUser.gardenSection.x)
+
+        let isWideScreen = (window.innerWidth > window.innerHeight)
+        let dX = Math.abs(u.gardenSection.x - currentUser.gardenSection.x)
+        let dY = Math.abs(u.gardenSection.y - currentUser.gardenSection.y)
+        let dOne = (isWideScreen) ? (dX) : (dY)
+        let dZero = (isWideScreen) ? (dY) : (dX)          
+        if (dOne > CULL_BOUNDS || dZero > (CULL_BOUNDS - 1000)) {
           return
         }
       }
+      
       const garden = new UserGarden(this.users, this.creatures, u.gardenSection, u.uid)
       garden.x = u.gardenSection.x
       garden.y = u.gardenSection.y
@@ -46,6 +56,8 @@ export default class AdminGarden extends PIXI.Container {
   }
 
   updateOnlineUsers(onlineUsers) {
+    let currentUser = Object.values(this.users).filter(u => u.uid == window.UID)[0]
+
     // First, remove creatures that aren't online anymore
     let tilesToRemove = []
     let existingUsers = {}
@@ -60,6 +72,18 @@ export default class AdminGarden extends PIXI.Container {
     // Second, add creatures that don't exist
     for (let k of Object.keys(onlineUsers)) {
       if (!existingUsers[k]) {
+        if (!window.APP.getIsAdmin()) {
+          let u = onlineUsers[k]
+          let isWideScreen = (window.innerWidth > window.innerHeight)
+          let dX = Math.abs(u.gardenSection.x - currentUser.gardenSection.x)
+          let dY = Math.abs(u.gardenSection.y - currentUser.gardenSection.y)
+          let dOne = (isWideScreen) ? (dX) : (dY)
+          let dZero = (isWideScreen) ? (dY) : (dX)          
+          if (dOne > CULL_BOUNDS || dZero > (CULL_BOUNDS - 1000)) {
+            continue
+          }
+        }  
+
         const garden = new UserGarden(this.users, this.creatures, onlineUsers[k].gardenSection, onlineUsers[k].uid)
         garden.x = onlineUsers[k].gardenSection.x
         garden.y = onlineUsers[k].gardenSection.y

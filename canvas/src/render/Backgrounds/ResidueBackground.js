@@ -33,11 +33,13 @@ export default class ResidueBackground extends PIXI.Graphics {
     //this.shaderSpeed = Math.random() * 10 + 1
 
     // for tess2
+    /*
     this.clippingArea = new PIXI.Graphics()
     this.clippingArea.beginFill(0xffffff)
     this.clippingArea.drawRect(0, 0, this.W, this.H)  
     this.addChild(this.clippingArea)
     this.mask = this.clippingArea // replace mask with shader filter
+    */
   
     this.s = window.DWCApp.stage.scale.y
     if (window.APP.getIsAdmin()) {
@@ -48,7 +50,7 @@ export default class ResidueBackground extends PIXI.Graphics {
         u_time: 1.0,
         u_point1: [0.5, 0.0], u_radius1: 0.1, u_color1: [12.0 / 256.0, 239.0 / 256.0, 66.0 / 256.0],
         u_point2: [0.5, 1.0], u_radius2: 0.1, u_color2: [253.0 / 256.0, 136.0 / 256.0, 11.0 / 256.0],
-        u_offset: [0.0, - window.DWCApp.stage.pivot.y * this.s * 1.0],
+        u_offset: [0.0, - window.DWCApp.stage.pivot.y * this.s * 2],
         u_resolution: [this.W * 1.0, this.H * 1.0],
         u_scale: this.s * 1.0
     }
@@ -56,7 +58,8 @@ export default class ResidueBackground extends PIXI.Graphics {
     this.timeOffset = 0.0
     if (window.APP.getIsAdmin()) {
     } else {
-      this.timeOffset = (4 + (window.APP.selfGarden.y / 1000) % 4) % 4 + 2.0
+      let mod = (4 + ((window.APP.selfGarden.y) / 1000) % 4) % 4
+      this.timeOffset = 2 * (mod % 2)
     }
 
     const gradientFilter = new PIXI.Filter(null, HorizontalGradientFrag, this.gradientUniforms);
@@ -212,10 +215,11 @@ export default class ResidueBackground extends PIXI.Graphics {
     this.frame++
     let delta = PIXI.Ticker.shared.elapsedMS
     this.time += delta / 1000
-    // this.time += this.shaderSpeed / 1000 //0.016//delta/1000.0;
+    let uTime = this.timeOffset + (this.time / this.shaderSpeed / 2.0) //((this.time + this.timeOffset) / this.shaderSpeed / 2.0)
+    uTime %= 16
 
     // Shader background
-    this.gradientUniforms.u_time = this.timeOffset + (this.time / this.shaderSpeed / 2.0) //((this.time + this.timeOffset) / this.shaderSpeed / 2.0)
+    this.gradientUniforms.u_time = uTime
 
     this.drawCircle()
     this.drawTriangle()  

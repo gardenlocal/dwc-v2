@@ -5,7 +5,7 @@ import { distanceAndAngleBetweenTwoPoints, randomInRange } from '../utils'
 const morphOffsetCache = {}
 
 export default class SVGLayer extends PIXI.Graphics {
-    constructor(name, svgObj, fillColor, pointCount = 24) {
+    constructor(name, svgObj, fillColor, pointCount = 48) {
         super()
         this.name = name
         this.svgObj = svgObj
@@ -173,7 +173,7 @@ export default class SVGLayer extends PIXI.Graphics {
         this.beginFill(this.fillColor)
         this.drawFillAndStroke()
         this.endFill()
-        this.cacheAsBitmap = true
+        // this.cacheAsBitmap = true
 
         // Outline drawing experiments
         // this.drawStar()
