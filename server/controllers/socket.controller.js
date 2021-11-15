@@ -32,13 +32,12 @@ exports.userConnected = async (socket) => {
     user = new User({ uid });
     await database.insert(user)  
   }
-  console.log('done fetching user')
   // Remove old garden for this user, if one existed.
   await gardenController.clearGardenSection(uid)
-  console.log('removed old garden')
+
   // Create a new garden section for the current user
   const garden = await gardenController.createGardenSection(uid)
-  console.log('Creating garden for user: ', uid)
+
   if (garden) {
     user.gardenSection = garden._id
     await database.update({ uid: user.uid }, user)
@@ -54,7 +53,6 @@ exports.userConnected = async (socket) => {
     creatureController.moveCreatureToGarden(creature, garden)
   } else {
     creature = await creatureController.createCreature(garden, user)
-    console.log('created creature for user')
     user.creature = creature._id
     await database.update({ uid: user.uid }, user)
   }
@@ -70,10 +68,12 @@ const onAdminConnect = (socket) => async (reason) => {
 
 const creatureEvolveTimestamps = {}
 
-const onCreatureEvolve = (socket) => (data) => {
+const onCreatureEvolve = (socket) => async (data) => {
   console.log('on creature evolve: ', data._id)
   const now = new Date().getTime()
   if (creatureEvolveTimestamps[data._id] && now - creatureEvolveTimestamps[data._id] < 2000) return
+
+  await creatureController.evolveCreature(data._id)
 
   creatureEvolveTimestamps[data._id] = now
   io.emit('creatureEvolveBroadcast', data)

@@ -191,33 +191,6 @@ export default class Creature extends PIXI.Container {
 
         // Per-frame update for the creature SVG Shape outlines
         this.creature.tick()
-        this.creature.rotation += 0.001
-
-        /*
-        // Movement animation
-        if (this.movementAlpha > 1) {
-            this.movementAlpha = 1 
-        } else {
-            const step = delta / (1000 * this.movementDuration)
-            this.movementAlpha += step
-
-            if (this.appearance.creatureType == 'moss') {                
-                this.easedMovementAlpha = this.movementAlpha
-            } else {
-                this.easedMovementAlpha = this.movementAlpha//easeInOutQuart(this.movementAlpha)
-            }
-
-            if (this.frame % 1 == 0 || this.appearance.creatureType != 'moss') {
-                this.creature.rotation = 0.001 * this.creatureTargetRotation + 0.999 * this.creature.rotation
-                this.x = lerp(this.originPos.x, this.target.x, this.easedMovementAlpha)
-                this.y = lerp(this.originPos.y, this.target.y, this.easedMovementAlpha)
-            }
-        }
-
-        //console.log('creature tick: ', this.x, this.y)
-        
-        this.destinationMarker.x = this.target.x - this.x
-        this.destinationMarker.y = this.target.y - this.y
-        */
+        this.creature.rotation += 0.001 * (delta / 16)
     }
 }

@@ -10,20 +10,20 @@ import TWEEN from '@tweenjs/tween.js'
 import { sleep } from '../utils';
 
 export default class Cluster extends PIXI.Graphics {
-    constructor({ creatureType, svgElementIndex, childrenSequence, scale, rotation, fillColor, noVisibleElements }, creatureName) {
+    constructor({ creatureType, svgElementIndex, childrenSequence, scale, rotation, fillColor, noVisibleElements, evolutionIndex }, creatureName) {
         super()
         this.creatureType = creatureType
         this.elementType = Object.values(DWC_META.creaturesNew[creatureType])[svgElementIndex].name
 
         const textBoxColor = (fillColor != 0x0cef42) ? 0x0cef42 : 0xfd880b
 
-        this.creature = new Particle(this.creatureType, this.elementType, childrenSequence, fillColor, noVisibleElements)          
-        //this.drawParticle()
+        console.log('evolution index is: ', evolutionIndex)
+
+        this.creature = new Particle(this.creatureType, this.elementType, childrenSequence, fillColor, noVisibleElements, evolutionIndex)
         this.addChild(this.creature)
         this.selfBbox = this.getBounds()
 
         this.creatureBounds = this.creature.getLocalBounds()
-        console.log('creature bounds: ', this.creatureBounds)
         const textStyle = new PIXI.TextStyle({
             fontSize: 22,
             //fill: fillColor,

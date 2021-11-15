@@ -44,7 +44,7 @@ exports.createGardenSection = async (uid) => {
       // Find a neighbor that's not allocated
       let emptyNeighborKey = null      
       for (let key of sKeys) {
-        if (!gardenSection.neighbors[key] && key != 'left' && key != 'right') {
+        if (!gardenSection.neighbors[key]) {
           emptyNeighborKey = key
         }
       }

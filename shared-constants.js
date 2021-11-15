@@ -144,9 +144,10 @@ exports.generateMoss = () => {
     const svgElementIndex = randomIntInRange(0, noElementsForCreature)
     const firstElementType = Object.values(DWC_META.creaturesNew[creatureType])[svgElementIndex].name
 
-    const childrenSequence = getMossChildrenSequence(creatureType, firstElementType, 20, 30)
+    const childrenSequence = getMossChildrenSequence(creatureType, firstElementType, 50, 60)
     const fillColor = (Math.random() < 0.5) ? 0x0cef42 : 0xfd880b
     const noVisibleElements = randomIntInRange(4, 8)
+    const evolutionIndex = noVisibleElements
 
     const scale = randomInRange(1, 3)
     const rotation = randomInRange(0, 0)
@@ -158,6 +159,7 @@ exports.generateMoss = () => {
         scale,
         rotation,
         noVisibleElements,
+        evolutionIndex,
         fillColor
     }    
 }
@@ -212,6 +214,7 @@ exports.generateMushroom = () => {
     const scale = randomInRange(1, 4)
     const rotation = randomInRange(-Math.PI / 2, Math.PI / 2)
     const fillColor = (Math.random() < 0.5) ? 0x0cef42 : 0xfd880b
+    const evolutionIndex = 0
 
     return {
         creatureType,
@@ -220,6 +223,7 @@ exports.generateMushroom = () => {
         mainSectionChildren,
         mirrorSectionChildren,
         mirrorSectionParentIndex,
+        evolutionIndex,
         scale,
         rotation,
         fillColor
@@ -247,6 +251,7 @@ const getMushroomChildren = (minChildren, maxChildren) => {
 
 exports.generateLichen = () => {
     const creatureType = "lichen"
+    const totalEvolutions = 35
 
     let noChildren = randomIntInRange(1, 5)
     let parentType = randomElementFromArray(Object.keys(DWC_META.creaturesNew[creatureType]))
@@ -254,12 +259,12 @@ exports.generateLichen = () => {
         type: parentType,
         children: [],
         parentConnector: null,
-        visibleChildren: noChildren
+        visibleChildren: noChildren,        
     }
     
     let parentUsedConnectors = {}
 
-    for (let i = 0; i < 30; i++) {        
+    for (let i = 0; i < totalEvolutions; i++) {        
         let childType = randomElementFromArray(Object.keys(DWC_META.creaturesNew[creatureType][parentType].connectors))
         let ch = {
             type: childType,
@@ -307,12 +312,14 @@ exports.generateLichen = () => {
     const scale = randomInRange(1, 4)
     const rotation = randomInRange(-Math.PI / 2, Math.PI / 2)
     const fillColor = (Math.random() < 0.5) ? 0x0cef42 : 0xfd880b
+    const evolutionIndex = noChildren
 
     return {
         creatureType,
         scale,
         rotation,
         fillColor,
+        evolutionIndex,
         element
     }
 }
