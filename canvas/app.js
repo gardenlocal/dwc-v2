@@ -113,6 +113,7 @@ class App {
   }
 
   onUsersUpdate = (users) => {
+    console.log('onUsersUpdate: ', JSON.stringify(users).length, Object.keys(users).length)
     // get single user's garden data
     const currUser = users.find((u => (u.uid == this.user.id)))
     this.selfGarden = currUser ? currUser.gardenSection : null
@@ -131,6 +132,8 @@ class App {
   }
 
   onCreatures = (creatures) => {
+    console.log('onCreatures: ', JSON.stringify(creatures).length, Object.keys(creatures).length)
+
     this.updateOnlineCreatures(creatures)    
 
     this.initData.creatures = true

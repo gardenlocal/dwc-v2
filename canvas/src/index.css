@@ -101,7 +101,6 @@ div#stats {
   user-select: none;
   font-family: sans-serif !important;
   font-size: 10pt;
-  transform: translateX(50%) translateY(25%) scale(0.7) translateX(-50%) translateY(-50%);
 }
 
 canvas {

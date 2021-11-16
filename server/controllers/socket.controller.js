@@ -50,12 +50,14 @@ exports.userConnected = async (socket) => {
   // or move it in their garden if it does exist
   let creature = await creatureController.getCreatureForUser(user.uid)
   if (creature) {
-    creatureController.moveCreatureToGarden(creature, garden)
+    await creatureController.moveCreatureToGarden(creature, garden)
   } else {
     creature = await creatureController.createCreature(garden, user)
     user.creature = creature._id
     await database.update({ uid: user.uid }, user)
   }
+
+  await creatureController.bringCreatureOnline(creature)
 
   io.emit('usersUpdate', await getOnlineUsers())
   io.emit('creatures', await getAllCreatures())
@@ -94,10 +96,11 @@ const onDisconnect = (socket) => async (reason) => {
   delete socketMap[uid]
   delete gardenForUidCache[uid]
 
+  await gardenController.clearGardenSection(uid)
+  await creatureController.bringCreatureOffline(uid)
+
   io.emit('usersUpdate', await getOnlineUsers())
   io.emit('creatures', await getAllCreatures())
-
-  await gardenController.clearGardenSection(uid)
 }
 
 const getOnlineUsers = async () => {
@@ -106,7 +109,9 @@ const getOnlineUsers = async () => {
 }
 
 const getAllCreatures = async () => {
-  return (await creatureController.getAllCreaturesInfo())
+  const creatures = await creatureController.getAllCreaturesInfo()
+  console.log('getAllCreatures: ', creatures.length)
+  return creatures
 }
 
 exports.startAnimatingCreatures = async () => {

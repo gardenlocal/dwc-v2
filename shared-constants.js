@@ -141,7 +141,7 @@ exports.generateMoss = () => {
     const svgElementIndex = randomIntInRange(0, noElementsForCreature)
     const firstElementType = Object.values(DWC_META.creaturesNew[creatureType])[svgElementIndex].name
 
-    const childrenSequence = getMossChildrenSequence(creatureType, firstElementType, 50, 60)
+    const childrenSequence = getMossChildrenSequence(creatureType, firstElementType, 20, 25)
     const fillColor = (Math.random() < 0.5) ? 0x0cef42 : 0xfd880b
     const noVisibleElements = randomIntInRange(6, 18)
     const evolutionIndex = noVisibleElements
@@ -254,7 +254,7 @@ const getMushroomChildren = (minChildren, maxChildren) => {
 
 exports.generateLichen = () => {
     const creatureType = "lichen"
-    const totalEvolutions = 35
+    const totalEvolutions = 10
 
     let noChildren = randomIntInRange(1, 4)
     let parentType = randomElementFromArray(Object.keys(DWC_META.creaturesNew[creatureType]))
