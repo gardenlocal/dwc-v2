@@ -90,12 +90,37 @@ export default class Creature extends PIXI.Container {
             loop: false,
             // autoPlay: true
         });
+
+        if(window.SCREENREAD_MODE){
+            this.createEvolveButton()
+        }
+    }
+
+    // ACCESSIBILITY
+    createEvolveButton() {
+        var button = document.createElement("button");
+        button.id = "evolve"
+        button.ariaLabel = "크리쳐가 변화합니다."
+        button.innerText = "변화"
+        button.onclick = this.onButtonClick
+
+        var accessDiv = document.querySelector('.accessibility');
+        accessDiv.appendChild(button)
+    }
+
+    onButtonClick = async () => {
+        this.playSoundtrack('creatureTapSound')
+
+        window.SCREENREADER.textContent = "나는 작은 심장에 매일 하늘을 퍼 뜬다."
+
+        window.APP.sendEvolveCreature(this.name)
     }
 
     onMouseDown = async (e) => {     
-        window.SCREENREADER.textContent = "나는 작은 심장에 매일 하늘을 퍼 뜬다."
         this.playSoundtrack('creatureTapSound')
-   
+
+        window.SCREENREADER.textContent = "나는 작은 심장에 매일 하늘을 퍼 뜬다."
+
         window.APP.sendEvolveCreature(this.name)
     }
     onMouseUp = async (e) => {

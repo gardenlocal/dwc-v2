@@ -17,6 +17,7 @@ exports.initialize = (ioInstance) => {
 
 exports.userConnected = async (socket) => {
   const uid = socket.handshake.query.uid
+  const creatureName = socket.handshake.query.creatureName
   socketIdToUserId[socket.id] = uid
   socketMap[uid] = socket
 
@@ -29,7 +30,7 @@ exports.userConnected = async (socket) => {
   console.log('Fetching user from DB: ', uid)
   let user = await getUserInfo(uid)
   if (!user) {
-    user = new User({ uid });
+    user = new User({ uid, creatureName });
     await database.insert(user)  
   }
   // Remove old garden for this user, if one existed.
@@ -40,7 +41,7 @@ exports.userConnected = async (socket) => {
 
   if (garden) {
     user.gardenSection = garden._id
-    await database.update({ uid: user.uid }, user)
+    await database.update({ uid: user.uid, creatureName: user.creatureName }, user)
     gardenForUidCache[uid] = garden
   } else {
     console.error('Failed to create garden section for user')
@@ -54,7 +55,7 @@ exports.userConnected = async (socket) => {
   } else {
     creature = await creatureController.createCreature(garden, user)
     user.creature = creature._id
-    await database.update({ uid: user.uid }, user)
+    await database.update({ uid: user.uid, creatureName: user.creatureName }, user)
   }
 
   io.emit('usersUpdate', await getOnlineUsers())

@@ -4,6 +4,8 @@
 }
 body{
  overflow: hidden;
+ font-size: 2.8rem;
+ font-family: 'Dongle';
 }
 
 #root {
@@ -15,11 +17,109 @@ body{
 
 body h1 {
   position: absolute !important; /* Outside the DOM flow */
-  height: 1px; 
-  width: 1px; /* Nearly collapsed */
+  height: 0.1px; 
+  width: 0.1px; /* Nearly collapsed */
   overflow: hidden;
   clip: rect(1px 1px 1px 1px); /* IE 7+ only support clip without commas */
   clip: rect(1px, 1px, 1px, 1px); /* All other browsers */
+}
+.intro {
+  height: 100vh;
+  width: 100vw;
+  background-color: greenyellow;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+}
+.topWrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.bottomWrap{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  font-size: 28px;
+  font-family: 'Dongle';
+}
+.innerContainer {
+  width: 75%;
+}
+input#creatureName {
+  width: 100%;
+  height: 50px;
+  margin-bottom: 5.0rem;
+
+  font-size: 28px;
+  font-family: 'Dongle';
+  text-align: center;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  border-bottom: 2px solid #000000;
+  background-color: rgba(0, 0, 0, 0);
+}
+button#submit {
+  font-family: 'Dongle';
+  height: 50px;
+  width: 100%;
+  border-radius: 30px;
+  font-size: 1.8rem;
+  border: 2px solid #000000;
+  background-color: #ffffff;
+  opacity: 0.85;
+}
+button#accessBtn{
+  margin-bottom: 0;
+  border-radius: 100px;
+  width: 65px;
+  height: 65px;
+  background-color: rgba(0, 0, 0, 0);
+}
+#accessImg{
+  width: 36px;
+  height: 50px;
+}
+
+.accessWrapper {
+  position: absolute;
+  z-index: 10000;
+  bottom: 0;
+  width: 100%;
+}
+.accessibility {
+  display: flex;
+  justify-content: space-between;
+}
+button{
+  margin-bottom: 0;
+  font-family: 'Dongle';
+  border-radius: 30px;
+  border: 2px solid #000000;
+  background-color: #ffffff;
+  opacity: 0.85;
+}
+button#evolve {
+  display: inline;
+  width: 100px;
+  height: 50px;
+  font-family: 'Dongle';
+  font-size: 28px;
+  margin-bottom: 0;
+
+}
+button#move {
+  display: inline;
+  width: 100px;
+  height: 50px;
+  font-family: 'Dongle';
+  font-size: 28px;
+  margin-bottom: 0;
+
 }
 
 .root-container {

@@ -5,6 +5,7 @@ import * as PIXI from "pixi.js";
 import UserGarden from "./userGarden";
 import { sound } from '@pixi/sound';
 import DRY_LEAVES_SOUND from '../../assets/dry-leaves.mp3';
+import { randomInRange } from "./utils";
 
 const CULL_BOUNDS = 1100
 
@@ -46,6 +47,10 @@ export default class AdminGarden extends PIXI.Container {
       garden.y = u.gardenSection.y
       this.addChild(garden)
 
+      if(window.SCREENREAD_MODE){
+        this.createMoveButton()
+    }
+
       if (u.uid == currentUser.uid) {        
         // This is the current user, we need to add an event listener for click
         garden.interactive = true
@@ -55,7 +60,32 @@ export default class AdminGarden extends PIXI.Container {
     })
   }
 
+// ACCESSIBILITY
+  createMoveButton() {
+    var accessButton = document.createElement("button");
+    accessButton.id = "move"
+    accessButton.ariaLabel = "크리쳐를 이동시킵니다."
+    accessButton.innerText = "이동"
+
+    accessButton.onclick = this.onGardenButtonClick
+
+    var accessDiv = document.querySelector('.accessibility');
+    accessDiv.appendChild(accessButton)
+}
+
+  onGardenButtonClick = () => {
+    window.SCREENREADER.textContent = "잊혀지지 않는 하나의 의미가 되고 싶다."
+
+    let globalCoordinate = new PIXI.Point(randomInRange(0, window.innerWidth), randomInRange(100, window.innerHeight-100))
+    let local = this.toLocal(globalCoordinate)
+    console.log('--- local: ', local)
+    window.APP.sendGardenTap(local)
+    this.playSoundtrack()    
+  }
+
   onGardenTap = (e) => {
+    window.SCREENREADER.textContent = "잊혀지지 않는 하나의 의미가 되고 싶다."
+
     console.log('on garden tap: ', e.data.global)
     let local = this.toLocal(e.data.global)
     console.log('--- local: ', local)

@@ -9,15 +9,22 @@ const WEATHER_API = `http://dwc2-taeyoon-studio.iptime.org:1055/weather`
 
 class App {
   constructor() {
+    this.creatureName = window.CREATURE_NAME;
+
   }
 
   async setup() {
+    // intro html
+    const introDiv = document.querySelector('.intro');
+    introDiv.parentNode.removeChild(introDiv)
+
     window.TEMPERATURE = 5
     window.HUMIDITY = 55
 
     this.pathname = window.location.pathname
     this.isTest = this.pathname == '/test'
     this.user = this.createOrFetchUser()
+    console.log("USER??? ", this.user)
 
     this.serverPort = window.location.hostname.includes('iptime') ? '1012' : '3000'
     this.serverUrl = `http://${window.location.hostname}`
@@ -33,7 +40,8 @@ class App {
 
     this.socket = await io(`${this.serverUrl}:${this.serverPort}`, {
       query: {
-        uid: this.user.id
+        uid: this.user.id,
+        creatureName: this.user.creatureName
       }
     })
 
@@ -161,18 +169,31 @@ class App {
     if (this.isTest) {
       return {
         id: uid(),
-        name: ''
+        name: '',
+        creatureName: this.creatureName
       }  
     }
 
     let user = localStorage.getItem("user")
+
+    // need to update if existing user gives new creature name
+    if(user){
+      let updateUser =  JSON.parse(user)
+      updateUser.creatureName = this.creatureName;
+      updateUser = JSON.stringify(updateUser)
+      localStorage.setItem("user", updateUser)
+      user = updateUser  
+    }
+
     if (!user) {
       user = JSON.stringify({
         id: uid(),
-        name: ''
+        name: '',
+        creatureName: this.creatureName
       })
       localStorage.setItem("user", user)
     }
+    console.log("app.js createOrFetchUser ------------ user? ", user)
 
     return JSON.parse(user)
   }
@@ -196,9 +217,37 @@ class App {
   }
 }
 
-window.addEventListener('DOMContentLoaded', () => {
-  console.log('DOM Content Loaded')
+window.submitLogin = (event) => {
+  console.log('creatureName Login', event.target[0].value)
+  event.preventDefault();
+  
+  window.CREATURE_NAME = event.target[0].value;
   window.APP = new App()
   window.APP.setup()
+}
+
+// ACCESSIBILITY
+window.enableAccess = (event) => {
+  let btn = document.getElementById("accessBtn");
+  let img = document.getElementById("accessImg");
+  
+  if(window.SCREENREAD_MODE) {
+    console.log("비활성화")
+    window.SCREENREAD_MODE = false;
+    img.alt = "스크린리더 모드를 비활성화했습니다."
+    btn.style.backgroundColor = 'rgba(0, 0, 0, 0)';
+  } else {
+    console.log("활성화")
+    window.SCREENREAD_MODE = true;
+    img.alt = "스크린리더 모드를 활성화했습니다."
+    btn.style.backgroundColor = 'rgba(255, 255, 255, 0.85)';
+  }
+
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  console.log('DOM Content Loaded')
+  // window.APP = new App()
+  // window.APP.setup()
   window.SCREENREADER = document.getElementById('description')
 })

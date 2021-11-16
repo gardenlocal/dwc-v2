@@ -11,7 +11,7 @@ const AnimatedProperty = require('../models/AnimatedProperty')
 let allCreatures = {}
 
 exports.createCreature = async (garden, user) => {
-  console.log('Create creature: ', user.uid)
+  console.log('Create creature: ', user, user.uid)
 
   const g = garden
 

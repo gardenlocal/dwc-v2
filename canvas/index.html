@@ -5,6 +5,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
+    @font-face { font-family: Dongle; src: url('assets/Dongle/Dongle-Regular.ttf'); } 
     @import url('https://fonts.googleapis.com/css2?family=Gluten:wght@200;400&family=Indie+Flower&display=swap');
   </style>
   <link rel="stylesheet" href="src/index.css">
@@ -12,8 +13,37 @@
   <title lang="ko">안녕 정원에 온것을 환영해</title>
 </head>
 <body>
-  <h1 id="description" aria-live="polite" lang="ko"> 안녕하세요 </h1>
-  <div id="root"></div>    
+  <h1 id="description" aria-live="polite" lang="ko"> 입장 준비를 합니다. </h1>
+  <div class="intro">
+    <div class="topWrap">
+      <form onsubmit="submitLogin(event)" class="innerContainer">
+        <input type="text" placeholder="이름을 입력하세요" aria-label="이름을 입력하세요" id="creatureName" name="creatureName" required />
+        <!-- <input type="submit" id="submit" value="입장하기" aria-label="입장합니다."/> -->
+        <button type="submit" id="submit" value="입장하기" aria-label="입장합니다.">입장하기</button>
+      </form>
+    </div>
+    <div class="bottomWrap">
+      <div>
+        <button id="accessBtn" onclick="enableAccess(event)">
+          <img id="accessImg" src ="./assets/access.svg" alt="스크린리더 모드를 활성화합니다."/>
+          <!-- <object data="./assets/access.svg" width="27" height="40"> </object> -->
+        </button>
+      </div>
+      <div style="padding: 20px; font-size: 1.2rem; padding: 1.0rem">
+        이 전시는 ... 본문은 머리글과 연관해 읽힌다. 여기서 머리글은 위에 이미 등장했고, 그럼으로써 포괄적 주제 또는 담론의 틀에 자리 잡았다.
+        이 전시는 ... 본문은 머리글과 연관해 읽힌다. 여기서 머리글은 위에 이미 등장했고, 그럼으로써 포괄적 주제 또는 담론의 틀에 자리 잡았다.
+        이 전시는 ... 본문은 머리글과 연관해 읽힌다. 여기서 머리글은 위에 이미 등장했고, 그럼으로써 포괄적 주제 또는 담론의 틀에 자리 잡았다.
+      </div>
+    </div>
+  </div>
+
+  <div id="root">
+  </div>
+  
+  <div class="accessWrapper">
+    <div class="accessibility"></div>
+  </div>
+
   <script src="app.js"></script>
 </body>
 </html>

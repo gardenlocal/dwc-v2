@@ -199,7 +199,6 @@ export default class ResidueBackground extends PIXI.Graphics {
   }
 
   async disappear(target, duration) {
-    window.SCREENREADER.textContent = "잊혀지지 않는 하나의 의미가 되고 싶다."
 
     this.isAnimating = true
     const intermediateTransitionAlpha = target  // disappear from target
