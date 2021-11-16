@@ -16,7 +16,6 @@ export default class Creature extends PIXI.Container {
     constructor(state) {
         super()
 
-        console.log('creature state: ', state)
         const { appearance, _id, animatedProperties } = state;        
         this.name = _id
         this.ownerId = state.owner._id
@@ -39,29 +38,13 @@ export default class Creature extends PIXI.Container {
         this.y = fromY
         this.vx = 0
         this.vy = 0
-        this.originPos = { x: fromX, y: fromY }
         this.target = { x: toX, y: toY }
         this.movementDuration = this.animatedProperties.position.duration
         this.movementAlpha = 0        
-        this.creatureTargetRotation = 0
             
-        this.destinationMarker = new PIXI.Graphics()        
-        this.destinationMarker.beginFill(0xffffff)
-        this.destinationMarker.drawCircle(0, 0, 5);
-        this.destinationMarker.endFill();
-        this.destinationMarker.x = toX - this.x
-        this.destinationMarker.y = toY - this.y
-
-        this.interactive = true
+        this.interactive = (state.owner.uid == window.APP.user.id) || (window.APP.getIsAdmin())
         this.on('mousedown', this.onMouseDown)
-        this.on('mouseup', this.onMouseUp)
-        this.on('mouseupoutside', this.onMouseUp)
-
         this.on('touchstart', this.onMouseDown)
-        this.on('touchend', this.onMouseUp)
-        this.on('touchendoutside', this.onMouseUp)
-
-        // this.addChild(this.destinationMarker)
 
         switch (appearance.creatureType) {
             case 'moss':
@@ -76,9 +59,10 @@ export default class Creature extends PIXI.Container {
         }
 
         this.addChild(this.creature)
-        this.creature.scale.set(appearance.scale)
+        this.creature.scale.set(appearance.scale * 1)
         this.frame = 0
 
+        this.firstTargetPositionUpdateComplete = false
         this.updateTargetPosition(state.animatedProperties.position)
         const label = new PIXI.Text(this.name, new PIXI.TextStyle({ fontSize: 40 }))
         // this.addChild(label)
@@ -122,13 +106,6 @@ export default class Creature extends PIXI.Container {
         window.SCREENREADER.textContent = "나는 작은 심장에 매일 하늘을 퍼 뜬다."
 
         window.APP.sendEvolveCreature(this.name)
-    }
-    onMouseUp = async (e) => {
-        // console.log('on mouse up')
-        // const tween = new TWEEN.Tween(this.scale)
-        // .to({x: 1, y: 1 }, 600)
-        // .easing(TWEEN.Easing.Quartic.InOut)
-        // .start()
     }
 
     async evolve() {
@@ -178,18 +155,11 @@ export default class Creature extends PIXI.Container {
 
     async updateTargetPosition(prop) {
         this.isAnimating = true
-        console.log('updateTargetPosition for: ', prop)
-        window.SCREENREADER.textContent = "내가 그의 이름을 불러주었을 때 그는 나에게로 와서 꽃이 되었다."
 
         this.target.x = prop.to.x
         this.target.y = prop.to.y
-        this.destinationMarker.x = this.target.x
-        this.destinationMarker.y = this.target.y
-        this.originPos.x = this.x
-        this.originPos.y = this.y
         this.movementAlpha = 0
-        this.movementDuration = this.animatedProperties.position.duration
-        this.creatureTargetRotation = Math.atan2(this.target.y - this.originPos.y, this.target.x - this.originPos.x)        
+        this.movementDuration = this.animatedProperties.position.duration  
 
         if (this.motionTween) {
             TWEEN.remove(this.motionTween)
@@ -201,8 +171,25 @@ export default class Creature extends PIXI.Container {
         .easing(TWEEN.Easing.Quartic.InOut)
         .start()
         await sleep(1000)
+
+        let durationOffset = 0
+
+        if (!this.firstTargetPositionUpdateComplete) {
+            const startTime = prop.startTime
+            const now = new Date().getTime()
+            const previousTime = (now - startTime) / 1000
+            const alpha = previousTime / prop.duration
+            const x = lerp(prop.teleport.x, prop.to.x, alpha)
+            const y = lerp(prop.teleport.y, prop.to.y, alpha)
+            this.position.set(x, y)
+
+            durationOffset = previousTime
+            this.firstTargetPositionUpdateComplete = true
+        } else {
+            this.position.set(prop.teleport.x, prop.teleport.y)
+        }
         
-        this.position.set(prop.teleport.x, prop.teleport.y)
+        
         this.creature.rotation = 0
 
         this.creature.startAnimatingGrowth(1500)
@@ -216,7 +203,7 @@ export default class Creature extends PIXI.Container {
         await sleep(500)
 
         this.motionTween = new TWEEN.Tween(this)
-        .to({ x: this.target.x, y: this.target.y }, this.movementDuration * 1000)
+        .to({ x: this.target.x, y: this.target.y }, (this.movementDuration - durationOffset) * 1000)
         .easing(TWEEN.Easing.Linear.None)
         .start()
 
@@ -224,8 +211,6 @@ export default class Creature extends PIXI.Container {
         this.isAnimating = false
     
         // tween.onComplete( () => console.log("appear done") )
-
-        console.log('movement duration: ', this.movementDuration)
     
         await sleep(this.movementDuration * 1000)        
     }

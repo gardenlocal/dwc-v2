@@ -1,12 +1,7 @@
 import * as PIXI from 'pixi.js'
 import { DWC_META } from '../../../../shared-constants';
-import SVGCreatureShape from '../Geometry/SVGCreatureShape';
 import { randomElementFromArray, randomIntInRange, sleep } from '../utils';
 import MushroomParticle from './MushroomParticle';
-import { BlurFilter } from '@pixi/filter-blur';
-import gradientFragment from '../shaders/radialGradient.glsl'
-import vertex from "../shaders/vertex.glsl";
-import TWEEN from '@tweenjs/tween.js';
 
 export default class MushroomCluster extends PIXI.Container {
     constructor(params, creatureName) {
@@ -19,8 +14,6 @@ export default class MushroomCluster extends PIXI.Container {
 
         this.evolutions = evolutions
         this.evolutionIndex = evolutionIndex % evolutions.length
-
-        console.log('Mushroom evolution index: ', this.evolutionIndex)
         
         const { mainSectionChildren, mirrorSectionScale, mirrorSectionChildren, mirrorSectionParentIndex } = this.evolutions[this.evolutionIndex]
 

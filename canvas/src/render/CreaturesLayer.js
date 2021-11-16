@@ -21,28 +21,28 @@ export default class CreaturesLayer extends PIXI.Container {
   drawCreatures() {
     for (const [key, value] of Object.entries(this.creatures)) {
       const c = new Creature(value)
-      console.log('laba: ', key, c.name)
       this.creatureObjects[key] = c
 
-      let creatureSpriteContainer = new PIXI.Container()
-      let creatureSprite = new PIXI.Sprite()        
-      const whiteFilter = new PIXI.Filter(null, toWhite, {});
-
-      creatureSpriteContainer.addChild(creatureSprite)
-
-      // creatureSpriteContainer.filters = [whiteFilter, new BlurFilter(8, 4)]
-      // this.addChild(creatureSpriteContainer)
-      this.highlightObjects[key] = {
-        creatureSpriteContainer, creatureSprite
+      // Only add highlight for one's own creature
+      if (value.owner.uid == window.APP.user.id) {
+        let creatureSpriteContainer = new PIXI.Container()
+        let creatureSprite = new PIXI.Sprite()        
+        const whiteFilter = new PIXI.Filter(null, toWhite, {});
+  
+        creatureSpriteContainer.addChild(creatureSprite)
+  
+        creatureSpriteContainer.filters = [whiteFilter, new BlurFilter(16, 4), new BlurFilter(16, 4)]
+        this.addChild(creatureSpriteContainer)
+        this.highlightObjects[key] = {
+          creatureSpriteContainer, creatureSprite
+        }  
       }
-
 
       this.addChild(c)
     }  
   }
 
   updateOnlineCreatures(onlineCreatures) {
-    console.log('update online creatures: ', onlineCreatures)
     this.creatures = onlineCreatures
 
     // First, remove creatures that aren't online anymore
@@ -52,7 +52,8 @@ export default class CreaturesLayer extends PIXI.Container {
       if (!c.name) continue
       if (!onlineCreatures[c.name]) {
         creaturesToRemove.push(c)
-        creaturesToRemove.push(this.highlightObjects[c.name].creatureSpriteContainer)
+        if (this.highlightObjects[c.name])
+          creaturesToRemove.push(this.highlightObjects[c.name].creatureSpriteContainer)
       }
       existingCreatures[c.name] = c
     }
@@ -64,19 +65,21 @@ export default class CreaturesLayer extends PIXI.Container {
     for (let k of Object.keys(onlineCreatures)) {
       if (!existingCreatures[k]) {
         const c = new Creature(onlineCreatures[k])
-
         this.creatureObjects[c.name] = c
-        let creatureSpriteContainer = new PIXI.Container()
-        let creatureSprite = new PIXI.Sprite()        
-        const whiteFilter = new PIXI.Filter(null, toWhite, {});
-  
-        creatureSpriteContainer.addChild(creatureSprite)
-  
-        // creatureSpriteContainer.filters = [whiteFilter, new BlurFilter(8, 1)]
-        // this.addChild(creatureSpriteContainer)
-        this.highlightObjects[c.name] = {
-          creatureSpriteContainer, creatureSprite
-        }  
+
+        if (onlineCreatures[k].owner.uid == window.APP.user.id) {
+          let creatureSpriteContainer = new PIXI.Container()
+          let creatureSprite = new PIXI.Sprite()        
+          const whiteFilter = new PIXI.Filter(null, toWhite, {});
+    
+          creatureSpriteContainer.addChild(creatureSprite)
+    
+          creatureSpriteContainer.filters = [whiteFilter, new BlurFilter(16, 4), new BlurFilter(16, 4)]
+          this.addChild(creatureSpriteContainer)
+          this.highlightObjects[c.name] = {
+            creatureSpriteContainer, creatureSprite
+          }  
+        }
 
         this.addChild(c)
       }
@@ -84,7 +87,6 @@ export default class CreaturesLayer extends PIXI.Container {
   }
 
   updateCreatureData(creaturesToUpdate) {
-    console.log('updateCreatureData', creaturesToUpdate)
     for (const [key, value] of Object.entries(this.creatures)) {
       if (creaturesToUpdate[key]) {
         const creature = this.children.find(ele => ele.name === key)
@@ -97,7 +99,6 @@ export default class CreaturesLayer extends PIXI.Container {
   }
 
   evolveCreature(_id) {
-      console.log('evolving creature ', _id)
       this.children.forEach(c => {
           if (c.name == _id) c.evolve()
       })
@@ -117,12 +118,16 @@ export default class CreaturesLayer extends PIXI.Container {
 
     if (window.APP.getIsAdmin()) return
 
+    let now = new Date().getTime()
+    let alpha = (Math.cos(now / 500) + 1) / 2
+
     for (const [key, value] of Object.entries(this.creatureObjects)) {
       let o = this.highlightObjects[key]
       let c = value
+      if (!o) continue
       if (!c.visible) continue
-      if (c.isAnimating)
-        o.textureMask = window.DWCApp.renderer.generateTexture(c.creature, { resolution: 2, multisample: PIXI.MSAA_QUALITY.HIGH });
+      // if (c.isAnimating)
+        o.textureMask = window.DWCApp.renderer.generateTexture(c.creature, { resolution: 2, multisample: PIXI.MSAA_QUALITY.NONE });
       o.creatureSprite.texture = o.textureMask
       o.creatureSprite.position = c.creature.position
       o.creatureSprite.scale = c.creature.scale
@@ -130,9 +135,10 @@ export default class CreaturesLayer extends PIXI.Container {
 
       o.creatureSpriteContainer.transform = c.transform
       // o.creatureSpriteContainer.scale = c.scale * 1.2
-      o.creatureSpriteContainer.alpha = c.alpha
+      o.creatureSpriteContainer.alpha = c.alpha * alpha
       const bbox = c.creature.getLocalBounds()      
-      o.creatureSprite.pivot.set(-bbox.x, -bbox.y)
+      // o.creatureSprite.pivot.set(-bbox.x, -bbox.y)
+      o.creatureSprite.pivot.set(c.creature.pivot.x - bbox.x, c.creature.pivot.y - bbox.y)
     }  
 
   }

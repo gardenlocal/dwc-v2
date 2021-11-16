@@ -7,6 +7,7 @@ const Creature = require("../models/Creature")
 const database = require("../db")
 const { DWC_META, generateMoss, generateLichen, generateMushroom } = require("../../shared-constants")
 const AnimatedProperty = require('../models/AnimatedProperty')
+const { getConfig } = require('../config.js')
 
 let allCreatures = {}
 
@@ -16,7 +17,8 @@ exports.createCreature = async (garden, user) => {
   const g = garden
 
   //const creatureType = Math.random() < 0.7 ? Object.keys(DWC_META.creaturesNew)[0] : Object.keys(DWC_META.creaturesNew)[1]//utils.randomElementFromArray(Object.keys(DWC_META.creaturesNew))
-  const creatureType = utils.randomElementFromArray(Object.keys(DWC_META.creaturesNew))
+  const creatureTypes = getConfig().creatureTypes
+  const creatureType = utils.randomElementFromArray(creatureTypes)
   let creatureProps
   switch (creatureType) {
     case 'moss':
@@ -34,21 +36,11 @@ exports.createCreature = async (garden, user) => {
     appearance: {
       ...creatureProps      
     },
-    movement: {
-      fromX: utils.randomInRange(garden.x, garden.x + garden.width),
-      fromY: utils.randomInRange(garden.y, garden.y + garden.height),
-      directionChangeTimestamp: new Date().getTime(),
-      toX: utils.randomInRange(garden.x, garden.x + garden.width),
-      toY: utils.randomInRange(garden.y, garden.y + garden.height),
-      transitionDuration: 20
-    },
     animatedProperties: {
       position: await generateCreatureMovement(creatureProps.creatureType, garden)
     },
     owner: user.uid,
   })
-
-  console.log('New creature: ', creature)
 
   creature = await database.insert(creature)
   allCreatures[creature._id] = creature
@@ -59,6 +51,15 @@ exports.createCreature = async (garden, user) => {
 exports.getCreatureForUser = async (uid) => {
   const creature = await database.findOne({ type: TYPES.creature, owner: uid })
   return creature
+}
+
+exports.bringCreatureOnline = async (creature) => {
+  await database.update({ _id: creature._id }, { $set: { isOnline: true } })
+}
+
+exports.bringCreatureOffline = async (uid) => {
+  const creature = await exports.getCreatureForUser(uid)
+  await database.update({ _id: creature._id }, { $set: { isOnline: false } })
 }
 
 exports.moveCreatureToGarden = async (creature, garden) => {
@@ -72,7 +73,7 @@ exports.moveCreatureToGarden = async (creature, garden) => {
 exports.getAllCreaturesInfo = async () => {
   let creatures = null
   try {    
-    creatures = await database.find({ type: TYPES.creature })
+    creatures = await database.find({ type: TYPES.creature, isOnline: true })
     if (!creatures) return []
 
     for (let i = 0; i < creatures.length; i++) {
@@ -111,8 +112,6 @@ const generateCreatureMovement = async (type, ownerGarden, fromPosition, telepor
 
   let teleportPosition = teleport ? teleport : ({ x: utils.randomInRange(ownerGarden.x + 250, ownerGarden.x + ownerGarden.width - 250), y: utils.randomInRange(ownerGarden.y + 250, ownerGarden.y + ownerGarden.height - 250) })
   let toPosition
-
-  console.log('type is: ', type)
   let direction
 
   switch (type) {

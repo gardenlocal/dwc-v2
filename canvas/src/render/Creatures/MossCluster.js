@@ -1,11 +1,8 @@
 import * as PIXI from 'pixi.js'
 import { DWC_META } from '../../../../shared-constants';
-import SVGCreatureShape from '../Geometry/SVGCreatureShape';
-import { randomElementFromArray, randomIntInRange } from '../utils';
 import Particle from './MossParticle';
 import { BlurFilter } from '@pixi/filter-blur';
 import gradientFragment from '../shaders/radialGradient.glsl'
-import vertex from "../shaders/vertex.glsl";
 import TWEEN from '@tweenjs/tween.js'
 import { sleep } from '../utils';
 
@@ -16,8 +13,6 @@ export default class Cluster extends PIXI.Container {
         this.elementType = Object.values(DWC_META.creaturesNew[creatureType])[svgElementIndex].name
 
         const textBoxColor = (fillColor != 0x0cef42) ? 0x0cef42 : 0xfd880b
-
-        console.log('evolution index is: ', evolutionIndex)
 
         this.creature = new Particle(this.creatureType, this.elementType, childrenSequence, fillColor, noVisibleElements, evolutionIndex)
         this.addChild(this.creature)

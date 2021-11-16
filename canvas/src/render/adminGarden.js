@@ -16,8 +16,6 @@ export default class AdminGarden extends PIXI.Container {
     this.creatures = creatures
     this.userGarden = selfGarden
 
-    console.log('new admin garden: ', this.users)
-
     this.drawBackgrounds()
 
     sound.add('gardenTapSound', {
@@ -84,11 +82,7 @@ export default class AdminGarden extends PIXI.Container {
   }
 
   onGardenTap = (e) => {
-    window.SCREENREADER.textContent = "잊혀지지 않는 하나의 의미가 되고 싶다."
-
-    console.log('on garden tap: ', e.data.global)
     let local = this.toLocal(e.data.global)
-    console.log('--- local: ', local)
     window.APP.sendGardenTap(local)
     this.playSoundtrack()    
   }

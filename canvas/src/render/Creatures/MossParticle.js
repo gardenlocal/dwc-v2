@@ -17,7 +17,6 @@ export default class Particle extends PIXI.Container {
         this.elementsProps = []
         for (let i = this.allElementsIndex - this.noElements; i < this.allElementsIndex; i++) {
             let index = (i + this.allElementsProps.length) % this.allElementsProps.length
-            console.log('indexes: ', index)
             this.elementsProps.push(this.allElementsProps[index])
         }
         
@@ -111,7 +110,6 @@ export default class Particle extends PIXI.Container {
 
         const lastElement = this.elements[this.elements.length - 1].children[0]
         const nextConnector = this.allElementsProps[this.allElementsIndex] //getMossNextChildConnector(this.creatureType, lastElement.nextTypeKey)
-        console.log('next connector: ', nextConnector)
         
         const nextElement = this.createChildFromConnector(nextConnector, this.connector)
         this.elements.push(nextElement)
@@ -139,13 +137,5 @@ export default class Particle extends PIXI.Container {
     }
     tick(d) {
         this.children.forEach(c => c.children[0].tick())
-        /*
-        this.frame++
-        if (this.frame % 30 == 0) {
-            this.x += 10
-            this.y += 5.666
-            this.rotation += 0.05
-        }
-        */       
     }
 }

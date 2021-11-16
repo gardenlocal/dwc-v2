@@ -4,7 +4,9 @@ import { LayerNames } from './LayerNames'
 import SVGCreatureLayer from './SVGCreatureLayer'
 
 let sharedRenderer = PIXI.autoDetectRenderer()
-let sharedRenderTexture = PIXI.RenderTexture.create({ width: 2000, height: 2000 })
+let sharedRenderTexture = PIXI.RenderTexture.create({ width: 250, height: 250 })
+
+const svgPool = {}
 
 export default class SVGCreatureShape extends PIXI.Container {
     constructor(svgAsset, elementType, connectedElements, fillColor) {
@@ -12,7 +14,14 @@ export default class SVGCreatureShape extends PIXI.Container {
         this.svgAsset = svgAsset
         this.elementType = elementType        
         this.connectedElements = connectedElements
-        this.svg = new PixiSVG(this.svgAsset, { unpackTree: true })
+        if (!svgPool[elementType]) {
+            svgPool[elementType] = {
+                svg: new PixiSVG(this.svgAsset, { unpackTree: true }),
+                initialized: false
+            }
+        }
+
+        this.svg = svgPool[elementType].svg
         this.fillColor = fillColor
 
         this.layers = {}
@@ -21,11 +30,14 @@ export default class SVGCreatureShape extends PIXI.Container {
     }
 
     initialize() {        
-        console.log('initialize: ', this.elementType)
         if (this.initialized) return
         this.initialized = true
-        // First draw the entire SVG onto an off-screen render texture, in order for the geometry to be computed.
-        sharedRenderer.render(this.svg, { renderTexture: sharedRenderTexture })
+
+        if (!svgPool[this.elementType].initialized) {
+            // First draw the entire SVG onto an off-screen render texture, in order for the geometry to be computed.
+            sharedRenderer.render(this.svg, { renderTexture: sharedRenderTexture })
+            svgPool[this.elementType].initialized = true
+        }
 
         // Select the layers of the SVG we want to render. For now, it's just the one called "main-shape"
         const layersOfInterest = {
@@ -88,6 +100,7 @@ export default class SVGCreatureShape extends PIXI.Container {
     tick() {
         if (!this.initialized) {
             this.initialize()
+            this.cacheAsBitmap = true
         }
         Object.values(this.layers).forEach(l => l.tick())
     }

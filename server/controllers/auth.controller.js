@@ -1,4 +1,3 @@
-const config = require("../config/auth.config");
 const gardenController = require('./garden.controller')
 const creatureController = require('./creature.controller')
 const database = require('../db')
@@ -9,6 +8,10 @@ const TYPES = require('../datatypes')
 
 var jwt = require("jsonwebtoken");
 var bcrypt = require("bcryptjs");
+
+const config = {
+  secret: 'none'
+}
 
 exports.signup = async (req, res) => {
   try {

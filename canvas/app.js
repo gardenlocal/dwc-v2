@@ -32,10 +32,8 @@ class App {
     this.pixiApp = new PixiApp({ isAdmin: this.pathname == '/admin' })
 
     // this.fetchWeatherData()
-
-    console.log('post data')
-    console.log(window.TEMPERATURE, window.HUMIDITY)
-    //setInterval(this.fetchWeatherData, 10000)
+    // setInterval(this.fetchWeatherData, 10000)
+    
     await this.pixiApp.loadAssets()
 
     this.socket = await io(`${this.serverUrl}:${this.serverPort}`, {
@@ -123,6 +121,7 @@ class App {
   }
 
   onUsersUpdate = (users) => {
+    console.log('onUsersUpdate: ', JSON.stringify(users).length, Object.keys(users).length)
     // get single user's garden data
     const currUser = users.find((u => (u.uid == this.user.id)))
     this.selfGarden = currUser ? currUser.gardenSection : null
@@ -141,6 +140,8 @@ class App {
   }
 
   onCreatures = (creatures) => {
+    console.log('onCreatures: ', JSON.stringify(creatures).length, Object.keys(creatures).length)
+
     this.updateOnlineCreatures(creatures)    
 
     this.initData.creatures = true
@@ -202,6 +203,7 @@ class App {
     let weather
     try {
       weather = await axios.get(WEATHER_API)
+      console.log('weather: ', weather)
     } catch (error) {
       console.log("ERROR ------------ ", error)
       return new Promise((res, rej) => res())

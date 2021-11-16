@@ -21,6 +21,8 @@ highp float dist(vec2 a, vec2 b) {
 }
 
 void main() {
+    // gl_FragColor = vec4(0.5, 0.25, 0.75, 1.0);
+    // return;
     vec2 st = (gl_FragCoord.xy - u_offset.xy) / u_resolution / u_scale;
     float gradientScale = 4.0;
     st.y += u_time;

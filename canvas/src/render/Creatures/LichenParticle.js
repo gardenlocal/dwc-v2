@@ -8,8 +8,6 @@ export default class LichenParticle extends PIXI.Container {
     constructor(creatureType, { type, children, visibleChildren, parentConnector, evolutionIndex }, fillColor) {
         super()
 
-        console.log('new LichenParticle: ', type, children, visibleChildren, parentConnector, evolutionIndex)
-
         this.creatureType = creatureType
         this.type = type
         this.allChildren = children
@@ -23,7 +21,6 @@ export default class LichenParticle extends PIXI.Container {
             this.elements = []
 
             for (let i = this.elementsIndex - this.visibleChildren; i < this.elementsIndex; i++) {
-                console.log('i: ', i)
                 const index = (i + this.allChildren.length) % this.allChildren.length
                 this.elements.push(this.allChildren[index])
             }
@@ -55,7 +52,6 @@ export default class LichenParticle extends PIXI.Container {
         this.targetScale = { x: 1, y: 1 }
     }
     createChildFromConnector(c) {
-        console.log('create child from connector: ', c)
         const ch = new LichenParticle(this.creatureType, { ...c, evolutionIndex: -1 }, this.fillColor)
         const connector = ch.parentElement.getConnectorForType(c.type, c.parentConnector)
 
@@ -81,7 +77,7 @@ export default class LichenParticle extends PIXI.Container {
             this.children[i].hideAll()
         }
     }
-    async startAnimatingGrowth(durationPerElement, delayPerElement = 200) {
+    async startAnimatingGrowth(durationPerElement, delayPerElement = 350) {
         if (this.parentConnector == null) this.hideAll()
         const el = this
         el.scale.set(0.0)
