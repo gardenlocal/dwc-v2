@@ -53,6 +53,15 @@ exports.getCreatureForUser = async (uid) => {
   return creature
 }
 
+exports.bringCreatureOnline = async (creature) => {
+  await database.update({ _id: creature._id }, { $set: { isOnline: true } })
+}
+
+exports.bringCreatureOffline = async (uid) => {
+  const creature = await exports.getCreatureForUser(uid)
+  await database.update({ _id: creature._id }, { $set: { isOnline: false } })
+}
+
 exports.moveCreatureToGarden = async (creature, garden) => {
   creature.animatedProperties = {
     position: await generateCreatureMovement(creature.appearance.creatureType, garden)    
@@ -64,7 +73,7 @@ exports.moveCreatureToGarden = async (creature, garden) => {
 exports.getAllCreaturesInfo = async () => {
   let creatures = null
   try {    
-    creatures = await database.find({ type: TYPES.creature })
+    creatures = await database.find({ type: TYPES.creature, isOnline: true })
     if (!creatures) return []
 
     for (let i = 0; i < creatures.length; i++) {

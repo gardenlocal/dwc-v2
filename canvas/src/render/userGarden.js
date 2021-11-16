@@ -60,11 +60,6 @@ export default class UserGarden extends PIXI.Container {
       const shaderRand = shaderSpeed * map(i, 0, 4, 5, 10)
 
       await this.tilesContainer.children[i].appear(targetSize, duration, currentLoop.shape, currentLoop.anchor, shaderRand) // appear at 0, disappear after bg2+bg3+bg4_duration
-      if (i > 0) {
-        // const currentTile = this.userGarden.tileProps[i - 1];
-        // const currentLoop = currentTile[this.bgAnimationParams.currentTile];  
-        // await this.tilesContainer.children[i - 1].disappear(targetSize, duration) // appear at 0, disappear after bg2+bg3+bg4_duration  
-      }
     }
 
     /*

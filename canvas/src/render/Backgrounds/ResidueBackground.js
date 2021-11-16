@@ -15,7 +15,7 @@ export const TRANSITION_TYPES = {
   FULL: 'FULL'
 }
 
-export default class ResidueBackground extends PIXI.Graphics {
+export default class ResidueBackground extends PIXI.Container {
   constructor(currentShape, currentAnchor, shaderTimeSeed = 5, shaderSpeed = 5) {
     super()
 
@@ -170,6 +170,7 @@ export default class ResidueBackground extends PIXI.Graphics {
   }
 
   async appear(target, duration, shape, anchor, shaderSpeed) {
+    this.visible = true
     this.isAnimating = true
 
     this.currentShape = shape // randomElementFromArray(Object.values(SHAPES))
@@ -208,6 +209,7 @@ export default class ResidueBackground extends PIXI.Graphics {
 
     await sleep(d2)
     this.isAnimating = false
+    this.visible = false
   }
 
   tick(coord) {
