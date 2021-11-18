@@ -4,7 +4,7 @@
 import * as PIXI from "pixi.js";
 import UserGarden from "./userGarden";
 import { sound } from '@pixi/sound';
-import DRY_LEAVES_SOUND from '../../assets/dry-leaves.mp3';
+// import DRY_LEAVES_SOUND from '../../assets/dry-leaves.mp3';
 import { randomInRange } from "./utils";
 
 const CULL_BOUNDS = 1100
@@ -18,11 +18,11 @@ export default class AdminGarden extends PIXI.Container {
 
     this.drawBackgrounds()
 
-    sound.add('gardenTapSound', {
-      url: DRY_LEAVES_SOUND,
-      preload: true,
-      loop: false,
-  });
+  //   sound.add('gardenTapSound', {
+  //     url: DRY_LEAVES_SOUND,
+  //     preload: true,
+  //     loop: false,
+  // });
   }
 
   drawBackgrounds() {
@@ -47,7 +47,8 @@ export default class AdminGarden extends PIXI.Container {
       garden.y = u.gardenSection.y
       this.addChild(garden)
 
-      if(window.SCREENREAD_MODE){
+      console.log("window.IS_ADMIN: ", window.IS_ADMIN)
+      if(window.SCREENREAD_MODE && !window.IS_ADMIN){
         this.createMoveButton()
     }
 
@@ -62,15 +63,17 @@ export default class AdminGarden extends PIXI.Container {
 
 // ACCESSIBILITY
   createMoveButton() {
-    var accessButton = document.createElement("button");
-    accessButton.id = "move"
-    accessButton.ariaLabel = "크리쳐를 이동시킵니다."
-    accessButton.innerText = "이동"
+    if(!document.getElementById('move')) {
+      var accessButton = document.createElement("button");
+      accessButton.id = "move"
+      accessButton.ariaLabel = "크리쳐를 이동시킵니다."
+      accessButton.innerText = "이동"
 
-    accessButton.onclick = this.onGardenButtonClick
+      accessButton.onclick = this.onGardenButtonClick
 
-    var accessDiv = document.querySelector('.accessibility');
-    accessDiv.appendChild(accessButton)
+      var accessDiv = document.querySelector('.accessibility');
+      accessDiv.appendChild(accessButton)
+    }
 }
 
   onGardenButtonClick = () => {
@@ -90,10 +93,10 @@ export default class AdminGarden extends PIXI.Container {
   }
 
   playSoundtrack() {
-    if(!sound._sounds?.gardenTapSound?.isPlaying){ // if not playing
-      sound.play('gardenTapSound')
-      console.log("gardenTapSound: ", sound._sounds.gardenTapSound)
-    }
+    // if(!sound._sounds?.gardenTapSound?.isPlaying){ // if not playing
+    //   sound.play('gardenTapSound')
+    //   console.log("gardenTapSound: ", sound._sounds.gardenTapSound)
+    // }
   }
 
   updateOnlineUsers(onlineUsers) {
