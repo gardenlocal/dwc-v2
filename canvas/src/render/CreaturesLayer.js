@@ -25,11 +25,11 @@ export default class CreaturesLayer extends PIXI.Container {
 
       // Only add highlight for one's own creature
       if (value.owner.uid == window.APP.user.id) {
+        /*
         let creatureSpriteContainer = new PIXI.Container()
         let creatureSprite = new PIXI.Sprite()        
         const whiteFilter = new PIXI.Filter(null, toWhite, {});
   
-        /*
         creatureSpriteContainer.addChild(creatureSprite)
         creatureSpriteContainer.filters = [whiteFilter, new BlurFilter(16, 4), new BlurFilter(16, 4)]
         this.addChild(creatureSpriteContainer)
@@ -46,6 +46,7 @@ export default class CreaturesLayer extends PIXI.Container {
   updateOnlineCreatures(onlineCreatures) {
     this.creatures = onlineCreatures
 
+    console.log('online creatures')
     // First, remove creatures that aren't online anymore
     let creaturesToRemove = []
     let existingCreatures = {}

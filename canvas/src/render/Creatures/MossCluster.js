@@ -12,39 +12,27 @@ export default class Cluster extends PIXI.Container {
         this.creatureType = creatureType
         this.elementType = Object.values(DWC_META.creaturesNew[creatureType])[svgElementIndex].name
 
-        const textBoxColor = (fillColor != 0x0cef42) ? 0x0cef42 : 0xfd880b
-
         this.creature = new Particle(this.creatureType, this.elementType, childrenSequence, fillColor, noVisibleElements, evolutionIndex)
         this.addChild(this.creature)
         this.selfBbox = this.getBounds()
 
         this.creatureBounds = this.creature.getLocalBounds()
         const textStyle = new PIXI.TextStyle({
-            fontSize: 22,
-            //fill: fillColor,
-            //fill: '#f9f9f9',
-            fill: textBoxColor,
+            fontSize: 32,
+            fill: fillColor,
             stroke: "white",
+            fontFamily: 'Dongle'
         })
 
         this.pivot.set(this.selfBbox.width / 2, this.selfBbox.height / 2)
 
-        this.messageText = new PIXI.Text("Taeyoon's Moss", textStyle);
-        this.messageText.position.set(10, 5)
-        this.messageBg = new PIXI.Graphics()
-        const msgBounds = this.messageText.getLocalBounds()
-        this.messageBg.beginFill(textBoxColor)
-        this.messageBg.drawRect(msgBounds.x, msgBounds.y, msgBounds.width + 20, msgBounds.height + 10)
-        this.messageBg.alpha = 0.0001
+        this.messageText = new PIXI.Text(creatureName, textStyle);
+        this.messageText.position.set(0, 0)
+        this.messageText.scale.set(0.5)
+        this.addChild(this.messageText)
 
-
-        this.message = new PIXI.Container()        
-        this.message.addChild(this.messageBg)
-        this.message.addChild(this.messageText)
-        this.message.scale.set(0.25)
-        // this.addChild(this.message)
-        this.textBounds = this.message.getLocalBounds()
-        this.message.position.set(this.creatureBounds.x + this.creatureBounds.width / 2 - this.textBounds.width / 8, this.creatureBounds.y + this.creatureBounds.height / 2 - this.textBounds.height / 8)
+        this.textBounds = this.messageText.getLocalBounds()
+        this.messageText.position.set(this.creatureBounds.x + this.creatureBounds.width / 2 - this.textBounds.width / 4, this.creatureBounds.y + this.creatureBounds.height - this.textBounds.height / 4 + 5)
 
         //this.scale.set(scale)
         //this.rotation = rotation
@@ -52,8 +40,8 @@ export default class Cluster extends PIXI.Container {
 
     async startAnimatingGrowth(elementDuration, elementDelay) {
         await this.creature.startAnimatingGrowth(elementDuration, elementDelay)
-        this.textBounds = this.message.getLocalBounds()
-        this.message.position.set(this.creatureBounds.x + this.creatureBounds.width / 2 - this.textBounds.width / 8, this.creatureBounds.y + this.creatureBounds.height / 2 - this.textBounds.height / 8)
+        // this.textBounds = this.message.getLocalBounds()
+        // this.message.position.set(this.creatureBounds.x + this.creatureBounds.width / 2 - this.textBounds.width / 8, this.creatureBounds.y + this.creatureBounds.height / 2 - this.textBounds.height / 8)
     }
 
     async evolve(duration) {
@@ -63,11 +51,11 @@ export default class Cluster extends PIXI.Container {
 
         this.selfBbox = this.getLocalBounds()        
         this.creatureBounds = this.creature.getLocalBounds()
-        this.textBounds = this.message.getLocalBounds()
+        this.textBounds = this.messageText.getLocalBounds()
 
-        const tween = new TWEEN.Tween(this.message.position)
+        const tween = new TWEEN.Tween(this.messageText.position)
         // TODO (cezar): That /8 is actually / 2 * this.message.scale.x (which is currentlly 0.25)
-        .to({x: this.creatureBounds.x + this.creatureBounds.width / 2 - this.textBounds.width / 8, y: this.creatureBounds.y + this.creatureBounds.height / 2 - this.textBounds.height / 8 }, 500)
+        .to({x: this.creatureBounds.x + this.creatureBounds.width / 2 - this.textBounds.width / 4, y: this.creatureBounds.y + this.creatureBounds.height - this.textBounds.height / 4 + 5 }, 500)
         .easing(TWEEN.Easing.Quartic.InOut)
         .start()
 

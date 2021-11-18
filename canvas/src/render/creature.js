@@ -17,11 +17,12 @@ export default class Creature extends PIXI.Container {
 
         const { appearance, _id, animatedProperties } = state;        
         this.name = _id
+        this.displayText = state.owner.creatureName
         this.ownerId = state.owner._id
         this.animatedProperties = animatedProperties        
         this.appearance = appearance        
-        this.creatureName = state.owner.username
 
+        console.log('new creature: ', state.owner)
         this.alpha = 0
 
         const { fillColor, radius } = appearance;
@@ -47,13 +48,13 @@ export default class Creature extends PIXI.Container {
 
         switch (appearance.creatureType) {
             case 'moss':
-                this.creature = new MossCluster(appearance, this.creatureName)
+                this.creature = new MossCluster(appearance, this.displayText)
                 break
             case 'lichen':
-                this.creature = new LichenCluster(appearance, this.creatureName)
+                this.creature = new LichenCluster(appearance, this.displayText)
                 break
             case 'mushroom':
-                this.creature = new MushroomCluster(appearance, this.creatureName)
+                this.creature = new MushroomCluster(appearance, this.displayText)
                 break
         }
 
@@ -63,8 +64,9 @@ export default class Creature extends PIXI.Container {
 
         this.firstTargetPositionUpdateComplete = false
         this.updateTargetPosition(state.animatedProperties.position)
-        const label = new PIXI.Text(this.name, new PIXI.TextStyle({ fontSize: 40 }))
-        // this.addChild(label)
+        const label = new PIXI.Text(this.displayText, new PIXI.TextStyle({ fontSize: 10 }))        
+        // this.creature.addChild(label)
+        // label.cacheAsBitmap = true
 
         if(!window.IS_ADMIN) {
             console.log("import creature sound for users only")
