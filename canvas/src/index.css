@@ -98,11 +98,14 @@ body h1 {
   display: flex;
   flex-direction: column;
   justify-content: space-around;
+  align-items: center;
 }
 .topWrap {
   display: flex;
   justify-content: center;
   align-items: center;
+  width: 100%;
+  max-width: 500px;
 }
 
 .bottomWrap{
@@ -113,6 +116,9 @@ body h1 {
   text-align: center;
   font-size: 28px;
   font-family: 'Dongle';
+  width: 100%;
+  max-width: 500px;
+
 }
 .innerContainer {
   width: 75%;
@@ -120,7 +126,7 @@ body h1 {
 input#creatureName {
   width: 100%;
   height: 50px;
-  margin-bottom: 5.0rem;
+  margin-bottom: 3.0rem;
 
   font-size: 28px;
   font-family: 'Dongle';
@@ -147,10 +153,15 @@ button#accessBtn{
   width: 65px;
   height: 65px;
   background-color: rgba(0, 0, 0, 0);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
 }
 #accessImg{
   width: 36px;
   height: 50px;
+  margin-left: 5px;
 }
 
 .accessWrapper {
@@ -217,4 +228,48 @@ canvas {
   top: 0;
   left: 0;
   transform: translateX(-25%) translateY(-25%) scale(0.5);  
+}
+
+.gradient-lichen {
+  background: linear-gradient(0deg, #ffffff, #0cef42, #ffffff, #fd880b, #ffffff);
+  background-size: 500% 500%;
+
+  -webkit-animation: Animation 40s ease infinite;
+  -moz-animation: Animation 40s ease infinite;
+  animation: Animation 40s ease infinite;
+}
+
+.gradient-mushroom {
+  background: linear-gradient(90deg, #ffffff, #0cef42, #ffffff, #fd880b, #ffffff);
+  background-size: 500% 500%;
+
+  -webkit-animation: Animation 40s ease infinite;
+  -moz-animation: Animation 40s ease infinite;
+  animation: Animation 40s ease infinite;
+}
+
+.gradient-moss {
+  background: linear-gradient(45deg, #ffffff, #0cef42, #ffffff, #fd880b, #ffffff);
+  background-size: 500% 500%;
+
+  -webkit-animation: Animation 40s ease infinite;
+  -moz-animation: Animation 40s ease infinite;
+  animation: Animation 40s ease infinite;
+}
+
+
+@-webkit-keyframes Animation {
+  0%{background-position:10% 0%}  
+  50%{background-position:10% 100%}  
+  100%{background-position:10% 0%}
+}
+@-moz-keyframes Animation {
+  0%{background-position:10% 0%}
+  50%{background-position:10% 100%}  
+  100%{background-position:10% 0%}
+}
+@keyframes Animation { 
+  0%{background-position:10% 0%}  
+  50%{background-position:10% 100%}  
+  100%{background-position:10% 0%}
 }
