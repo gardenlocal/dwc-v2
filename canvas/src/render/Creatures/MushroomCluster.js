@@ -39,7 +39,7 @@ export default class MushroomCluster extends PIXI.Container {
         // message.position.set(bbox.width - message.getBounds().width / 2, bbox.y + bbox.height + 10 - message.getBounds().height / 2)        
         message.position.set(bbox.width / 2 - message.getLocalBounds().width / 4, bbox.height + 5)
         this.addChild(message)
-
+        this.message = message
 
         const selfBbox = this.getBounds()
 
@@ -47,6 +47,7 @@ export default class MushroomCluster extends PIXI.Container {
         this.scale.set(scale)
         this.rotation = rotation      
 
+        this.frame = 0
     }
 
     generateChildFromParameters({ mirrorSectionChildren, mirrorSectionScale, mirrorSectionParentIndex, fillColor }) {

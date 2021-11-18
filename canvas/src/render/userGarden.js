@@ -28,6 +28,10 @@ export default class UserGarden extends PIXI.Container {
   }
 
   async init() {
+    this.bgContainer = new PIXI.Graphics()
+    this.bgContainer.beginFill(0xf9f9f9)
+    this.bgContainer.drawRect(0, 0, 1000, 1000)
+    this.addChild(this.bgContainer)
     this.drawBackgrounds()    
   }
 

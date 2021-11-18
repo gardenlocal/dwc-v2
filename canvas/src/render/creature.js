@@ -17,7 +17,8 @@ export default class Creature extends PIXI.Container {
 
         const { appearance, _id, animatedProperties } = state;        
         this.name = _id
-        this.displayText = state.owner.creatureName
+        this.displayText = state.owner.creatureName || ""
+        if (this.displayText == 'undefined') this.displayText = ""
         this.ownerId = state.owner._id
         this.animatedProperties = animatedProperties        
         this.appearance = appearance        
