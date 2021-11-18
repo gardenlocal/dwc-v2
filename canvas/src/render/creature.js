@@ -60,7 +60,7 @@ export default class Creature extends PIXI.Container {
         }
 
         this.addChild(this.creature)
-        this.creature.scale.set(appearance.scale * 1)
+        this.creature.scale.set(appearance.scale * 2)
         this.frame = 0
 
         this.firstTargetPositionUpdateComplete = false

@@ -5,7 +5,7 @@ import { io } from 'socket.io-client';
 import axios from 'axios';
 // import 'regenerator-runtime/runtime'
 
-const WEATHER_API = `http://dwc2-taeyoon-studio.iptime.org:1055/weather`
+const WEATHER_API = `http://192.168.0.105:3005/weather`
 
 class App {
   constructor() {
@@ -35,8 +35,8 @@ class App {
 
     this.pixiApp = new PixiApp({ isAdmin: this.pathname == '/admin' })
 
-    // this.fetchWeatherData()
-    // setInterval(this.fetchWeatherData, 10000)
+    this.fetchWeatherData()
+    setInterval(this.fetchWeatherData, 10000)
     
     await this.pixiApp.loadAssets()
 
