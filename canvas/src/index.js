@@ -13,6 +13,7 @@ import TWEEN from '@tweenjs/tween.js'
 import AdminGarden from './render/adminGarden'
 import { sound } from '@pixi/sound';
 import { renderCreatureTest } from './render/creatureTest'
+import { randomElementFromArray } from "./render/utils.js";
 
 PIXI.settings.SPRITE_MAX_TEXTURES = Math.min(PIXI.settings.SPRITE_MAX_TEXTURES, 16);
 PIXI.settings.FILTER_MULTISAMPLE = PIXI.MSAA_QUALITY.NONE
@@ -163,6 +164,25 @@ export default class PixiAppWrapper {
         this.adminContainer.addChild(this.creaturesLayer)
   
         const bbox = this.adminContainer.getBounds()
+
+        if (this.adminInterval) window.clearInterval(this.adminInterval)        
+        this.adminInterval = setInterval(() => {
+          if (this.adminContainer.scale.x < 0.5) {
+
+            let users = Object.values(window.APP.onlineUsers)
+            let user = null
+            while (!user) {
+              let currUser = randomElementFromArray(users)
+              if (currUser.gardenSection) user = currUser
+            }
+            
+            this.adminContainer.scale.set(1)
+            this.adminContainer.position.set(-user.gardenSection.x, -user.gardenSection.y)
+          } else {
+            this.adminContainer.position.set(400, 400)
+            this.adminContainer.scale.set(0.2)
+          }
+        }, 30000)
   
         //this.pixiApp.stage.scale.set(window.innerWidth / bbox.width)
       } else {
