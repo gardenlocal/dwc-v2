@@ -43,7 +43,7 @@ export default class ResidueBackground extends PIXI.Container {
   
     this.s = window.DWCApp.stage.scale.y
     if (window.APP.getIsAdmin()) {
-      this.s *= 0.2
+      this.s *= window.APP.pixiApp.adminContainer.scale.x
     }
 
     this.gradientUniforms = {
@@ -222,10 +222,27 @@ export default class ResidueBackground extends PIXI.Container {
     let delta = PIXI.Ticker.shared.elapsedMS
     this.time += delta / 1000
     let uTime = this.timeOffset + (this.time / this.shaderSpeed / 2.0) //((this.time + this.timeOffset) / this.shaderSpeed / 2.0)
-    uTime %= 16
-
+    uTime %= 16    
     // Shader background
+
     this.gradientUniforms.u_time = uTime
+    
+    if (window.APP.getIsAdmin() && this.prevScale != window.APP.pixiApp.adminContainer.scale.x) {
+      this.s = window.DWCApp.stage.scale.y * window.APP.pixiApp.adminContainer.scale.x
+      this.gradientUniforms.u_offset = [0.0, - window.DWCApp.stage.pivot.y * this.s * 2]
+      this.gradientUniforms.u_scale = this.s * 1.0
+            
+      if (window.APP.pixiApp.adminContainer.scale.x > 0.5) {
+        const pg = -window.APP.pixiApp.adminContainer.position.y
+        let mod = (4 + (Math.round(pg / 1000) % 4) % 4)
+        this.timeOffset = 2 * (mod % 2)
+      }
+      else
+        this.timeOffset = 0
+
+
+      this.prevScale = window.APP.pixiApp.adminContainer.scale.x
+    }
 
     this.drawCircle()
     this.drawTriangle()  
