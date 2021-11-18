@@ -26,11 +26,13 @@ We will start the process once using `pm2`, and then starting and stopping the s
 
 ### (Re-)Deploying the latest code
 
-1. First of all, stop the server by running `pm2 stop server`.
-2. Navigate to this repository's folder on the Pi, first run `git stash` and then run `git pull` to get the latest changes.
+0. For sanity, make sure there aren't any browsers open with the website.
+1. Stop the server by running `pm2 stop server`. 
+2. Navigate to this repository's folder on the Pi (`~/works/dwc-2/`), first run `git stash` and then run `git pull` to get the latest changes.
 3. Restart the server: `pm2 start server`.
 4. Navigate to the `canvas` directory, and run `npm run deploy`. This will build the latest version of the frontend and copy it to the `/var/www/dwc` folder, where nginx will pick it up. You might get asked for your sudo password.
-5. That's it! Use your browser to navigate to the Pi's PI and make sure the site loads, and isn't stuck on the `Loading...` screen. If it is stuck on the loading screen, either the server didn't properly start, or there are errors in the frontend. If you don't see the updates, try restarting nginx as well: `sudo service nginx restart`
+5. Restart nginx: `sudo service nginx restart`.
+6. That's it! Use your browser to navigate to the Pi's PI and make sure the site loads, and isn't stuck on the `Loading...` screen. If it is stuck on the loading screen, either the server didn't properly start, or there are errors in the frontend.
 
 
 
