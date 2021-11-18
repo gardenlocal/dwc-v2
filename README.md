@@ -12,7 +12,7 @@ We are going to serve the frontend using `nginx`. In order to set that up, you n
 1. Install nginx: `sudo apt update` and `sudo apt install nginx`.
 2. Make sure nginx installed properly, by navigating to the PI's IP (port 80) in the browser. You should see an `nginx` default webpage.
 3. Create a folder called `dwc` for the frontend, inside of `/var/www`: `mkdir /var/www/dwc`. You might need `sudo`.
-4. Point nginx to the `dwc` folder as a default, by editing the file at `/etc/nginx/sites-enabled/default`. The only thing you need to change is the `root` property. It should point to `/var/www/dwc` instead of the default `/var/www/html`.
+4. Point nginx to the `dwc` folder as a default, by editing the file at `/etc/nginx/sites-enabled/default`. You need to change the `root` and `location` properties. `root` should point to `/var/www/dwc` instead of the default `/var/www/html`. `location` should be `try_files $uri $uri/ /index.html =404`.
 5. Restart nginx: `sudo service nginx restart`.
 
 Since the folder is currently empty, if you navigate to the PI's IP in the browser you won't see anything.
