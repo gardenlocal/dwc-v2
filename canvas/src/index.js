@@ -79,7 +79,7 @@ export default class PixiAppWrapper {
       fontSize: 20,
       fill: "black",
     }))
-    this.loadingScreen.addChild(this.loadingText)
+    // this.loadingScreen.addChild(this.loadingText)
     const bbox = this.loadingScreen.getBounds()
     this.loadingScreen.pivot.set(bbox.width, bbox.height)
     this.loadingScreen.position.set(this.GARDEN_WIDTH / 2, this.GARDEN_HEIGHT / 2)
@@ -110,7 +110,7 @@ export default class PixiAppWrapper {
         url: soundtrack,
         preload: true,
         loop: true,
-        // autoPlay: true
+        autoPlay: true
       });
     }
   }

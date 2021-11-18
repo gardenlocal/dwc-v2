@@ -10,21 +10,23 @@ const WEATHER_API = `http://dwc2-taeyoon-studio.iptime.org:1055/weather`
 class App {
   constructor() {
     this.creatureName = window.CREATURE_NAME;
-
+    this.pathname = window.location.pathname
+    this.isTest = this.pathname == '/test'
   }
 
   async setup() {
     // intro html
     const introDiv = document.querySelector('.intro');
     if (introDiv) {
-      introDiv.parentNode.removeChild(introDiv)
-    }    
+      introDiv.classList.add("hidden")
+      setTimeout(() => {
+        introDiv.parentNode.removeChild(introDiv)
+      }, 2000)
+    }
 
     window.TEMPERATURE = 5
     window.HUMIDITY = 55
 
-    this.pathname = window.location.pathname
-    this.isTest = this.pathname == '/test'
     this.user = this.createOrFetchUser()
     console.log("USER??? ", this.user)
 
@@ -185,7 +187,7 @@ class App {
       updateUser.creatureName = this.creatureName;
       updateUser = JSON.stringify(updateUser)
       localStorage.setItem("user", updateUser)
-      user = updateUser  
+      user = updateUser
     }
 
     if (!user) {

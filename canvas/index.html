@@ -12,7 +12,14 @@
 </head>
 <body>
   <h1 id="description" aria-live="polite" lang="ko"> 입장 준비를 합니다. </h1>
+  
+  <div id="root">
+  </div>
+
   <div id="introId" class="intro gradient-moss">
+    <div class="loading-indicator rotating">
+      <img src="./assets/loader.svg"/>
+    </div>
     <div class="topWrap">
       <form onsubmit="submitLogin(event)" class="innerContainer">
         <input type="text" placeholder="이름을 입력하세요" aria-label="이름을 입력하세요" id="creatureName" name="creatureName" required />
@@ -31,9 +38,6 @@
         이 전시는 ... 본문은 머리글과 연관해 읽힌다. 여기서 머리글은 위에 이미 등장했고, 그럼으로써 포괄적 주제 또는 담론의 틀에 자리 잡았다.
       </div>
     </div>
-  </div>
-
-  <div id="root">
   </div>
   
   <div class="accessWrapper">

@@ -94,11 +94,16 @@ body h1 {
 .intro {
   height: 100vh;
   width: 100vw;
+  position: fixed;
+  top: 0;
+  left: 0;
   background-color: greenyellow;
   display: flex;
   flex-direction: column;
   justify-content: space-around;
   align-items: center;
+  opacity: 1;
+  transition: opacity 2s linear;
 }
 .topWrap {
   display: flex;
@@ -106,6 +111,8 @@ body h1 {
   align-items: center;
   width: 100%;
   max-width: 500px;
+  opacity: 1;
+  transition: opacity 1s linear;
 }
 
 .bottomWrap{
@@ -118,8 +125,31 @@ body h1 {
   font-family: 'Dongle';
   width: 100%;
   max-width: 500px;
-
+  opacity: 1;
+  transition: opacity 1s linear;
 }
+
+.loading-indicator {
+  position: absolute;
+  opacity: 0;
+  transition: opacity 1s linear;
+  /* top: 50%; */
+  /* left: 50%; */
+  /* transform: translateX(-50%) translateY(-50%); */
+}
+
+.loading-indicator img {
+  width: 100px;
+}
+
+.hidden {
+  opacity: 0;
+}
+
+.visible {
+  opacity: 1;
+}
+
 .innerContainer {
   width: 75%;
 }
@@ -272,4 +302,40 @@ canvas {
   0%{background-position:10% 0%}  
   50%{background-position:10% 100%}  
   100%{background-position:10% 0%}
+}
+
+@-webkit-keyframes rotating /* Safari and Chrome */ {
+  from {
+    -webkit-transform: rotate(0deg);
+    -o-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  to {
+    -webkit-transform: rotate(360deg);
+    -o-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
+@keyframes rotating {
+  from {
+    -ms-transform: rotate(0deg);
+    -moz-transform: rotate(0deg);
+    -webkit-transform: rotate(0deg);
+    -o-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  to {
+    -ms-transform: rotate(360deg);
+    -moz-transform: rotate(360deg);
+    -webkit-transform: rotate(360deg);
+    -o-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
+.rotating {
+  -webkit-animation: rotating 16s linear infinite;
+  -moz-animation: rotating 16s linear infinite;
+  -ms-animation: rotating 16s linear infinite;
+  -o-animation: rotating 16s linear infinite;
+  animation: rotating 16s linear infinite;
 }
