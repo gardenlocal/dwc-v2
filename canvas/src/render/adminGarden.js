@@ -29,6 +29,8 @@ export default class AdminGarden extends PIXI.Container {
     let currentUser = Object.values(this.users).filter(u => u.uid == window.UID)[0]
 
     Object.values(this.users).forEach(u => {
+      if (!u.gardenSection) return
+
       if (!window.APP.getIsAdmin()) {
         let isWideScreen = (window.innerWidth > window.innerHeight)
         let dX = Math.abs(u.gardenSection.x - currentUser.gardenSection.x)

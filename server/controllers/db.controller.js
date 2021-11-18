@@ -43,7 +43,7 @@ exports.getUsersInfo = async (uids) => {
   let res = []
   for (let i = 0; i < uids.length; i++) {
     const u = await exports.getUserInfo(uids[i])
-    if (u) res.push(u)
+    if (u && u.gardenSection) res.push(u)
   }
   return res
 }
