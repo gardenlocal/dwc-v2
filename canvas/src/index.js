@@ -12,7 +12,6 @@ import { addStats, Stats } from 'pixi-stats';
 import TWEEN from '@tweenjs/tween.js'
 import AdminGarden from './render/adminGarden'
 import { sound } from '@pixi/sound';
-// import creatureTrimWav from '../assets/C_trim.wav'  // trim version to test loop
 import { renderCreatureTest } from './render/creatureTest'
 
 PIXI.settings.SPRITE_MAX_TEXTURES = Math.min(PIXI.settings.SPRITE_MAX_TEXTURES, 16);
@@ -102,13 +101,18 @@ export default class PixiAppWrapper {
     //   return acc
     // }, {})
 
-    // load sound
-    // sound.add('creatureWav', {
-    //   url: creatureTrimWav,
-    //   preload: true,
-    //   loop: true,
-    //   // autoPlay: true
-    // });
+    // load sound for users only
+    if(!window.IS_ADMIN) {
+      console.log("import and load sound for users only")
+
+      const soundtrack = require('../assets/C_trim.wav')
+      sound.add('creatureWav', {
+        url: soundtrack,
+        preload: true,
+        loop: true,
+        // autoPlay: true
+      });
+    }
   }
 
   resizeAppToWindow() {
@@ -173,7 +177,10 @@ export default class PixiAppWrapper {
         this.creaturesLayer.y = -window.APP.selfGarden.y  
         this.pixiApp.stage.addChild(this.creaturesLayer)
   
-        this.playSoundtrack()
+        if(!window.IS_ADMIN){
+          console.log("play soundtrack for users only")
+          this.playSoundtrack()
+        }
       }  
     }
 
@@ -189,20 +196,20 @@ export default class PixiAppWrapper {
     root.addEventListener('touchstart', () => {
       console.log('touch: start music')
 
-      // if(!sound._sounds?.creatureWav?.isPlaying){ // if not playing
-      //   sound.play('creatureWav')
-      //   console.log(sound._sounds.creatureWav)
-      // }
+      if(!sound._sounds?.creatureWav?.isPlaying){ // if not playing
+        sound.play('creatureWav')
+        console.log(sound._sounds.creatureWav)
+      }
     })
 
     // test for pc version
     root.addEventListener('click', () => {
       console.log('click: start music')
 
-      // if(!sound._sounds?.creatureWav?.isPlaying){ // if not playing
-      //   sound.play('creatureWav')
-      //   console.log(sound._sounds.creatureWav)
-      // }
+      if(!sound._sounds?.creatureWav?.isPlaying){ // if not playing
+        sound.play('creatureWav')
+        console.log(sound._sounds.creatureWav)
+      }
     })
   }
 

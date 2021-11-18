@@ -4,7 +4,6 @@
 import * as PIXI from "pixi.js";
 import UserGarden from "./userGarden";
 import { sound } from '@pixi/sound';
-// import DRY_LEAVES_SOUND from '../../assets/dry-leaves.mp3';
 import { randomInRange } from "./utils";
 
 const CULL_BOUNDS = 1100
@@ -18,12 +17,19 @@ export default class AdminGarden extends PIXI.Container {
 
     this.drawBackgrounds()
 
-  //   sound.add('gardenTapSound', {
-  //     url: DRY_LEAVES_SOUND,
-  //     preload: true,
-  //     loop: false,
-  // });
+    if(!window.IS_ADMIN) {
+      console.log("import garden sound for users only");
+
+      const gardenSound = require('../../assets/garden_touch_3.mp3');
+      sound.add('gardenTapSound', {
+        url: gardenSound,
+        preload: true,
+        loop: false,
+        // autoPlay: true
+      });
+    }
   }
+
 
   drawBackgrounds() {
     let currentUser = Object.values(this.users).filter(u => u.uid == window.UID)[0]
@@ -83,20 +89,20 @@ export default class AdminGarden extends PIXI.Container {
     let local = this.toLocal(globalCoordinate)
     console.log('--- local: ', local)
     window.APP.sendGardenTap(local)
-    this.playSoundtrack()    
+    if(!window.IS_ADMIN) this.playSoundtrack()    
   }
 
   onGardenTap = (e) => {
     let local = this.toLocal(e.data.global)
     window.APP.sendGardenTap(local)
-    this.playSoundtrack()    
+    if(!window.IS_ADMIN) this.playSoundtrack()    
   }
 
   playSoundtrack() {
-    // if(!sound._sounds?.gardenTapSound?.isPlaying){ // if not playing
-    //   sound.play('gardenTapSound')
-    //   console.log("gardenTapSound: ", sound._sounds.gardenTapSound)
-    // }
+    if(!sound._sounds?.gardenTapSound?.isPlaying){ // if not playing
+      sound.play('gardenTapSound')
+      console.log("gardenTapSound: ", sound._sounds.gardenTapSound)
+    }  
   }
 
   updateOnlineUsers(onlineUsers) {

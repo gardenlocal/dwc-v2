@@ -10,7 +10,6 @@ import MushroomCluster from "./Creatures/MushroomCluster"
 import LichenCluster from "./Creatures/LichenCluster"
 import TWEEN from '@tweenjs/tween.js'
 import { sound } from '@pixi/sound';
-// import WATERDROP_SOUND from '../../assets/waterdrop-sound.mp3';
 
 export default class Creature extends PIXI.Container {
     constructor(state) {
@@ -67,13 +66,16 @@ export default class Creature extends PIXI.Container {
         const label = new PIXI.Text(this.name, new PIXI.TextStyle({ fontSize: 40 }))
         // this.addChild(label)
 
-        // load sound
-        // sound.add('creatureTapSound', {
-        //     url: WATERDROP_SOUND,
-        //     preload: true,
-        //     loop: false,
-        //     // autoPlay: true
-        // });
+        if(!window.IS_ADMIN) {
+            console.log("import creature sound for users only")
+      
+            const creatureSound = require('../../assets/creature_touch_2.mp3')
+            sound.add('creatureTapSound', {
+              url: creatureSound,
+              preload: true,
+              loop: false,
+            });
+          }
 
         if(window.SCREENREAD_MODE && !window.IS_ADMIN){
             this.createEvolveButton()
@@ -95,17 +97,18 @@ export default class Creature extends PIXI.Container {
     }
 
     onButtonClick = async () => {
-        // this.playSoundtrack('creatureTapSound')
-
-        window.SCREENREADER.textContent = "나는 작은 심장에 매일 하늘을 퍼 뜬다."
-
+        if(!window.IS_ADMIN) {
+            this.playSoundtrack('creatureTapSound')
+            window.SCREENREADER.textContent = "나는 작은 심장에 매일 하늘을 퍼 뜬다."
+        }
         window.APP.sendEvolveCreature(this.name)
     }
 
     onMouseDown = async (e) => {     
-        // this.playSoundtrack('creatureTapSound')
-
-        window.SCREENREADER.textContent = "나는 작은 심장에 매일 하늘을 퍼 뜬다."
+        if(!window.IS_ADMIN) {
+            this.playSoundtrack('creatureTapSound')
+            window.SCREENREADER.textContent = "나는 작은 심장에 매일 하늘을 퍼 뜬다."
+        }
 
         window.APP.sendEvolveCreature(this.name)
     }
@@ -217,12 +220,12 @@ export default class Creature extends PIXI.Container {
         await sleep(this.movementDuration * 1000)        
     }
 
-    // playSoundtrack() {
-    //     if(!sound._sounds?.creatureTapSound?.isPlaying){ // if not playing
-    //         sound.play('creatureTapSound')
-    //         console.log(sound._sounds.creatureTapSound)
-    //     }
-    // }
+    playSoundtrack() {
+        if(!sound._sounds?.creatureTapSound?.isPlaying){ // if not playing
+            sound.play('creatureTapSound')
+            console.log(sound._sounds.creatureTapSound)
+        }
+    }
 
     tick(d) {
         const delta = PIXI.Ticker.shared.elapsedMS
