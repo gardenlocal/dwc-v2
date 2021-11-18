@@ -16,7 +16,9 @@ class App {
   async setup() {
     // intro html
     const introDiv = document.querySelector('.intro');
-    introDiv.parentNode.removeChild(introDiv)
+    if (introDiv) {
+      introDiv.parentNode.removeChild(introDiv)
+    }    
 
     window.TEMPERATURE = 5
     window.HUMIDITY = 55
@@ -219,13 +221,17 @@ class App {
   }
 }
 
+window.startApp = () => {
+  window.APP = new App()
+  window.APP.setup()
+}
+
 window.submitLogin = (event) => {
   console.log('creatureName Login', event.target[0].value)
   event.preventDefault();
   
   window.CREATURE_NAME = event.target[0].value;
-  window.APP = new App()
-  window.APP.setup()
+  window.startApp()
 }
 
 // ACCESSIBILITY
@@ -252,4 +258,9 @@ window.addEventListener('DOMContentLoaded', () => {
   // window.APP = new App()
   // window.APP.setup()
   window.SCREENREADER = document.getElementById('description')
+  if (window.location.pathname == '/test' || window.location.pathname == '/admin') {
+    let el = document.getElementById('introId')
+    el.remove()
+    window.startApp()
+  }
 })
