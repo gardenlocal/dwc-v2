@@ -29,13 +29,14 @@ export default class CreaturesLayer extends PIXI.Container {
         let creatureSprite = new PIXI.Sprite()        
         const whiteFilter = new PIXI.Filter(null, toWhite, {});
   
+        /*
         creatureSpriteContainer.addChild(creatureSprite)
-  
         creatureSpriteContainer.filters = [whiteFilter, new BlurFilter(16, 4), new BlurFilter(16, 4)]
         this.addChild(creatureSpriteContainer)
         this.highlightObjects[key] = {
           creatureSpriteContainer, creatureSprite
-        }  
+        }
+        */
       }
 
       this.addChild(c)
@@ -68,17 +69,19 @@ export default class CreaturesLayer extends PIXI.Container {
         this.creatureObjects[c.name] = c
 
         if (onlineCreatures[k].owner.uid == window.APP.user.id) {
+          /*
           let creatureSpriteContainer = new PIXI.Container()
           let creatureSprite = new PIXI.Sprite()        
           const whiteFilter = new PIXI.Filter(null, toWhite, {});
-    
+          
           creatureSpriteContainer.addChild(creatureSprite)
     
           creatureSpriteContainer.filters = [whiteFilter, new BlurFilter(16, 4), new BlurFilter(16, 4)]
           this.addChild(creatureSpriteContainer)
           this.highlightObjects[c.name] = {
             creatureSpriteContainer, creatureSprite
-          }  
+          }
+          */ 
         }
 
         this.addChild(c)
