@@ -64,7 +64,12 @@ exports.userConnected = async (socket) => {
   await creatureController.bringCreatureOnline(creature)
 
   io.emit('usersUpdate', await getOnlineUsers())
-  io.emit('creatures', await getAllCreatures())
+
+  const creatures = await getAllCreatures()
+  const creaturesString = JSON.stringify(creatures, (key, val) => {
+    return (val && val.toFixed) ? Number(val.toFixed(3)) : val;
+  })
+  io.emit('creatures', creaturesString)
 }
 
 const onAdminConnect = (socket) => async (reason) => {
@@ -104,7 +109,12 @@ const onDisconnect = (socket) => async (reason) => {
   await creatureController.bringCreatureOffline(uid)
 
   io.emit('usersUpdate', await getOnlineUsers())
-  io.emit('creatures', await getAllCreatures())
+
+  const creatures = await getAllCreatures()
+  const creaturesString = JSON.stringify(creatures, (key, val) => {
+    return (val && val.toFixed) ? Number(val.toFixed(3)) : val;
+  })
+  io.emit('creatures', creaturesString)
 }
 
 const getOnlineUsers = async () => {

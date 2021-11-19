@@ -87,7 +87,7 @@ exports.createGardenSection = async (uid) => {
 
   // Set up animation properties
   const noTiles = 4
-  const stepsPerTile = 7
+  const stepsPerTile = 5
 
   newGarden.tileProps = []
   for (let i = 0; i < noTiles; i++) {
@@ -98,7 +98,7 @@ exports.createGardenSection = async (uid) => {
       const target = (shape == DWC_META.tileShapes.TRIANGLE ? randomElementFromArray([0.25, 0.4, 0.5, 0.6, 0.75]) : randomElementFromArray([0.25, 0.3, 0.4, 0.75]))
       currTile.push({
         "target": target,
-        "duration": randomInRange(25000, 75000),
+        "duration": randomIntInRange(25000, 75000),
         "shape": shape,
         "anchor":randomElementFromArray([0, 1, 2, 3])    
       })

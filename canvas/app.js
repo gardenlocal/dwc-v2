@@ -20,7 +20,8 @@ class App {
     if (introDiv) {
       introDiv.classList.add("hidden")
       setTimeout(() => {
-        introDiv.parentNode.removeChild(introDiv)
+        if (introDiv)
+          introDiv.remove()
       }, 2000)
     }
 
@@ -132,6 +133,7 @@ class App {
 
   onUsersUpdate = (users) => {
     console.log('onUsersUpdate: ', JSON.stringify(users).length, Object.keys(users).length)
+    console.log(users)
     // get single user's garden data
     const currUser = users.find((u => (u.uid == this.user.id)))
     this.selfGarden = currUser ? currUser.gardenSection : null
@@ -149,8 +151,10 @@ class App {
     this.renderAppIfReady()
   }
 
-  onCreatures = (creatures) => {
+  onCreatures = (creaturesString) => {
+    const creatures = JSON.parse(creaturesString)
     console.log('onCreatures: ', JSON.stringify(creatures).length, Object.keys(creatures).length)
+    console.log(creatures)
 
     this.updateOnlineCreatures(creatures)    
 

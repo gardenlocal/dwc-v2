@@ -23,7 +23,6 @@ export default class Creature extends PIXI.Container {
         this.animatedProperties = animatedProperties        
         this.appearance = appearance        
 
-        console.log('new creature: ', state.owner)
         this.alpha = 0
 
         const { fillColor, radius } = appearance;
