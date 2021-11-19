@@ -18,8 +18,6 @@ export default class AdminGarden extends PIXI.Container {
     this.drawBackgrounds()
 
     if(!window.IS_ADMIN) {
-      console.log("import garden sound for users only");
-
       const gardenSound = require('../../assets/garden_touch_3.mp3');
       sound.add('gardenTapSound', {
         url: gardenSound,
@@ -53,7 +51,6 @@ export default class AdminGarden extends PIXI.Container {
       garden.y = u.gardenSection.y
       this.addChild(garden)
 
-      console.log("window.IS_ADMIN: ", window.IS_ADMIN)
       if(window.SCREENREAD_MODE && !window.IS_ADMIN){
         this.createMoveButton()
     }
@@ -87,7 +84,6 @@ export default class AdminGarden extends PIXI.Container {
 
     let globalCoordinate = new PIXI.Point(randomInRange(0, window.innerWidth), randomInRange(100, window.innerHeight-100))
     let local = this.toLocal(globalCoordinate)
-    console.log('--- local: ', local)
     window.APP.sendGardenTap(local)
     if(!window.IS_ADMIN) this.playSoundtrack()    
   }
@@ -101,7 +97,6 @@ export default class AdminGarden extends PIXI.Container {
   playSoundtrack() {
     if(!sound._sounds?.gardenTapSound?.isPlaying){ // if not playing
       sound.play('gardenTapSound')
-      console.log("gardenTapSound: ", sound._sounds.gardenTapSound)
     }  
   }
 

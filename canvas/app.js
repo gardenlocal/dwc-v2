@@ -75,7 +75,6 @@ class App {
 
   onVisibilityChange = (e) => {
     const active = (document.visibilityState == 'visible')
-    console.log('is active: ', active)
     if (!active) {
       this.socket.disconnect()
       this.initData.firstRender = false
@@ -89,7 +88,6 @@ class App {
   }
 
   hasAdminSequence() {
-    console.log(window.location)
     if (window.location.search.indexOf('sequence') != -1) return true
     return false
   }
@@ -106,14 +104,12 @@ class App {
   }
 
   onSocketConnect = () => {
-    console.log('on socket connect')
     if (this.getIsAdmin()) {
       this.socket.emit('adminConnect', {})
     }
   }
 
   onSocketConnectError = (error) => {
-    console.log('on socket connect error: ', error)
   }
 
   onAdminConnect = () => {
@@ -134,8 +130,7 @@ class App {
   }
 
   onUsersUpdate = (users) => {
-    console.log('onUsersUpdate: ', JSON.stringify(users).length, Object.keys(users).length)
-    console.log(users)
+    // console.log('onUsersUpdate: ', JSON.stringify(users).length, Object.keys(users).length)
     // get single user's garden data
     const currUser = users.find((u => (u.uid == this.user.id)))
     this.selfGarden = currUser ? currUser.gardenSection : null
@@ -155,8 +150,7 @@ class App {
 
   onCreatures = (creaturesString) => {
     const creatures = JSON.parse(creaturesString)
-    console.log('onCreatures: ', JSON.stringify(creatures).length, Object.keys(creatures).length)
-    console.log(creatures)
+    // console.log('onCreatures: ', JSON.stringify(creatures).length, Object.keys(creatures).length)
 
     this.updateOnlineCreatures(creatures)    
 
@@ -209,8 +203,7 @@ class App {
         creatureName: this.creatureName
       })
       localStorage.setItem("user", user)
-    }
-    console.log("app.js createOrFetchUser ------------ user? ", user)
+    }    
 
     return JSON.parse(user)
   }
@@ -226,7 +219,6 @@ class App {
     } finally {
       if (weather && weather.data) {
         const weatherData = weather.data;
-        console.log("fetchWeatherData -------------", weatherData)
     
         window.TEMPERATURE = weatherData.temperature;
         window.HUMIDITY = weatherData.humidity;  
@@ -298,9 +290,5 @@ window.addEventListener('DOMContentLoaded', () => {
     document.querySelector(".bottomWrap").style.opacity = 1;
   }
 
-  // window.APP = new App()
-  // window.APP.setup()
   window.SCREENREADER = document.getElementById('description')
-
-  console.log('window garden: ', window.GARDEN)
 })
