@@ -39,6 +39,7 @@ class App {
     setInterval(this.fetchWeatherData, 10000)
     
     await this.pixiApp.loadAssets()
+    this.pixiApp.resizeAppToWindow()
 
     this.socket = await io(`${this.serverUrl}:${this.serverPort}`, {
       query: {
@@ -241,9 +242,20 @@ window.startApp = () => {
 window.submitLogin = (event) => {
   console.log('creatureName Login', event.target[0].value)
   event.preventDefault();
-  
+
   window.CREATURE_NAME = event.target[0].value;
-  window.startApp()
+  
+  const inputEl = document.getElementById('creatureName')
+  inputEl.setAttribute('readonly', 'readonly')
+  inputEl.setAttribute('disabled', true)
+  setTimeout(() => {
+    inputEl.blur()
+    inputEl.removeAttribute('readonly')
+    inputEl.removeAttribute('disabled')
+    setTimeout(() => {
+      window.startApp()
+    }, 100)
+  }, 100) 
 }
 
 // ACCESSIBILITY

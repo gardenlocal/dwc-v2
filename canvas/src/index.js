@@ -47,6 +47,13 @@ export default class PixiAppWrapper {
     window.DWCApp = this.pixiApp
 
     this.pixiContainer.appendChild(this.pixiApp.view)
+
+    console.log(this.pixiContainer.children)
+    this.pixiContainer.children[0].style.position = 'absolute'
+    this.pixiContainer.children[0].style.top = '0px'
+    this.pixiContainer.children[0].style.left = '0px'
+    this.pixiContainer.children[0].style.transform = 'translateX(-25%) translateY(-25%) scale(0.5)'
+
     this.pixiApp.renderer.backgroundColor = 0xf9f9f9;
 
     this.ticker = PIXI.Ticker.shared
