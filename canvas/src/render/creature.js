@@ -10,6 +10,7 @@ import MushroomCluster from "./Creatures/MushroomCluster"
 import LichenCluster from "./Creatures/LichenCluster"
 import TWEEN from '@tweenjs/tween.js'
 import { sound } from '@pixi/sound';
+import { ALTTEXT_KO } from "../../altText-constants";
 
 export default class Creature extends PIXI.Container {
     constructor(state) {
@@ -68,49 +69,62 @@ export default class Creature extends PIXI.Container {
         // this.creature.addChild(label)
         // label.cacheAsBitmap = true
 
+        this.loadSound() 
+
+        if(window.ASSIST_MODE && !window.IS_ADMIN){
+            this.createEvolveButton()
+        }
+    }
+
+    loadSound() {
         if(!window.IS_ADMIN) {
             console.log("import creature sound for users only")
-      
-            const creatureSound = require('../../assets/creature_touch_2.mp3')
-            sound.add('creatureTapSound', {
-              url: creatureSound,
-              preload: true,
-              loop: false,
-            });
-          }
+            
+            let evolveSound;
+            switch(window.GARDEN) {
+                case 'moss':
+                    evolveSound = require('../../assets/audio/creature_touch_2.mp3');
+                    break;
+                case 'lichen':
+                    evolveSound = require('../../assets/audio/creature_touch_2.mp3');
+                    break;
+                case 'mushroom':
+                    evolveSound = require('../../assets/audio/creature_touch_2.mp3');
+                    break;
+                case 'all':
+                    evolveSound = require('../../assets/audio/creature_touch_2.mp3');
+                    break;
+        }
 
-        if(window.SCREENREAD_MODE && !window.IS_ADMIN){
-            this.createEvolveButton()
+        if(evolveSound){
+            sound.add('creatureTapSound', {
+                url: evolveSound,
+                preload: true,
+                loop: false,
+            });
+            }
         }
     }
 
     // ACCESSIBILITY
     createEvolveButton() {
         if(!document.getElementById('evolve')) {
-            var button = document.createElement("button");
+            const button = document.createElement("button");
             button.id = "evolve"
-            button.ariaLabel = "크리쳐가 변화합니다."
             button.innerText = "변화"
-            button.onclick = this.onButtonClick
+            button.onclick = this.onMouseDown
     
-            var accessDiv = document.querySelector('.accessibility');
+            const buttonAltText = ALTTEXT_KO[window.GARDEN].evolveButton;
+            button.ariaLabel = buttonAltText
+
+            const accessDiv = document.querySelector('.accessibility');
             accessDiv.appendChild(button)
         }
     }
 
-    onButtonClick = async () => {
-        if(!window.IS_ADMIN) {
-            this.playSoundtrack('creatureTapSound')
-            window.SCREENREADER.textContent = "나는 작은 심장에 매일 하늘을 퍼 뜬다."
-        }
-        window.APP.sendEvolveCreature(this.name)
-    }
-
     onMouseDown = async (e) => {     
-        if(!window.IS_ADMIN) {
-            this.playSoundtrack('creatureTapSound')
-            window.SCREENREADER.textContent = "나는 작은 심장에 매일 하늘을 퍼 뜬다."
-        }
+        if(!window.IS_ADMIN) this.playSoundtrack('creatureTapSound')
+        window.SCREENREADER.textContent = ALTTEXT_KO[window.GARDEN].evolve
 
         window.APP.sendEvolveCreature(this.name)
     }
@@ -223,9 +237,11 @@ export default class Creature extends PIXI.Container {
     }
 
     playSoundtrack() {
-        if(!sound._sounds?.creatureTapSound?.isPlaying){ // if not playing
-            sound.play('creatureTapSound')
-            console.log(sound._sounds.creatureTapSound)
+        if(!window.IS_ADMIN) {
+            if(!sound._sounds?.creatureTapSound?.isPlaying){ // if not playing
+                sound.play('creatureTapSound')
+                console.log(sound._sounds.creatureTapSound)
+            }
         }
     }
 

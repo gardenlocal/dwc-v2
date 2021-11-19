@@ -109,12 +109,29 @@ export default class PixiAppWrapper {
     //   return acc
     // }, {})
 
-    // load sound for users only
-    if(!window.IS_ADMIN) {
-      console.log("import and load sound for users only")
+    this.loadBackgroundSound()
+  }
 
-      const soundtrack = require('../assets/C_trim.wav')
-      sound.add('creatureWav', {
+  loadBackgroundSound() {
+    // load backgrond sound
+    let soundtrack;
+    switch(window.GARDEN) {
+      case 'moss':
+        soundtrack = require('../assets/audio/CwithDrum.mp3');
+        break;
+      case 'lichen':
+        soundtrack = require('../assets/audio/CwithDrum.mp3');
+        break;
+      case 'mushroom':
+        soundtrack = require('../assets/audio/CwithDrum.mp3');
+        break;
+      case 'all':
+        soundtrack = require('../assets/audio/CwithDrum.mp3');
+        break;
+    }
+
+    if(soundtrack) {
+      sound.add('background', {
         url: soundtrack,
         preload: true,
         loop: true,
@@ -225,9 +242,9 @@ export default class PixiAppWrapper {
     root.addEventListener('touchstart', () => {
       console.log('touch: start music')
 
-      if(!sound._sounds?.creatureWav?.isPlaying){ // if not playing
-        sound.play('creatureWav')
-        console.log(sound._sounds.creatureWav)
+      if(!sound._sounds?.background?.isPlaying){ // if not playing
+        sound.play('background')
+        console.log(sound._sounds.background)
       }
     })
 
@@ -235,9 +252,9 @@ export default class PixiAppWrapper {
     root.addEventListener('click', () => {
       console.log('click: start music')
 
-      if(!sound._sounds?.creatureWav?.isPlaying){ // if not playing
-        sound.play('creatureWav')
-        console.log(sound._sounds.creatureWav)
+      if(!sound._sounds?.background?.isPlaying){ // if not playing
+        sound.play('background')
+        console.log(sound._sounds.background)
       }
     })
   }

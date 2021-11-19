@@ -4,6 +4,7 @@ import HorizontalGradientFrag from "../shaders/horizontal.frag";
 import { distanceAndAngleBetweenTwoPoints, lerp, lerpPoint, randomElementFromArray, randomInRange, sleep } from "../utils.js";
 import TessGraphics from '../Geometry/TessGraphics';
 import TWEEN from '@tweenjs/tween.js';
+import { ALTTEXT_KO } from '../../../altText-constants';
 
 export const SHAPES = {
   TRIANGLE: 'TRIANGLE',
@@ -170,7 +171,7 @@ export default class ResidueBackground extends PIXI.Container {
   }
 
   async appear(target, duration, shape, anchor, shaderSpeed) {
-    window.SCREENREADER.textContent = "우리들은 모두 무엇이 되고 싶다."
+    window.SCREENREADER.textContent = ALTTEXT_KO[window.GARDEN].tileAppear;
 
     this.visible = true
     this.isAnimating = true
@@ -200,7 +201,7 @@ export default class ResidueBackground extends PIXI.Container {
   }
 
   async disappear(target, duration) {
-    window.SCREENREADER.textContent = "정원이 사라지고 있다."
+    window.SCREENREADER.textContent = ALTTEXT_KO[window.GARDEN].tileDisappear;
 
     this.isAnimating = true
     const intermediateTransitionAlpha = target  // disappear from target

@@ -15,28 +15,31 @@
   <title lang="ko">garden.local</title>
 </head>
 <body>
-  <h1 id="description" aria-live="polite" lang="ko"> 입장 준비를 합니다. </h1>
+  <h1 id="description" aria-live="polite" lang="ko">정원에 입장합니다.</h1>
 
   <div id="root">
   </div>
 
   <div id="introId" class="intro gradient-moss">
     <div class="topWrap" style="opacity: 0;">
+      <div class="creatureIcon">
+        <!-- <img id="creatureThumbnail" src="./assets/login/moss.svg" alt="이끼 정원에 입장합니다." /> -->
+        <!-- <img id="creatureThumbnail" src="./assets/login/lichen.svg" alt="지의류 정원에 입장합니다." /> -->
+        <!-- <img id="creatureThumbnail" src="./assets/login/mushroom.svg" alt="버섯 정원에 입장합니다." /> -->
+      </div>
       <form onsubmit="submitLogin(event)" class="innerContainer">
         <input type="text" placeholder="이름을 입력하세요" aria-label="이름을 입력하세요" id="creatureName" name="creatureName" required />
-        <button type="submit" id="submit" value="입장하기" aria-label="입장합니다.">입장하기</button>
+        <button type="submit" id="submit" value="입장하기" aria-label="입장하기.">입장하기</button>
       </form>
     </div>
     <div class="bottomWrap" style="opacity: 0;">
       <div>
         <button id="accessBtn" onclick="enableAccess(event)">
-          <img id="accessImg" src ="./assets/access.svg" alt="스크린리더 모드를 활성화합니다."/>
+          <img id="accessImg" src ="./assets/access.svg" alt="이 버튼을 누르면 스크린리더 모드가 활성화됩니다."/>
         </button>
       </div>
       <div style="padding: 20px; font-size: 1.2rem; padding: 1.0rem; margin-top: 10px;">
-        이 전시는 ... 본문은 머리글과 연관해 읽힌다. 여기서 머리글은 위에 이미 등장했고, 그럼으로써 포괄적 주제 또는 담론의 틀에 자리 잡았다.
-        이 전시는 ... 본문은 머리글과 연관해 읽힌다. 여기서 머리글은 위에 이미 등장했고, 그럼으로써 포괄적 주제 또는 담론의 틀에 자리 잡았다.
-        이 전시는 ... 본문은 머리글과 연관해 읽힌다. 여기서 머리글은 위에 이미 등장했고, 그럼으로써 포괄적 주제 또는 담론의 틀에 자리 잡았다.
+        가든.로컬의 시각적인 변화를 시로 표현한 에크프라시스는 스크린리더와 보이스 오버를 사용해서 경험하실수 있습니다.
       </div>
     </div>
   </div>

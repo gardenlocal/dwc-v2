@@ -5,6 +5,7 @@ import * as PIXI from "pixi.js";
 import UserGarden from "./userGarden";
 import { sound } from '@pixi/sound';
 import { randomInRange } from "./utils";
+import { ALTTEXT_KO } from "../../altText-constants";
 
 const CULL_BOUNDS = 1100
 
@@ -17,16 +18,36 @@ export default class AdminGarden extends PIXI.Container {
 
     this.drawBackgrounds()
 
-    if(!window.IS_ADMIN) {
-      console.log("import garden sound for users only");
+    this.loadSound()
+  }
 
-      const gardenSound = require('../../assets/garden_touch_3.mp3');
-      sound.add('gardenTapSound', {
-        url: gardenSound,
-        preload: true,
-        loop: false,
-        // autoPlay: true
-      });
+  loadSound() {
+    if(!window.IS_ADMIN) {
+      console.log("import garden sound for users only")
+      
+      let moveSound;
+      switch(window.GARDEN) {
+          case 'moss':
+            moveSound = require('../../assets/audio/garden_touch_3.mp3');
+            break;
+          case 'lichen':
+            moveSound = require('../../assets/audio/garden_touch_3.mp3');
+            break;
+          case 'mushroom':
+            moveSound = require('../../assets/audio/garden_touch_3.mp3');
+            break;
+          case 'all':
+            moveSound = require('../../assets/audio/garden_touch_3.mp3');
+            break;
+  }
+
+    if(moveSound){
+        sound.add('gardenTapSound', {
+            url: moveSound,
+            preload: true,
+            loop: false,
+        });
+      }
     }
   }
 
@@ -54,7 +75,7 @@ export default class AdminGarden extends PIXI.Container {
       this.addChild(garden)
 
       console.log("window.IS_ADMIN: ", window.IS_ADMIN)
-      if(window.SCREENREAD_MODE && !window.IS_ADMIN){
+      if(window.ASSIST_MODE && !window.IS_ADMIN){
         this.createMoveButton()
     }
 
@@ -69,21 +90,23 @@ export default class AdminGarden extends PIXI.Container {
 
 // ACCESSIBILITY
   createMoveButton() {
-    if(!document.getElementById('move')) {
-      var accessButton = document.createElement("button");
-      accessButton.id = "move"
-      accessButton.ariaLabel = "크리쳐를 이동시킵니다."
-      accessButton.innerText = "이동"
 
+    if(!document.getElementById('move')) {
+      const accessButton = document.createElement("button");
+      accessButton.id = "move"
+      accessButton.innerText = "이동"
       accessButton.onclick = this.onGardenButtonClick
 
-      var accessDiv = document.querySelector('.accessibility');
+      const buttonAltText = ALTTEXT_KO[window.GARDEN].moveButton;
+      accessButton.ariaLabel = buttonAltText
+
+      const accessDiv = document.querySelector('.accessibility');
       accessDiv.appendChild(accessButton)
     }
 }
 
   onGardenButtonClick = () => {
-    window.SCREENREADER.textContent = "잊혀지지 않는 하나의 의미가 되고 싶다."
+    window.SCREENREADER.textContent = ALTTEXT_KO[window.GARDEN].move;
 
     let globalCoordinate = new PIXI.Point(randomInRange(0, window.innerWidth), randomInRange(100, window.innerHeight-100))
     let local = this.toLocal(globalCoordinate)

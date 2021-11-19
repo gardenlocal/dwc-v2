@@ -5,6 +5,7 @@ import { uid } from 'uid';
 import { io } from 'socket.io-client';
 import axios from 'axios';
 // import 'regenerator-runtime/runtime'
+import { ALTTEXT_KO } from './altText-constants.js';
 
 const WEATHER_API = `http://192.168.0.105:3005/weather`
 
@@ -30,6 +31,7 @@ class App {
     window.HUMIDITY = 55
 
     this.user = this.createOrFetchUser()
+    getAssistMode()
 
     this.serverPort = window.location.hostname.includes('iptime') ? '1012' : '3000'
     this.serverUrl = `http://${window.location.hostname}`
@@ -264,16 +266,34 @@ window.enableAccess = (event) => {
   let btn = document.getElementById("accessBtn");
   let img = document.getElementById("accessImg");
   
-  if(window.SCREENREAD_MODE) {
-    console.log("비활성화")
-    window.SCREENREAD_MODE = false;
-    img.alt = "스크린리더 모드를 비활성화했습니다."
+  if(window.ASSIST_MODE) {
+    console.log("deactivate")
+    window.ASSIST_MODE = false;
+    img.alt = ALTTEXT_KO.common.deactivateAccess;
     btn.style.backgroundColor = 'rgba(0, 0, 0, 0)';
+
   } else {
-    console.log("활성화")
-    window.SCREENREAD_MODE = true;
-    img.alt = "스크린리더 모드를 활성화했습니다."
+    console.log("activate")
+    window.ASSIST_MODE = true;
+    img.alt = ALTTEXT_KO.common.activateAccess;
     btn.style.backgroundColor = 'rgba(255, 255, 255, 0.85)';
+  }
+
+  setAssistMode()
+}
+
+function setAssistMode() {
+  localStorage.setItem('ASSIST_MODE', window.ASSIST_MODE)
+}
+
+function getAssistMode(){
+  let currAssistMode = JSON.parse(localStorage.getItem('ASSIST_MODE'));
+
+  if(currAssistMode) {
+    window.ASSIST_MODE = currAssistMode
+  } else {
+    window.ASSIST_MODE = false
+    setAssistMode()
   }
 }
 
@@ -298,9 +318,8 @@ window.addEventListener('DOMContentLoaded', () => {
     document.querySelector(".bottomWrap").style.opacity = 1;
   }
 
-  // window.APP = new App()
-  // window.APP.setup()
   window.SCREENREADER = document.getElementById('description')
+  window.SCREENREADER.textContent = ALTTEXT_KO[window.GARDEN].intro;
 
   console.log('window garden: ', window.GARDEN)
 })

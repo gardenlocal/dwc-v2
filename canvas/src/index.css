@@ -114,8 +114,12 @@ body h1 {
   max-width: 500px;
   opacity: 1;
   transition: opacity 1s linear;
+  flex-direction: column;
 }
-
+.creatureThumbnail {
+  width: 75px;
+  height: 75px;
+}
 .bottomWrap{
   display: flex;
   flex-direction: column;
@@ -157,7 +161,7 @@ body h1 {
 input#creatureName {
   width: 100%;
   height: 50px;
-  margin-bottom: 3.0rem;
+  margin-bottom: 5.0rem;
 
   font-size: 28px;
   font-family: 'Dongle';
