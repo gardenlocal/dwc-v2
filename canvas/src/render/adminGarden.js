@@ -84,7 +84,7 @@ export default class AdminGarden extends PIXI.Container {
 
   onGardenTap = (e) => {
     const now = new Date().getTime()
-    if (now - this.tapTimestamp > 3000) {
+    if (now - this.tapTimestamp > 5000) {
       let local = this.toLocal(e.data.global)
       window.APP.sendGardenTap(local)
       this.tapTimestamp = now  

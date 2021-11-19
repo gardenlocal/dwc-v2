@@ -39,7 +39,10 @@ export default class Cluster extends PIXI.Container {
     }
 
     async startAnimatingGrowth(elementDuration, elementDelay) {
+        if (this.isAnimatingGrowth) return
+        this.isAnimatingGrowth = true
         await this.creature.startAnimatingGrowth(elementDuration, elementDelay)
+        this.isAnimatingGrowth = false
         // this.textBounds = this.message.getLocalBounds()
         // this.message.position.set(this.creatureBounds.x + this.creatureBounds.width / 2 - this.textBounds.width / 8, this.creatureBounds.y + this.creatureBounds.height / 2 - this.textBounds.height / 8)
     }
