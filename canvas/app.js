@@ -28,7 +28,6 @@ class App {
     window.HUMIDITY = 55
 
     this.user = this.createOrFetchUser()
-    console.log("USER??? ", this.user)
 
     this.serverPort = window.location.hostname.includes('iptime') ? '1012' : '3000'
     this.serverUrl = `http://${window.location.hostname}`
