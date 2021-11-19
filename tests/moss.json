@@ -1,0 +1,8 @@
+{
+    "NO_USERS": 5,
+    "MIN_USER_CONNECT_TIME": 60,
+    "MAX_USER_CONNECT_TIME": 180,
+    "MIN_USER_DELAY": 10,
+    "MAX_USER_DELAY": 20,
+    "URL": "http://192.168.0.101/test"
+}

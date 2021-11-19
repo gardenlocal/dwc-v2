@@ -110,7 +110,6 @@ export default class AdminGarden extends PIXI.Container {
 
     let globalCoordinate = new PIXI.Point(randomInRange(0, window.innerWidth), randomInRange(100, window.innerHeight-100))
     let local = this.toLocal(globalCoordinate)
-    console.log('--- local: ', local)
     window.APP.sendGardenTap(local)
     if(!window.IS_ADMIN) this.playSoundtrack()    
   }
@@ -124,7 +123,6 @@ export default class AdminGarden extends PIXI.Container {
   playSoundtrack() {
     if(!sound._sounds?.gardenTapSound?.isPlaying){ // if not playing
       sound.play('gardenTapSound')
-      console.log("gardenTapSound: ", sound._sounds.gardenTapSound)
     }  
   }
 
