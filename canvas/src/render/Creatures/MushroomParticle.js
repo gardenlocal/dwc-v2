@@ -48,6 +48,8 @@ export default class MushroomParticle extends PIXI.Container {
             durationPerElement: 0,
             currElement: 0
         }
+
+        this.elTweens = {}
     }
     getChildBounds(childIndex) {
         let global = this.elements[childIndex + 1].getBounds()
@@ -60,7 +62,11 @@ export default class MushroomParticle extends PIXI.Container {
     hideAll() {
         for (let i = 0; i < this.elements.length; i++) {
             this.elements[i].alpha = 0
+            if (this.elTweens[i]) {
+                TWEEN.remove(this.elTweens[i])
+            }
         }
+        if (this.growthTween) TWEEN.remove(this.growthTween)
     }
     async startAnimatingGrowth(durationPerElement, delayPerElement = 250) {
         this.hideAll()
@@ -83,7 +89,8 @@ export default class MushroomParticle extends PIXI.Container {
             const el = this.elements[i]
             el.scale.set(0)
             el.alpha = 1
-            const tween = new TWEEN.Tween(el.scale)
+            if (this.elTweens[i]) TWEEN.remove(this.elTweens[i])
+            this.elTweens[i] = new TWEEN.Tween(el.scale)
             .to({x: el.targetScale.x, y: el.targetScale.y }, durationPerElement)
             .easing(TWEEN.Easing.Quartic.InOut)
             .start()
@@ -91,9 +98,14 @@ export default class MushroomParticle extends PIXI.Container {
         }            
     }
     async startAnimatingDeath(durationPerElement, delayPerElement = 350) {        
+        if (this.deathTween) {
+            TWEEN.remove(this.deathTween)
+        }
+
         for (let i = 1; i < this.elements.length; i++) {
             const el = this.elements[i]
-            const tween = new TWEEN.Tween(el.scale)
+            if (this.elTweens[i]) TWEEN.remove(this.elTweens[i])
+            this.elTweens[i] = new TWEEN.Tween(el.scale)
             .to({x: 0, y: 0 }, durationPerElement)
             .easing(TWEEN.Easing.Quartic.InOut)
             .start()
@@ -102,7 +114,7 @@ export default class MushroomParticle extends PIXI.Container {
 
         const el = this.elements[0]
         console.log('tween is: ', TWEEN)
-        const tween = new TWEEN.Tween(this.elements[0].scale)
+        this.deathTween = new TWEEN.Tween(this.elements[0].scale)
             .to({x: 0, y: 0 }, durationPerElement)
             .easing(TWEEN.Easing.Quartic.InOut)
             .start()
@@ -126,7 +138,8 @@ export default class MushroomParticle extends PIXI.Container {
             .easing(TWEEN.Easing.Quartic.Out)
             .start()
 
-            const tweenS = new TWEEN.Tween(el.scale)
+            if (this.elTweens[i]) TWEEN.remove(this.elTweens[i])
+            this.elTweens[i] = new TWEEN.Tween(el.scale)
             .to({x: -s, y: s }, 500)
             .easing(TWEEN.Easing.Quartic.Out)
             .start()

@@ -91,15 +91,16 @@ export default class Creature extends PIXI.Container {
     }
 
     onEvolveButtonClick = async () => {
-        window.APP.sendEvolveCreature(this.name)
+        if (this.isAnimating) return
 
+        window.APP.sendEvolveCreature(this.name)
         window.SCREENREADER.textContent = ALTTEXT_KO[window.GARDEN].evolve
         // if(!window.IS_ADMIN) this.playSoundtrack()    
     }
 
     onMouseDown = async (e) => {     
         // if(!window.IS_ADMIN) this.playSoundtrack()
-
+        if (this.isAnimating) return
         window.APP.sendEvolveCreature(this.name)
     }
 
@@ -203,7 +204,7 @@ export default class Creature extends PIXI.Container {
         .easing(TWEEN.Easing.Linear.None)
         .start()
 
-        await sleep(2000)
+        await sleep(5000)
         this.isAnimating = false
     
         // tween.onComplete( () => console.log("appear done") )

@@ -48,6 +48,7 @@ export default class MushroomCluster extends PIXI.Container {
         this.rotation = rotation      
 
         this.frame = 0
+        this.isAnimatingGrowth = false
     }
 
     generateChildFromParameters({ mirrorSectionChildren, mirrorSectionScale, mirrorSectionParentIndex, fillColor }) {
@@ -69,6 +70,7 @@ export default class MushroomCluster extends PIXI.Container {
     }
 
     async evolve(duration) {
+        this.startedEvolving = true
         this.evolutionIndex = (this.evolutionIndex + 1) % this.evolutions.length
         let currEvolution = this.evolutions[this.evolutionIndex]
 
@@ -80,15 +82,21 @@ export default class MushroomCluster extends PIXI.Container {
         this.creatureBottom = this.generateChildFromParameters(currEvolution)
         this.creature.addChild(this.creatureBottom)
         await this.creatureBottom.startAnimatingGrowth(1500)
+        this.startedEvolving = false
         // await this.evolve(1500)
     }
 
     async startAnimatingGrowth(elementDuration) {
+        if (this.isAnimatingGrowth) return
+        this.isAnimatingGrowth = true
+
         this.creatureTop.hideAll()
         this.creatureBottom.hideAll()
-        await this.creatureTop.startAnimatingGrowth(elementDuration)
+        await this.creatureTop.startAnimatingGrowth(elementDuration)        
         await this.creatureBottom.startAnimatingGrowth(elementDuration)
-        await sleep(1000)
+        await sleep(2000)
+
+        this.isAnimatingGrowth = false
         // await this.evolve(1500)
     }
 

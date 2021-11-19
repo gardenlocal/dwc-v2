@@ -15,6 +15,7 @@ export default class AdminGarden extends PIXI.Container {
     this.users = users
     this.creatures = creatures
     this.userGarden = selfGarden
+    this.tapTimestamp = 0
 
     this.drawBackgrounds()
   }
@@ -82,8 +83,12 @@ export default class AdminGarden extends PIXI.Container {
   }
 
   onGardenTap = (e) => {
-    let local = this.toLocal(e.data.global)
-    window.APP.sendGardenTap(local)
+    const now = new Date().getTime()
+    if (now - this.tapTimestamp > 3000) {
+      let local = this.toLocal(e.data.global)
+      window.APP.sendGardenTap(local)
+      this.tapTimestamp = now  
+    }
     // if(!window.IS_ADMIN) this.playSoundtrack()    
   }
 
