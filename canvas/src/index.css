@@ -90,6 +90,7 @@ body h1 {
   overflow: hidden;
   clip: rect(1px 1px 1px 1px); /* IE 7+ only support clip without commas */
   clip: rect(1px, 1px, 1px, 1px); /* All other browsers */
+  font-family: 'Dongle';
 }
 .intro {
   height: 100vh;

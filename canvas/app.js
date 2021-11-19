@@ -57,6 +57,7 @@ class App {
     this.socket.on('creaturesUpdate', this.onCreaturesUpdate)
     this.socket.on('adminConnectBroadcast', this.onAdminConnect)
     this.socket.on('creatureEvolveBroadcast', this.onCreatureEvolve)
+    this.socket.on('disconnect', () => { window.location.reload() })
 
     this.selfGarden = null
     this.onlineCreatures = {}
@@ -258,22 +259,27 @@ window.enableAccess = (event) => {
     img.alt = "스크린리더 모드를 활성화했습니다."
     btn.style.backgroundColor = 'rgba(255, 255, 255, 0.85)';
   }
-
 }
 
-window.addEventListener('DOMContentLoaded', () => {
-  console.log('DOM Content Loaded')
+window.addEventListener('online', () => window.location.reload());
+window.addEventListener('offline', () => window.location.reload());
 
+window.addEventListener('DOMContentLoaded', () => {
   let userStr = localStorage.getItem("user")
   let user = (userStr) ? JSON.parse(userStr) : ""
-
-  console.log('user : ', userStr, user)
 
   if (window.location.pathname == '/test' || window.location.pathname == '/admin' || (user.creatureName && user.creatureName != "")) {
     window.CREATURE_NAME = user.creatureName
     let el = document.getElementById('introId')
-    el.remove()
+    el.classList.add("hidden")
+    setTimeout(() => {
+      el.remove()
+    }, 2000)    
+    
     window.startApp()
+  } else {
+    document.querySelector(".topWrap").style.opacity = 1;
+    document.querySelector(".bottomWrap").style.opacity = 1;
   }
 
   // window.APP = new App()

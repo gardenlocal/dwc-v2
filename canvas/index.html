@@ -5,28 +5,25 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    @font-face { font-family: Dongle; src: url('assets/Dongle/Dongle-Regular.ttf'); } 
+    @font-face { font-family: Dongle; src: url('assets/Dongle/Dongle-Regular.woff2'); } 
   </style>
   <link rel="stylesheet" href="src/index.css">
   <title lang="ko">garden.local</title>
 </head>
 <body>
   <h1 id="description" aria-live="polite" lang="ko"> 입장 준비를 합니다. </h1>
-  
+
   <div id="root">
   </div>
 
   <div id="introId" class="intro gradient-moss">
-    <div class="loading-indicator rotating">
-      <img src="./assets/loader.svg"/>
-    </div>
-    <div class="topWrap">
+    <div class="topWrap" style="opacity: 0;">
       <form onsubmit="submitLogin(event)" class="innerContainer">
         <input type="text" placeholder="이름을 입력하세요" aria-label="이름을 입력하세요" id="creatureName" name="creatureName" required />
         <button type="submit" id="submit" value="입장하기" aria-label="입장합니다.">입장하기</button>
       </form>
     </div>
-    <div class="bottomWrap">
+    <div class="bottomWrap" style="opacity: 0;">
       <div>
         <button id="accessBtn" onclick="enableAccess(event)">
           <img id="accessImg" src ="./assets/access.svg" alt="스크린리더 모드를 활성화합니다."/>
