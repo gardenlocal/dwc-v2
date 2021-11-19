@@ -263,12 +263,21 @@ window.enableAccess = (event) => {
 
 window.addEventListener('DOMContentLoaded', () => {
   console.log('DOM Content Loaded')
-  // window.APP = new App()
-  // window.APP.setup()
-  window.SCREENREADER = document.getElementById('description')
-  if (window.location.pathname == '/test' || window.location.pathname == '/admin') {
+
+  let userStr = localStorage.getItem("user")
+  let user = (userStr) ? JSON.parse(userStr) : ""
+
+  console.log('user : ', userStr, user)
+
+  if (window.location.pathname == '/test' || window.location.pathname == '/admin' || (user.creatureName && user.creatureName != "")) {
+    window.CREATURE_NAME = user.creatureName
     let el = document.getElementById('introId')
     el.remove()
     window.startApp()
   }
+
+  // window.APP = new App()
+  // window.APP.setup()
+  window.SCREENREADER = document.getElementById('description')
+
 })
