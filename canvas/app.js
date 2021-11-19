@@ -240,7 +240,6 @@ window.startApp = () => {
 }
 
 window.submitLogin = (event) => {
-  console.log('creatureName Login', event.target[0].value)
   event.preventDefault();
 
   window.CREATURE_NAME = event.target[0].value;

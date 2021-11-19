@@ -26,7 +26,7 @@ export default class PixiAppWrapper {
     this.isAdmin = (options && options.isAdmin)
     window.IS_ADMIN = this.isAdmin;
     this.setupPixiApp()
-    this.setupStats()
+    // this.setupStats()
     this.setupTween()
     this.resizeAppToWindow()
 
