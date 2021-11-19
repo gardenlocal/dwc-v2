@@ -18,21 +18,25 @@ const handleUser = async (browser, index) => {
     console.log('User ', index, ' taking a break...')
     await sleep(randomInRange(MIN_USER_DELAY, MAX_USER_DELAY))
 
-    console.log('User ', index, ' opening a browser...')
-    const page = await browser.newPage();
-
-    console.log('User ', index, ' navigating to ', URL)
-    await page.goto(URL)
-    page.setDefaultNavigationTimeout(0)
-
-    const duration = randomInRange(MIN_USER_CONNECT_TIME, MAX_USER_CONNECT_TIME)
-    console.log('User ', index, 'will be active for ', duration, 'seconds')    
-    await sleep(duration)
-
-    console.log('User ', index, ' leaving page...')
-    await page.close()
-
-    handleUser(browser, index)
+    try {
+        console.log('User ', index, ' opening a browser...')
+        const page = await browser.newPage();
+    
+        console.log('User ', index, ' navigating to ', URL)
+        await page.goto(URL)
+        page.setDefaultNavigationTimeout(0)
+    
+        const duration = randomInRange(MIN_USER_CONNECT_TIME, MAX_USER_CONNECT_TIME)
+        console.log('User ', index, 'will be active for ', duration, 'seconds')    
+        await sleep(duration)
+    
+        console.log('User ', index, ' leaving page...')
+        await page.close()    
+    } catch (e) {
+        console.log('Caught exception for user ', index)
+    } finally {
+        handleUser(browser, index)
+    }
 }
 
 (async () => {
