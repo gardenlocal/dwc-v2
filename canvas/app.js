@@ -244,6 +244,7 @@ window.submitLogin = (event) => {
 
   window.CREATURE_NAME = event.target[0].value;
   
+  // Please don't touch this, it's hacky af, but it fixes a weird bug on Android.
   const inputEl = document.getElementById('creatureName')
   inputEl.setAttribute('readonly', 'readonly')
   inputEl.setAttribute('disabled', true)
