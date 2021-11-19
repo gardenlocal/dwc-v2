@@ -84,6 +84,12 @@ class App {
       // this.pixiApp.reset()
     }
   }
+
+  hasAdminSequence() {
+    console.log(window.location)
+    if (window.location.search.indexOf('sequence') != -1) return true
+    return false
+  }
   
   getIsAdmin() {
     return (this.pathname == '/admin')

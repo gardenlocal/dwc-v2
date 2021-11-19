@@ -165,24 +165,26 @@ export default class PixiAppWrapper {
   
         const bbox = this.adminContainer.getBounds()
 
-        if (this.adminInterval) window.clearInterval(this.adminInterval)        
-        this.adminInterval = setInterval(() => {
-          if (this.adminContainer.scale.x < 0.5) {
-
-            let users = Object.values(window.APP.onlineUsers)
-            let user = null
-            while (!user) {
-              let currUser = randomElementFromArray(users)
-              if (currUser.gardenSection) user = currUser
+        if (window.APP.hasAdminSequence()) {
+          if (this.adminInterval) window.clearInterval(this.adminInterval)        
+          this.adminInterval = setInterval(() => {
+            if (this.adminContainer.scale.x < 0.5) {
+  
+              let users = Object.values(window.APP.onlineUsers)
+              let user = null
+              while (!user) {
+                let currUser = randomElementFromArray(users)
+                if (currUser.gardenSection) user = currUser
+              }
+              
+              this.adminContainer.scale.set(1)
+              this.adminContainer.position.set(-user.gardenSection.x, -user.gardenSection.y)
+            } else {
+              this.adminContainer.position.set(400, 400)
+              this.adminContainer.scale.set(0.2)
             }
-            
-            this.adminContainer.scale.set(1)
-            this.adminContainer.position.set(-user.gardenSection.x, -user.gardenSection.y)
-          } else {
-            this.adminContainer.position.set(400, 400)
-            this.adminContainer.scale.set(0.2)
-          }
-        }, 30000)
+          }, 30000)  
+        }
   
         //this.pixiApp.stage.scale.set(window.innerWidth / bbox.width)
       } else {
