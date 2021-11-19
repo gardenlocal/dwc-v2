@@ -109,10 +109,16 @@ export default class PixiAppWrapper {
     //   return acc
     // }, {})
 
-    this.loadBackgroundSound()
+    await this.loadBackgroundSound()
+
+    // load sound effects for users only
+    if(!window.IS_ADMIN) {
+      this.loadEvolveSound()
+      this.loadMoveSound()
+    }
   }
 
-  loadBackgroundSound() {
+  async loadBackgroundSound() {
     // load backgrond sound
     let soundtrack;
     switch(window.GARDEN) {
@@ -136,6 +142,34 @@ export default class PixiAppWrapper {
         preload: true,
         loop: true,
         autoPlay: true
+      });
+    }
+
+    window.AUDIO = sound;
+
+  }
+
+  async loadEvolveSound() {
+          
+    let evolveSound = require('../assets/audio/creatureEvolveB.mp3');
+
+    if(evolveSound){
+      window.AUDIO.add('creatureTapSound', {
+        url: evolveSound,
+        preload: true,
+        loop: false,
+      });
+    }
+  }
+
+  async loadMoveSound() {
+    let moveSound = require('../assets/audio/gardenTouch5.mp3');
+
+    if(moveSound){
+      window.AUDIO.add('gardenTapSound', {
+        url: moveSound,
+        preload: true,
+        loop: false,
       });
     }
   }

@@ -17,40 +17,7 @@ export default class AdminGarden extends PIXI.Container {
     this.userGarden = selfGarden
 
     this.drawBackgrounds()
-
-    this.loadSound()
   }
-
-  loadSound() {
-    if(!window.IS_ADMIN) {
-      console.log("import garden sound for users only")
-      
-      let moveSound;
-      switch(window.GARDEN) {
-          case 'moss':
-            moveSound = require('../../assets/audio/garden_touch_3.mp3');
-            break;
-          case 'lichen':
-            moveSound = require('../../assets/audio/garden_touch_3.mp3');
-            break;
-          case 'mushroom':
-            moveSound = require('../../assets/audio/garden_touch_3.mp3');
-            break;
-          case 'all':
-            moveSound = require('../../assets/audio/garden_touch_3.mp3');
-            break;
-  }
-
-    if(moveSound){
-        sound.add('gardenTapSound', {
-            url: moveSound,
-            preload: true,
-            loop: false,
-        });
-      }
-    }
-  }
-
 
   drawBackgrounds() {
     let currentUser = Object.values(this.users).filter(u => u.uid == window.UID)[0]
@@ -111,20 +78,22 @@ export default class AdminGarden extends PIXI.Container {
     let globalCoordinate = new PIXI.Point(randomInRange(0, window.innerWidth), randomInRange(100, window.innerHeight-100))
     let local = this.toLocal(globalCoordinate)
     window.APP.sendGardenTap(local)
-    if(!window.IS_ADMIN) this.playSoundtrack()    
+    // if(!window.IS_ADMIN) this.playSoundtrack()    
   }
 
   onGardenTap = (e) => {
     let local = this.toLocal(e.data.global)
     window.APP.sendGardenTap(local)
-    if(!window.IS_ADMIN) this.playSoundtrack()    
+    // if(!window.IS_ADMIN) this.playSoundtrack()    
   }
 
-  playSoundtrack() {
-    if(!sound._sounds?.gardenTapSound?.isPlaying){ // if not playing
-      sound.play('gardenTapSound')
-    }  
-  }
+  // playSoundtrack() {
+  //   console.log("GARDEN SOUND:", window.AUDIO._sounds)
+
+  //   if(!window.AUDIO._sounds?.gardenTapSound?.isPlaying){ // if not playing
+  //     window.AUDIO.play('gardenTapSound')
+  //   }  
+  // }
 
   updateOnlineUsers(onlineUsers) {
     let currentUser = Object.values(this.users).filter(u => u.uid == window.UID)[0]

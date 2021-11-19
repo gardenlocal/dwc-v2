@@ -121,10 +121,29 @@ class App {
 
   sendEvolveCreature = (_id) => {
     this.socket.emit('creatureEvolve', { _id })
+
+    console.log("sendEvolveCreature-------------", _id)
+    if(!window.IS_ADMIN){
+      if(window.AUDIO) {
+        console.log("CREATURE EVOLVE SOUND:", window.AUDIO._sounds)
+        if(!window.AUDIO._sounds?.creatureTapSound?.isPlaying){ // if not playing
+            window.AUDIO.play('creatureTapSound')
+        }
+      }
+    }
   }
 
   sendGardenTap = (coords) => {
     this.socket.emit('gardenTap', coords)
+
+    if(!window.IS_ADMIN){
+      if(window.AUDIO) {
+        console.log("GARDE TAP SOUND:", window.AUDIO._sounds)
+        if(!window.AUDIO._sounds?.gardenTapSound?.isPlaying){ // if not playing
+          window.AUDIO.play('gardenTapSound')
+        }  
+      }
+    }
   }
 
   onCreatureEvolve = ({ _id }) => {

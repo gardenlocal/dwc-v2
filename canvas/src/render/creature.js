@@ -69,40 +69,8 @@ export default class Creature extends PIXI.Container {
         // this.creature.addChild(label)
         // label.cacheAsBitmap = true
 
-        this.loadSound() 
-
         if(window.ASSIST_MODE && !window.IS_ADMIN){
             this.createEvolveButton()
-        }
-    }
-
-    loadSound() {
-        if(!window.IS_ADMIN) {
-            console.log("import creature sound for users only")
-            
-            let evolveSound;
-            switch(window.GARDEN) {
-                case 'moss':
-                    evolveSound = require('../../assets/audio/creature_touch_2.mp3');
-                    break;
-                case 'lichen':
-                    evolveSound = require('../../assets/audio/creature_touch_2.mp3');
-                    break;
-                case 'mushroom':
-                    evolveSound = require('../../assets/audio/creature_touch_2.mp3');
-                    break;
-                case 'all':
-                    evolveSound = require('../../assets/audio/creature_touch_2.mp3');
-                    break;
-        }
-
-        if(evolveSound){
-            sound.add('creatureTapSound', {
-                url: evolveSound,
-                preload: true,
-                loop: false,
-            });
-            }
         }
     }
 
@@ -112,7 +80,7 @@ export default class Creature extends PIXI.Container {
             const button = document.createElement("button");
             button.id = "evolve"
             button.innerText = "변화"
-            button.onclick = this.onMouseDown
+            button.onclick = this.onEvolveButtonClick
     
             const buttonAltText = ALTTEXT_KO[window.GARDEN].evolveButton;
             button.ariaLabel = buttonAltText
@@ -122,12 +90,19 @@ export default class Creature extends PIXI.Container {
         }
     }
 
-    onMouseDown = async (e) => {     
-        if(!window.IS_ADMIN) this.playSoundtrack('creatureTapSound')
+    onEvolveButtonClick = async () => {
+        window.APP.sendEvolveCreature(this.name)
+
         window.SCREENREADER.textContent = ALTTEXT_KO[window.GARDEN].evolve
+        // if(!window.IS_ADMIN) this.playSoundtrack()    
+    }
+
+    onMouseDown = async (e) => {     
+        // if(!window.IS_ADMIN) this.playSoundtrack()
 
         window.APP.sendEvolveCreature(this.name)
     }
+
 
     async evolve() {
         if (!this.isEvolving) {
@@ -236,14 +211,12 @@ export default class Creature extends PIXI.Container {
         await sleep(this.movementDuration * 1000)        
     }
 
-    playSoundtrack() {
-        if(!window.IS_ADMIN) {
-            if(!sound._sounds?.creatureTapSound?.isPlaying){ // if not playing
-                sound.play('creatureTapSound')
-                console.log(sound._sounds.creatureTapSound)
-            }
-        }
-    }
+    // playSoundtrack() {
+    //     console.log("CREATURE SOUND:", window.AUDIO._sounds)
+    //     if(!window.AUDIO._sounds?.creatureTapSound?.isPlaying){ // if not playing
+    //         window.AUDIO.play('creatureTapSound')
+    //     }
+    // }
 
     tick(d) {
         const delta = PIXI.Ticker.shared.elapsedMS
