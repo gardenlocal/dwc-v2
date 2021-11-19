@@ -1,3 +1,4 @@
+import env from './env.js'
 import { sleep } from './src/render/utils.js';
 import PixiApp from './src/index'
 import { uid } from 'uid';
@@ -301,4 +302,5 @@ window.addEventListener('DOMContentLoaded', () => {
   // window.APP.setup()
   window.SCREENREADER = document.getElementById('description')
 
+  console.log('window garden: ', window.GARDEN)
 })
