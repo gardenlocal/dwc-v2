@@ -123,16 +123,16 @@ export default class PixiAppWrapper {
     let soundtrack;
     switch(window.GARDEN) {
       case 'moss':
-        soundtrack = require('../assets/audio/CwithDrum.mp3');
+        soundtrack = require('../assets/audio/1.mp3');
         break;
       case 'lichen':
-        soundtrack = require('../assets/audio/CwithDrum.mp3');
+        soundtrack = require('../assets/audio/3.mp3');
         break;
       case 'mushroom':
-        soundtrack = require('../assets/audio/CwithDrum.mp3');
+        soundtrack = require('../assets/audio/2.mp3');
         break;
       case 'all':
-        soundtrack = require('../assets/audio/CwithDrum.mp3');
+        soundtrack = require('../assets/audio/2.mp3');
         break;
     }
 

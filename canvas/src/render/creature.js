@@ -69,8 +69,12 @@ export default class Creature extends PIXI.Container {
         // this.creature.addChild(label)
         // label.cacheAsBitmap = true
 
-        if(window.ASSIST_MODE && !window.IS_ADMIN){
-            this.createEvolveButton()
+        // Add evolve button for my creature only
+        if(state.owner.uid == window.APP.user.id) {
+            console.log("evolve button for user: ", state.owner.uid, window.APP.user.id)
+            if(window.ASSIST_MODE && !window.IS_ADMIN){
+                this.createEvolveButton()
+            }
         }
     }
 
@@ -95,11 +99,9 @@ export default class Creature extends PIXI.Container {
 
         window.APP.sendEvolveCreature(this.name)
         window.SCREENREADER.textContent = ALTTEXT_KO[window.GARDEN].evolve
-        // if(!window.IS_ADMIN) this.playSoundtrack()    
     }
 
     onMouseDown = async (e) => {     
-        // if(!window.IS_ADMIN) this.playSoundtrack()
         if (this.isAnimating) return
         window.APP.sendEvolveCreature(this.name)
     }

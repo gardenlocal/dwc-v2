@@ -42,12 +42,13 @@ export default class AdminGarden extends PIXI.Container {
       garden.y = u.gardenSection.y
       this.addChild(garden)
 
-      console.log("window.IS_ADMIN: ", window.IS_ADMIN)
-      if(window.ASSIST_MODE && !window.IS_ADMIN){
-        this.createMoveButton()
-    }
-
-      if (u.uid == currentUser.uid) {        
+      if (u.uid == currentUser.uid) {   
+        
+        // Add Move button for my garden only     
+        if(window.ASSIST_MODE && !window.IS_ADMIN){
+          console.log("garden move button for user ", u.uid, currentUser.uid)
+          this.createMoveButton()
+        }
         // This is the current user, we need to add an event listener for click
         garden.interactive = true
         garden.on('mousedown', this.onGardenTap)
@@ -79,7 +80,6 @@ export default class AdminGarden extends PIXI.Container {
     let globalCoordinate = new PIXI.Point(randomInRange(0, window.innerWidth), randomInRange(100, window.innerHeight-100))
     let local = this.toLocal(globalCoordinate)
     window.APP.sendGardenTap(local)
-    // if(!window.IS_ADMIN) this.playSoundtrack()    
   }
 
   onGardenTap = (e) => {
@@ -89,7 +89,6 @@ export default class AdminGarden extends PIXI.Container {
       window.APP.sendGardenTap(local)
       this.tapTimestamp = now  
     }
-    // if(!window.IS_ADMIN) this.playSoundtrack()    
   }
 
   // playSoundtrack() {
