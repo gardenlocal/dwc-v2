@@ -132,7 +132,7 @@ export default class PixiAppWrapper {
         soundtrack = require('../assets/audio/2.mp3');
         break;
       case 'all':
-        soundtrack = require('../assets/audio/2.mp3');
+        soundtrack = require('../assets/audio/3.mp3');
         break;
     }
 
