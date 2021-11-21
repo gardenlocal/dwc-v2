@@ -59,6 +59,7 @@ exports.bringCreatureOnline = async (creature) => {
 
 exports.bringCreatureOffline = async (uid) => {
   const creature = await exports.getCreatureForUser(uid)
+  console.log("debug - bringCreatureOffline", creature)
   await database.update({ _id: creature._id }, { $set: { isOnline: false } })
 }
 

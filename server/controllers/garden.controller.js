@@ -35,7 +35,7 @@ exports.createGardenSection = async (uid) => {
   } else {
     // We do a "random" walk until we find an empty spot
     let visited = {}
-
+    console.log("debug-garden: ", gardenSection)
     while (!newGarden) {
       visited[gardenSection._id] = true      
 
