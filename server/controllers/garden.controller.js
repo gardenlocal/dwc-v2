@@ -47,6 +47,9 @@ exports.createGardenSection = async (uid) => {
       for (let key of sKeys) {
         if (!gardenSection.neighbors[key]) {
           emptyNeighborKey = key
+        } else {
+          const g = await database.findOne({ _id: gardenSection.neighbors[key] })
+          if (!g) emptyNeighborKey = key
         }
       }
       
@@ -127,15 +130,6 @@ exports.createGardenSection = async (uid) => {
 
   try {
     nTop = await database.findOne({ type: TYPES.gardenSection, x: newGarden.x, y: newGarden.y - constants.GARDEN_HEIGHT })
-    nRight = await database.findOne({ type: TYPES.gardenSection, x: newGarden.x + constants.GARDEN_WIDTH, y: newGarden.y })
-    nBottom = await database.findOne({ type: TYPES.gardenSection, x: newGarden.x, y: newGarden.y + constants.GARDEN_HEIGHT })
-    nLeft = await database.findOne({ type: TYPES.gardenSection, x: newGarden.x - constants.GARDEN_WIDTH, y: newGarden.y })
-  } catch (e) {
-    console.error('Failed to find neighbors', e)
-    return null
-  }
-
-  try {
     if (nTop) {
       nTop.neighbors.bottom = garden._id
       garden.neighbors.top = nTop._id
@@ -143,18 +137,21 @@ exports.createGardenSection = async (uid) => {
       //await nTop.save()
     }
     
+    nRight = await database.findOne({ type: TYPES.gardenSection, x: newGarden.x + constants.GARDEN_WIDTH, y: newGarden.y })
     if (nRight) {
       nRight.neighbors.left = garden._id
       garden.neighbors.right = nRight._id
       await database.update({ _id: nRight._id }, nRight)
     }
 
+    nBottom = await database.findOne({ type: TYPES.gardenSection, x: newGarden.x, y: newGarden.y + constants.GARDEN_HEIGHT })
     if (nBottom) {
       nBottom.neighbors.top = garden._id
       garden.neighbors.bottom = nBottom._id
       await database.update({ _id: nBottom._id }, nBottom)
     }
 
+    nLeft = await database.findOne({ type: TYPES.gardenSection, x: newGarden.x - constants.GARDEN_WIDTH, y: newGarden.y })
     if (nLeft) {
       nLeft.neighbors.right = garden._id
       garden.neighbors.left = nLeft._id
@@ -178,25 +175,24 @@ exports.clearGardenSection = async (uid) => {
   if (!garden) return
 
   const nTop = await database.findOne({ _id: garden.neighbors.top })
-  const nRight = await database.findOne({ _id: garden.neighbors.right })
-  const nBottom = await database.findOne({ _id: garden.neighbors.bottom })
-  const nLeft = await database.findOne({ _id: garden.neighbors.left })
-
   if (nTop) {
     nTop.neighbors.bottom = null
     await database.update({ _id: nTop._id }, nTop)
   }
 
+  const nRight = await database.findOne({ _id: garden.neighbors.right })
   if (nRight) {
     nRight.neighbors.left = null
     await database.update({ _id: nRight._id }, nRight)
   }
 
+  const nBottom = await database.findOne({ _id: garden.neighbors.bottom })
   if (nBottom) {
     nBottom.neighbors.top = null
     await database.update({ _id: nBottom._id }, nBottom)
   }
 
+  const nLeft = await database.findOne({ _id: garden.neighbors.left })
   if (nLeft) {
     nLeft.neighbors.right = null
     await database.update({ _id: nLeft._id }, nLeft)
