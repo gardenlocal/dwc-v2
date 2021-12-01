@@ -84,6 +84,17 @@ export default class Cluster extends PIXI.Container {
     tick() {
         this.creature.tick()
         this.creature.position.set(0, 0)
+
+        this.selfBbox = this.getLocalBounds()        
+        this.creatureBounds = this.creature.getLocalBounds()
+        this.textBounds = this.messageText.getLocalBounds()        
+        let target = {
+            x: this.selfBbox.x + this.selfBbox.width / 2,
+            y: this.selfBbox.y + this.selfBbox.height / 2
+        }
+
+        this.pivot.x = 0.97 * this.pivot.x + 0.03 * target.x
+        this.pivot.y = 0.97 * this.pivot.y + 0.03 * target.y
         /*
         if (this.isEvolving) {
             this.selfBbox = this.getLocalBounds()        
