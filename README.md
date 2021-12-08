@@ -49,15 +49,40 @@ At a high level, the role of the server is to keep track of the state of the ent
 
 #### Data management
 
+**The Database**
+
 In order to keep track of this state, the server uses in-memory JSON objects, as well as `nedb`: a simple no-sql database, saved on the server's hard drive as a JSON file. Using the database allows us to keep state between different runs of the server (e.g. restarting the server, restarting the Raspberry PI), and use a simple mechanism to detect returning users: a randomly assigned ID on the frontend, which is saved in the browser's local storage and in the database.
 
 There are three types of objects in the database: `users`, `creatures` and `gardenSections`.
 
 The `user` object type holds the previously mentioned unique id, as well as references to a user's garden section and creature. There is a one-to-one relationship between a user and a garden section (i.e. a user gets assigned exactly one garden section,) and also a one-to-one relationship between a user and a creature (a user gets assigned exactly one creature.) 
+**You can find the logic for user creation under `server/controllers/user.controller.js`.**
 
 The `gardenSection` object type contains information about where a user's garden is located. At a high level, we treat the entire garden space as an infinite grid (bird's eye view.) On this infinite grid, each user gets assigned a free square of dimensions 1000 x 1000. Garden section assignment happens whenever a user connects to the server. When the user disconnects, their garden section gets cleared out, so future users who use the website can get the same spot. Garden sections only exist at coordinates multiple of 1000 (e.g. `0, 0`, `4000, 2000`, `-12000, 3000`). 
 Assigning a garden section to a user is done using a depth-first search on the existing garden structure. We start from the section located at (0, 0). If any of its four neighbors on the grid are free, we assign the first free neighbor to the user. If not, we recursively apply this search to each neighbor, until we find an empty spot. This ensures that the garden sections we assign stay clustered and close to the center of the grid.
 Specifically, the `gardenSection` object type holds the coordinates of its assignment (`(x, y)` position and `(width, height)` pair, with the note that `width` and `height` are always `1000` in the current version.) It also holds a reference to the user that's currently assigned to that garden section. The other important thing that is being stored in the `gardenSection` object is a sequence of values which serve as animation parameters to the frontend (stored in the `noTiles` and `tileProps`.)
+**You can find the logic for garden section assignment and clearing under `server/controllers/garden.controller.js`.**
+
+The `creature` object type contains information about a creature's type (`mushroom`, `lichen` or `moss`,) data for how to generatively spawn each creature in the frontend, data for how each creature "evolves" when a user taps it, and information about the creature's movement on screen. By storing all of this information, the server is able to broadcast any changes to the state of a creature to all connected clients, and creatures' shapes and positions stay synchronized with each other across all devices.
+Regarding movement, the server doesn't fully "animate" the creatures, meaning that it doesn't communicate the creature positions to all clients at every frame. Rather, it sends messages when creatures are changing direction, and instructs the clients to animate movement to a certain position, with a given duration. (e.g. creature #12 moves to the coordinate `5024, 719` over 25 seconds, starting now.) The client code becomes responsible for making sure it respects the instructions received from the server. While there might be small timing inaccuracies in doing things this way, they haven't proven to be a problem in production.
+**You can find the logic for creature management under `server/controllers/creature.controller.js`.**
+
+**Web socket communication with the clients**
+
+In order to communicate state changes to the clients (and receive events from the clients, such as user taps, etc. which alter the state) we use web sockets, with the `socket.io` library. The important websocket messages the server receives from clients are:
+
+* when a user connects to the site; this leads to assigning a new, empty, garden section for the user, retrieving their old creature from the database (or creating a new one if it's their first time on the website,) and beginning to animate the position of the creature, using the method specified above.
+* when a user disconnects from the site; this leads to emptying out the previous garden section of the user, and marking their creature as "offline";
+* when a user taps (clicks) on their own creature; this leads to the creature "evolving" -- changing shape, using the generative system. On the server side, we update the `creatureObject` with its new parameters, and communicate this change to all clients for on-screen animation
+* when a user taps (clicks) on their garden; this "summons" the creature at the tap position, meaning that the creature's animation is cancelled and its current position is updated to the tap position.
+
+The important websocket messages the server sends to the clients are:
+
+* after a new user is connected, the server broadcasts the updated list of online users, as well as the updated list of online creatures (these have the same number of elements, since each user has one creature and one creature only). These are the `usersUpdate` and `creatures` messages.
+* when a creature is instructed to start moving in a different direction, or changes its position due to a garden tap, the server broadcasts the new position & motion data to all clients. This is done using the `creaturesUpdate` message.
+* when a creature evolves after being tapped, the server broadcasts the creature id and the evolution parameters to all clients. This is done using the `creatureEvolveBroadcast` message.
+**All of the websocket communication logic can be found under `server/controllers/socket.controller.js`**
+
 
 ### Client
 
