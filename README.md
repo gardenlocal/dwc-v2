@@ -19,9 +19,17 @@ Since the folder is currently empty, if you navigate to the PI's IP in the brows
 
 ### First time setup: Server
 
-We will start the process once using `pm2`, and then starting and stopping the server will be as easy as running `pm2 start server` or `pm2 stop server`.
+Under the `server` folder of this repository, you should see a `.env-sample.txt` file. This is the template for the server `.env` configuration. Rename this file into `.env` (with no other extension,) and make sure to change the parameters in there to match the type of garden you want. There are four garden types: `moss`, `mushroom`, `lichen` and `all`. The individual gardens only contain one type of creature, while the `all` one contains all three types of creatures.
+Make sure to also update the `WEATHER_API` variable with the correct URL of the local weather server.
 
-**TODO: Ask Donghoon for exact pm2 start command from the Pi history, I forgot the syntax**.
+In order to start the server, you need to run the following in your terminal, in the server folder (with the appropriate name, i.e. change `moss` to `lichen`, `mushroom` or `all`):
+```
+pm2 start index.js --name "moss"
+```
+
+You can make sure that the server started by typing `pm2 ls` in your terminal. You should see a list of all running servers.
+You can stop the server by running `pm2 stop moss`. (or `pm2 stop mushroom`, etc. Use the name you've assigned the server in the start command.)
+After stopping, you can restart the server by running `pm2 start moss`.
 
 
 ### (Re-)Deploying the latest code
@@ -35,9 +43,27 @@ We will start the process once using `pm2`, and then starting and stopping the s
 6. That's it! Use your browser to navigate to the Pi's PI and make sure the site loads, and isn't stuck on the `Loading...` screen. If it is stuck on the loading screen, either the server didn't properly start, or there are errors in the frontend.
 
 # Troubleshooting
-Bug with db getting out of sync leading to the frontend not showing up --> deleting main.db and restarting server.
 
-# Development Instructions
+During the first install, we noticed a bug where maybe once a day the database would get corrupted, which would lead to frontend errors which prevented users from seeing the gardens and the creatures. We are still investigating the bug. As a temporary fix, one way to bring everything into a working state is to stop the server, remove the database, and restart the server. None of the information stored in the database is essential to the proper functioning of the app, so this operation is non-destructive.
+From the repository's folder on the raspberry pi you're trying to fix, run:
+
+```
+pm2 stop moss
+rm server/storage/main.db
+pm2 start moss
+```
+(of course, you need to use the pm2 name you've given your server. If you forgot that, run `pm2 ls` to see all running `pm2` processes.)
+
+# Development Setup
+
+Install `node`, either from the official website, or using `nvm` (node version manager) if you would like a specific version. We developed this app using node 14, but it should run on newer versions as well.
+
+Clone this repository, and run `npm install` in both the `canvas` and `server` folders.
+Start the server by running `npm run dev` in the `server` folder.
+In a different terminal, start the client by running `npm run start` in the `client` folder.
+You should now be able to see the project in your browser, at `localhost:1234`.
+
+# Code Structure
 
 This project is split up into two main components, frontend and backend, both of which can be found in this repository. The server code is under the `server` folder, and the frontend code is under the `canvas` folder. A third folder, `tests`, allows for running automated stress-tests of the project, and is described in a later section of this document.
 
@@ -47,9 +73,7 @@ This project is split up into two main components, frontend and backend, both of
 
 At a high level, the role of the server is to keep track of the state of the entire app, such that the visuals end up being synchronized among all clients. In this context, "state" includes information about which garden slots are occupied and by whom, where each creature is currently and where it is headed, what generative parameters each creature was built with, information about the animation sequence for each user garden background, and more. Pretty much everything visual that is happening in the frontend has been abstracted into this state, and all updates happen via the server.
 
-#### Data management
-
-**The Database**
+**Data management**
 
 In order to keep track of this state, the server uses in-memory JSON objects, as well as `nedb`: a simple no-sql database, saved on the server's hard drive as a JSON file. Using the database allows us to keep state between different runs of the server (e.g. restarting the server, restarting the Raspberry PI), and use a simple mechanism to detect returning users: a randomly assigned ID on the frontend, which is saved in the browser's local storage and in the database.
 
@@ -85,5 +109,4 @@ The important websocket messages the server sends to the clients are:
 
 
 ### Client
-
-## Development setup
+Sosun has made a wonderful technical diagram of the frontend [here](https://www.figma.com/file/w2HzFecg65sds39SEc4S6Z/Software-Diagram?node-id=0%3A1) and [here](https://www.figma.com/file/w2HzFecg65sds39SEc4S6Z/Software-Diagram?node-id=9%3A4).
