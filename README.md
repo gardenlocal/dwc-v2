@@ -34,54 +34,31 @@ We will start the process once using `pm2`, and then starting and stopping the s
 5. Restart nginx: `sudo service nginx restart`.
 6. That's it! Use your browser to navigate to the Pi's PI and make sure the site loads, and isn't stuck on the `Loading...` screen. If it is stuck on the loading screen, either the server didn't properly start, or there are errors in the frontend.
 
+# Troubleshooting
+Bug with db getting out of sync leading to the frontend not showing up --> deleting main.db and restarting server.
 
+# Development Instructions
 
-# Old version of this document
+This project is split up into two main components, frontend and backend, both of which can be found in this repository. The server code is under the `server` folder, and the frontend code is under the `canvas` folder. A third folder, `tests`, allows for running automated stress-tests of the project, and is described in a later section of this document.
 
-This repository holds both the server and the client for DWC v2. After cloning this repository, the installation instructions below for getting the prototype running:
+## Code structure and main components
 
-## For server
+### Server
 
-```
-cd server
-npm install
-npm run dev
-```
+At a high level, the role of the server is to keep track of the state of the entire app, such that the visuals end up being synchronized among all clients. In this context, "state" includes information about which garden slots are occupied and by whom, where each creature is currently and where it is headed, what generative parameters each creature was built with, information about the animation sequence for each user garden background, and more. Pretty much everything visual that is happening in the frontend has been abstracted into this state, and all updates happen via the server.
 
-`localhost:3000`
+#### Data management
 
-This will start the server. If it's the first time you are installing it, the server will create a database and populate it with the `admin` user. The password for the default `admin` user is `dwc!`.
+In order to keep track of this state, the server uses in-memory JSON objects, as well as `nedb`: a simple no-sql database, saved on the server's hard drive as a JSON file. Using the database allows us to keep state between different runs of the server (e.g. restarting the server, restarting the Raspberry PI), and use a simple mechanism to detect returning users: a randomly assigned ID on the frontend, which is saved in the browser's local storage and in the database.
 
-## For client (new version. pixi + vanilla js)
-```
-cd canvas
-npm install
-npm start
-```
-- Open `localhost:1234` 
+There are three types of objects in the database: `users`, `creatures` and `gardenSections`.
 
-Routes
-- /: home
-  - if logged in, show canvas page
-  - if not, show login/signup page
-- /signup: sign up page
-  - if sucessfully signed up, redirect to home
-- /user: user info and logout button
-  - show when logged in
-  - click the button to switch between canvas('/') and user('/user')
+The `user` object type holds the previously mentioned unique id, as well as references to a user's garden section and creature. There is a one-to-one relationship between a user and a garden section (i.e. a user gets assigned exactly one garden section,) and also a one-to-one relationship between a user and a creature (a user gets assigned exactly one creature.) 
 
-## For client (old version. React)
+The `gardenSection` object type contains information about where a user's garden is located. At a high level, we treat the entire garden space as an infinite grid (bird's eye view.) On this infinite grid, each user gets assigned a free square of dimensions 1000 x 1000. Garden section assignment happens whenever a user connects to the server. When the user disconnects, their garden section gets cleared out, so future users who use the website can get the same spot. Garden sections only exist at coordinates multiple of 1000 (e.g. `0, 0`, `4000, 2000`, `-12000, 3000`). 
+Assigning a garden section to a user is done using a depth-first search on the existing garden structure. We start from the section located at (0, 0). If any of its four neighbors on the grid are free, we assign the first free neighbor to the user. If not, we recursively apply this search to each neighbor, until we find an empty spot. This ensures that the garden sections we assign stay clustered and close to the center of the grid.
+Specifically, the `gardenSection` object type holds the coordinates of its assignment (`(x, y)` position and `(width, height)` pair, with the note that `width` and `height` are always `1000` in the current version.) It also holds a reference to the user that's currently assigned to that garden section. The other important thing that is being stored in the `gardenSection` object is a sequence of values which serve as animation parameters to the frontend (stored in the `noTiles` and `tileProps`.)
 
-```
-cd client
-npm install
-npm run start
-```
+### Client
 
-`localhost:3001`
-
-This will start the frontend. Make sure the server is running when starting the frontend, otherwise you will not be able to register / login.
-If you login as `admin`, you have access to the entire garden map of all users in the `Admin Garden` tab.
-Regular users have access to their garden sections.
-
-**We are in the process of re-writing this frontend prototype in PIXI.js, so this setup is temporary.**
+## Development setup
