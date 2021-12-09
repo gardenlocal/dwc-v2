@@ -9,7 +9,7 @@ import { ALTTEXT_KO } from "../../altText-constants";
 
 const CULL_BOUNDS = 1100
 
-export default class AdminGarden extends PIXI.Container {
+export default class GardensLayer extends PIXI.Container {
   constructor(users, creatures, selfGarden) {
     super()
     this.users = users

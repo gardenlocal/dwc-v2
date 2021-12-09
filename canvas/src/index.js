@@ -10,10 +10,10 @@ import { DWC_META } from "../../shared-constants";
 import SVGCreatureShape from "./render/Geometry/SVGCreatureShape";
 import { addStats, Stats } from 'pixi-stats';
 import TWEEN from '@tweenjs/tween.js'
-import AdminGarden from './render/adminGarden'
 import { sound } from '@pixi/sound';
 import { renderCreatureTest } from './render/creatureTest'
 import { randomElementFromArray } from "./render/utils.js";
+import GardensLayer from "./render/GardensLayer";
 
 PIXI.settings.SPRITE_MAX_TEXTURES = Math.min(PIXI.settings.SPRITE_MAX_TEXTURES, 16);
 PIXI.settings.FILTER_MULTISAMPLE = PIXI.MSAA_QUALITY.NONE
@@ -215,7 +215,7 @@ export default class PixiAppWrapper {
         //this.adminContainer.backgroundColor = 0xff0000
         this.pixiApp.stage.addChild(this.adminContainer)
   
-        this.gardenLayer = new AdminGarden(window.APP.onlineUsers, window.APP.onlineCreatures, window.APP.selfGarden)
+        this.gardenLayer = new GardensLayer(window.APP.onlineUsers, window.APP.onlineCreatures, window.APP.selfGarden)
         this.adminContainer.addChild(this.gardenLayer)
   
         this.creaturesLayer = new CreaturesLayer(window.APP.onlineUsers, window.APP.onlineCreatures, window.APP.selfGarden)      
@@ -247,7 +247,7 @@ export default class PixiAppWrapper {
         //this.pixiApp.stage.scale.set(window.innerWidth / bbox.width)
       } else {
         //this.gardenLayer = new UserGarden(window.APP.onlineUsers, window.APP.onlineCreatures, window.APP.selfGarden, window.APP.selfUid)
-        this.gardenLayer = new AdminGarden(window.APP.onlineUsers, window.APP.onlineCreatures, window.APP.selfGarden)
+        this.gardenLayer = new GardensLayer(window.APP.onlineUsers, window.APP.onlineCreatures, window.APP.selfGarden)
         this.gardenLayer.x = -window.APP.selfGarden.x
         this.gardenLayer.y = -window.APP.selfGarden.y  
         this.pixiApp.stage.addChild(this.gardenLayer)
