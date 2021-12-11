@@ -63,6 +63,43 @@ Start the server by running `npm run dev` in the `server` folder.
 In a different terminal, start the client by running `npm run start` in the `client` folder.
 You should now be able to see the project in your browser, at `localhost:1234`.
 
+## Test with multiple fake creatures
+1. Dev environment: With `nodejs` only
+
+- Case 1
+  - Run `index.js` file
+  - Edit `index.js` code to change the number of creatures
+```
+$ cd tests
+$ node index.js
+```
+
+- Case 2
+  - Run `synthUsers.js` and use `json` file for each creature
+  - To run it locally (without pi-wifi setup), edit `synthUsers.js` code's `URL` into something like this: `const URL = "http://localhost:1234/test"` 
+```
+$ cd tests
+$ node synthUsers.js ./all.json
+// or 
+$ node synthUsers.js ./mushroom.json
+// or switch to moss.json, lichen.json
+```
+- *Caution* : Make sure your `server/.env` and `canvas/env.js` and `test/...json` are all configured into same `creature type` setting.
+
+2. Production environment: With `pm2`
+- Start the server for fake creatures and run `json` for each creature.
+- Edit `json` file to change configuration of fake creatures
+```
+$ cd tests
+$ pm2 start synthUsers.js --name "synthAll" -- ./all.json
+// or
+$ pm2 start synthUsers.js --name "synthMushroom" -- ./mushroom.json
+// or
+$ pm2 start synthUsers.js --name "synthMoss" -- ./moss.json
+// or
+$ pm2 start synthUsers.js --name "synthLichen" -- ./lichen.json
+```
+
 # Code Structure
 
 This project is split up into two main components, frontend and backend, both of which can be found in this repository. The server code is under the `server` folder, and the frontend code is under the `canvas` folder. A third folder, `tests`, allows for running automated stress-tests of the project, and is described in a later section of this document.
