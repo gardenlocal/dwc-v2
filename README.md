@@ -60,7 +60,7 @@ Install `node`, either from the official website, or using `nvm` (node version m
 
 Clone this repository, and run `npm install` in both the `canvas` and `server` folders.
 Start the server by running `npm run dev` in the `server` folder.
-In a different terminal, start the client by running `npm run start` in the `client` folder.
+In a different terminal, start the client by running `npm run start` in the `canvas` folder.
 You should now be able to see the project in your browser, at `localhost:1234`.
 
 ## Test with multiple fake creatures
