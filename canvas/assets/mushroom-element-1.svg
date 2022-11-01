@@ -1,9 +1,0 @@
-<svg width="85" height="85" viewBox="0 0 85 85" fill="none" xmlns="http://www.w3.org/2000/svg">
-<g id="mushroom-element-1">
-<rect width="85" height="85" fill="white"/>
-<g id="connectors">
-<rect id="origin" x="0.500031" y="0.5" width="4.0505" height="4" fill="#DADADA" fill-opacity="0.6" stroke="#FF0000"/>
-</g>
-<path id="main-shape" d="M30 60C22.0435 60 14.4129 56.8393 8.7868 51.2132C3.16071 45.5871 0 37.9565 0 30C0 22.0435 3.16071 14.4129 8.7868 8.7868C14.4129 3.16071 22.0435 0 30 0V60Z" fill="black"/>
-</g>
-</svg>
