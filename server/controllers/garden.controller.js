@@ -78,7 +78,6 @@ exports.createGardenSection = async (uid) => {
 };
 
 exports.clearGardenSection = async (user) => {
-  const user = await usersService.findById(user.id);
   if (!user) return;
 
   const garden = await gardensService.findOne({ where: { user_id: user.id } });
