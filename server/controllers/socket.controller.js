@@ -101,8 +101,10 @@ const onDisconnect = (socket) => async (reason) => {
 
   const user = await usersService.findByUid(uid);
 
-  await gardenController.clearGardenSection(user);
-  await creatureController.bringCreatureOffline(user);
+  if (user) {
+    await gardenController.clearGardenSection(user);
+    await creatureController.bringCreatureOffline(user);
+  }
 
   const onlineUsers = await getOnlineUsers();
   io.emit("usersUpdate", onlineUsers);
