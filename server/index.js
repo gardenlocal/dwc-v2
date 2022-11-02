@@ -10,7 +10,9 @@ const initializeDB = require('./dbInit')
 
 const app = express();
 const httpServer = require("http").createServer(app)
+const { fetchWeather } = require("./weatherService");
 
+const WEATHER_API = "https://garden-local-dev.hoonyland.workers.dev/weather/latest";
 const io = require("socket.io")(httpServer, {
   cors: {
     origin: "*",
@@ -19,7 +21,9 @@ const io = require("socket.io")(httpServer, {
 })
 
 var corsOptions = {
-  origin: "*"
+  origin: ["*", "http://localhost:1234", WEATHER_API],
+  credential: true,
+  allowedHeaders: ['Content-Type']
 };
 
 app.use(cors(corsOptions));
@@ -29,6 +33,13 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
   
 initializeDB()
+
+// weather REST API
+app.get("/api/weather", async (req, res) => {
+  let weather = await fetchWeather();
+  console.log("/api/weather", weather);
+  res.json({ data: weather.row });
+})
 
 // simple route
 app.get("/", (req, res) => {
