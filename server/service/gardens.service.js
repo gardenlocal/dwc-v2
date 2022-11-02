@@ -79,7 +79,7 @@ exports.findOne = async function ({ where }) {
     return convertWorkersToDwc(result.data.rows[0]);
   }
 
-  return row;
+  return null;
 };
 
 exports.update = async function (id, data) {
