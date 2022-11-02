@@ -84,5 +84,40 @@ exports.clearGardenSection = async (user) => {
   if (!garden) return;
 
   await usersService.removeGarden(user.id);
-  await gardensService.remove(garden.id);
+  await gardensService.update(garden.id, { user_id: null });
+};
+
+exports.generateProps = (req, res) => {
+  const noTiles = 4;
+  const stepsPerTile = 5;
+  const tiles = [];
+  for (let i = 0; i < noTiles; i++) {
+    const currTile = [];
+    for (let j = 0; j < stepsPerTile; j++) {
+      const shapeTypes = getConfig().backgroundTypes;
+      const shape = randomElementFromArray(shapeTypes);
+      const target =
+        shape == DWC_META.tileShapes.TRIANGLE
+          ? randomElementFromArray([0.25, 0.4, 0.5, 0.6, 0.75])
+          : randomElementFromArray([0.25, 0.3, 0.4, 0.75]);
+      currTile.push({
+        target: target,
+        duration: randomIntInRange(25000, 75000),
+        shape: shape,
+        anchor: randomElementFromArray([0, 1, 2, 3]),
+      });
+    }
+
+    tiles.push(currTile);
+  }
+
+  const shader = {
+    shaderTimeSeed: Math.random() * 10,
+    shaderSpeed: Math.random() * 10 + 1,
+  };
+
+  res.json({
+    tiles,
+    shader,
+  });
 };
