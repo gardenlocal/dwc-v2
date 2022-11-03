@@ -84,7 +84,7 @@ exports.clearGardenSection = async (user) => {
   if (!garden) return;
 
   await usersService.removeGarden(user.id);
-  await gardensService.update(garden.id, { user_id: null });
+  await gardensService.update(garden.id, { ...garden, user_id: null });
 };
 
 exports.generateProps = (req, res) => {

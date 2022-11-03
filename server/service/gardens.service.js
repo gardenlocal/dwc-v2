@@ -49,6 +49,22 @@ exports.find = async function (where) {
   return result.data.rows.map(convertWorkersToDwc);
 };
 
+
+exports.findCharged = async function (where) {
+  const result = await axios({
+    method: "get",
+    url: `${config.apiHost}/garden-sections/charged`,
+    params: where,
+  });
+
+  if (result.data.error) {
+    throw new Error(result.data.error);
+  }
+
+  return result.data.rows.map(convertWorkersToDwc);
+};
+
+
 exports.findTopPriority = async function () {};
 
 exports.findById = async function (id) {

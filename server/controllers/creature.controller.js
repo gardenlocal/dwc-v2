@@ -2,8 +2,10 @@ const utils = require("../utils");
 const { DWC_META, generateMoss, generateLichen, generateMushroom } = require("../../shared-constants");
 const AnimatedProperty = require("../models/AnimatedProperty");
 const { getConfig } = require("../config.js");
+const constants = require("../constants.js");
 
 const creaturesService = require("../service/creatures.service");
+const gardensService = require("../service/gardens.service");
 
 let allCreatures = {};
 
@@ -49,6 +51,7 @@ exports.bringCreatureOffline = async (user) => {
 };
 
 exports.moveCreatureToGarden = async (creature, garden) => {
+  console.log(garden)
   creature.animatedProperties = {
     position: await generateCreatureMovement(creature.appearance.creatureType, garden),
   };
@@ -67,8 +70,9 @@ exports.getAllCreaturesInfo = () => {
 
 // NOTE: deprecated on v3
 const getGardensBounds = async () => {
-  const bbox = { x1: 1000000, y1: 1000000, x2: -100000, y2: -100000 };
-  const gardens = []; // await database.find({ type: "gardenSection" });
+  const bbox = { x1: 100000, y1: 100000, x2: -100000, y2: -100000 };
+  const gardens = await gardensService.findCharged()
+  console.log("getGardensBounds", gardens)
   for (let g of gardens) {
     bbox.x1 = Math.min(bbox.x1, g.x);
     bbox.y1 = Math.min(bbox.y1, g.y);
@@ -82,23 +86,30 @@ const getGardensBounds = async () => {
 };
 
 const generateCreatureMovement = async (type, ownerGarden, fromPosition, teleport) => {
+  console.log("generateCreatureMovement", ownerGarden);
+  const ownerGardenX = ownerGarden.x * 1000;
+  const ownerGardenY = ownerGarden.y * 1000;
+  const ownerGardenWidth = constants.GARDEN_WIDTH;
+  const ownerGardenHeight = constants.GARDEN_HEIGHT;
+
   if (!fromPosition) {
     fromPosition = {
-      x: utils.randomInRange(ownerGarden.x + 250, ownerGarden.x + ownerGarden.width - 250),
-      y: utils.randomInRange(ownerGarden.y + 250, ownerGarden.y + ownerGarden.height - 250),
+      x: utils.randomInRange(ownerGardenX + 250, ownerGardenX + ownerGardenWidth - 250),
+      y: utils.randomInRange(ownerGardenY + 250, ownerGardenY + ownerGardenHeight - 250),
     };
   }
 
   const gardenBoundingBox = await getGardensBounds();
-
+  console.log("gardenBoundingBox",gardenBoundingBox);
   let teleportPosition = teleport
     ? teleport
     : {
-        x: utils.randomInRange(ownerGarden.x + 250, ownerGarden.x + ownerGarden.width - 250),
-        y: utils.randomInRange(ownerGarden.y + 250, ownerGarden.y + ownerGarden.height - 250),
+        x: utils.randomInRange(ownerGardenX + 250, ownerGardenX + ownerGardenWidth - 250),
+        y: utils.randomInRange(ownerGardenY + 250, ownerGardenY + ownerGardenHeight - 250),
       };
   let toPosition;
   let direction;
+  console.log("nextPosition", teleportPosition);
 
   switch (type) {
     case "moss":
@@ -161,9 +172,10 @@ exports.updateSingleCreatureForTap = async (user, newPosition) => {
     creature.appearance.creatureType,
     garden,
     null,
-    newPosition
+    {x: -1000, y:-1000}
   );
   creature.animatedProperties.position = creatureAnimationParams;
+  console.log("tap", creature.animatedProperties);
   let updated = {};
   updated[creature.id] = { position: creatureAnimationParams };
   await creaturesService.update(creature.id, creature);

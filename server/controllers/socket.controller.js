@@ -53,8 +53,10 @@ exports.userConnected = async (socket) => {
   if (creature) {
     await creatureController.moveCreatureToGarden(creature, garden);
   } else {
-    await creatureController.createCreature(garden, user);
-    await usersService.update(user.id, { creature_id: creature.id });
+    creature = await creatureController.createCreature(garden, user);
+    console.log(user)
+    console.log(creature)
+    await usersService.update(user.id, { ...user, creature_id: creature.id });
   }
 
   await creatureController.bringCreatureOnline(creature);
@@ -85,6 +87,7 @@ const onCreatureEvolve = (socket) => async (creature) => {
 };
 
 onGardenTap = (socket) => async (data) => {
+  console.log(data)
   const uid = socketIdToUserId[socket.id];
   const user = await getUserInfo(uid);
   let updates = await creatureController.updateSingleCreatureForTap(user, data);
@@ -134,7 +137,11 @@ exports.startAnimatingCreatures = async () => {
 
   animationTimeout = setInterval(async () => {
     const onlineUsers = Object.keys(socketMap);
-    let updated = await creatureController.updateCreatures(onlineUsers, gardenForUidCache);
-    if (Object.keys(updated).length > 0) io.emit("creaturesUpdate", updated);
+
+    if (Object.keys(gardenForUidCache).length) {
+      let updated = await creatureController.updateCreatures(onlineUsers, gardenForUidCache);
+      if (Object.keys(updated).length > 0) io.emit("creaturesUpdate", updated);
+    }
+    
   }, 1000);
 };
